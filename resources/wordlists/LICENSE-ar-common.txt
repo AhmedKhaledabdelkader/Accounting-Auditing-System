@@ -1,0 +1,16 @@
+ar-common.txt — licence and attribution
+
+This file is an adaptation of the Arabic OpenSubtitles 2018 frequency list ("ar_full.txt") of FrequencyWords
+by Hermit Dave: https://github.com/hermitdave/FrequencyWords
+Source content licensed under the Creative Commons Attribution-ShareAlike 4.0 International licence (CC BY-SA 4.0):
+https://creativecommons.org/licenses/by-sa/4.0/
+FrequencyWords' lists are built from the OpenSubtitles corpus (http://www.opensubtitles.org/, via OPUS: https://opus.nlpl.eu/).
+
+Changes made: frequencies dropped; only words seen at least 20 times kept; Arabic letters only; each word normalised
+(diacritics and tatweel removed; أ إ آ written ا, ة written ه, ى written ي; a leading conjunction «و» and article «ال»
+removed from longer words); duplicates removed; sorted, one per line.
+
+This adapted file (ar-common.txt) is licensed under CC BY-SA 4.0, the same licence as its source. No warranties are
+given. The licence covers this data file only: the application reads it at runtime as data and is not a derivative of it;
+nothing of it is copied into the code. ar-accounting.txt in this folder is the project's own list, not part of this
+adaptation.

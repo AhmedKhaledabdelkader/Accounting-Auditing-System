@@ -1,0 +1,1983 @@
+{
+ "_source": "claude-sonnet-5 answers for docs/reference trial balance, 2026-10-13, cache off (confidence after the code caps). Names in the fixture are anonymised; rows are unchanged.",
+ "labels": [
+  {
+   "row": 4,
+   "row_type": "account",
+   "sub_class": "سيارات ووسائل نقل",
+   "confidence": 90,
+   "reason": "السيارات دي أصول ثابتة"
+  },
+  {
+   "row": 5,
+   "row_type": "account",
+   "sub_class": "أثاث وتجهيزات",
+   "confidence": 85,
+   "reason": "أثاث ومفروشات وأجهزة كمبيوتر مجمعين تحت أثاث"
+  },
+  {
+   "row": 6,
+   "row_type": "account",
+   "sub_class": "عدد و ادوات",
+   "confidence": 60,
+   "reason": "أنظمة الدفاع المدني أقرب لمعدات سلامة"
+  },
+  {
+   "row": 7,
+   "row_type": "account",
+   "sub_class": "نقدية لدى البنوك",
+   "confidence": 95,
+   "reason": "حساب بنكي واضح"
+  },
+  {
+   "row": 8,
+   "row_type": "account",
+   "sub_class": "نقدية لدى البنوك",
+   "confidence": 95,
+   "reason": "حساب بنكي واضح"
+  },
+  {
+   "row": 9,
+   "row_type": "account",
+   "sub_class": "نقدية لدى البنوك",
+   "confidence": 95,
+   "reason": "حساب بنكي واضح"
+  },
+  {
+   "row": 10,
+   "row_type": "account",
+   "sub_class": "نقدية لدى البنوك",
+   "confidence": 95,
+   "reason": "حساب بنكي واضح"
+  },
+  {
+   "row": 11,
+   "row_type": "account",
+   "sub_class": "نقدية بالصندوق",
+   "confidence": 95,
+   "reason": "صندوق نقدي واضح"
+  },
+  {
+   "row": 12,
+   "row_type": "account",
+   "sub_class": "نقدية بالصندوق",
+   "confidence": 95,
+   "reason": "صندوق نقدي واضح"
+  },
+  {
+   "row": 13,
+   "row_type": "account",
+   "sub_class": "عُهد العاملين",
+   "confidence": 80,
+   "reason": "اسمها عهدة من غير تحديد اسم موظف"
+  },
+  {
+   "row": 14,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 70,
+   "reason": "عملاء مؤقتين تحت العملاء"
+  },
+  {
+   "row": 15,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 16,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 17,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 18,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 19,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 20,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 21,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 22,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 23,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 24,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 25,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 26,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 27,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 28,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 29,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 30,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 31,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 32,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 33,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 34,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة من العملاء",
+   "confidence": 80,
+   "reason": "رصيد دائن وتصنيف الملف عملاء دفعات مقدمة"
+  },
+  {
+   "row": 35,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 36,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 37,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 38,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 39,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 40,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 41,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 42,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 43,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 44,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 45,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 46,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 47,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 48,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 49,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 50,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 51,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 52,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 53,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "اسم عميل واضح"
+  },
+  {
+   "row": 54,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 55,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 56,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 57,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 58,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 59,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 60,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 61,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 62,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 63,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 64,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 65,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 66,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 67,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 68,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 69,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة من العملاء",
+   "confidence": 85,
+   "reason": "رصيد دائن وتصنيف عملاء دفعات مقدمة"
+  },
+  {
+   "row": 70,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 71,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة من العملاء",
+   "confidence": 85,
+   "reason": "عملاء دفعات مقدمة"
+  },
+  {
+   "row": 72,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 73,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 74,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 75,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 76,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 77,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 78,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 79,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 80,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 81,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 82,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 83,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة من العملاء",
+   "confidence": 85,
+   "reason": "عملاء دفعات مقدمة برصيد دائن"
+  },
+  {
+   "row": 84,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 85,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 70,
+   "reason": "اسمه المبيعات النقدية بس مصنف ضمن العملاء"
+  },
+  {
+   "row": 86,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 87,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 88,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 89,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 90,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 91,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 92,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 93,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 94,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 95,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 96,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة من العملاء",
+   "confidence": 85,
+   "reason": "رصيد دائن وعملاء دفعات مقدمة"
+  },
+  {
+   "row": 97,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 98,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 99,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 100,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 101,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 102,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 103,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل تجاري عادي"
+  },
+  {
+   "row": 104,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 105,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 106,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 107,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 108,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 109,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 110,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 111,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 112,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 113,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 114,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 115,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 116,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 117,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 118,
+   "row_type": "account",
+   "sub_class": "عملاء",
+   "confidence": 90,
+   "reason": "عميل ضمن الذمم المدينة التجارية"
+  },
+  {
+   "row": 119,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف تخصم من الراتب"
+  },
+  {
+   "row": 120,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 121,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 122,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 123,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 75,
+   "reason": "مصنفة مستحق من اطراف ذات علاقة لكن الاسم سلفة موظف"
+  },
+  {
+   "row": 124,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 125,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 126,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 127,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 128,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 129,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 130,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 131,
+   "row_type": "account",
+   "sub_class": "سلف العاملين",
+   "confidence": 95,
+   "reason": "سلفة موظف"
+  },
+  {
+   "row": 132,
+   "row_type": "account",
+   "sub_class": "تأمينات لدى الغير",
+   "confidence": 90,
+   "reason": "تأمينات لدى الغير واضح من الاسم"
+  },
+  {
+   "row": 133,
+   "row_type": "account",
+   "sub_class": "مصروفات مدفوعة مقدماً",
+   "confidence": 90,
+   "reason": "تأمين طبي مقدم"
+  },
+  {
+   "row": 134,
+   "row_type": "account",
+   "sub_class": "مصروفات مدفوعة مقدماً",
+   "confidence": 85,
+   "reason": "رسوم شهادات مدفوعة مقدما"
+  },
+  {
+   "row": 135,
+   "row_type": "account",
+   "sub_class": "مصروفات مدفوعة مقدماً",
+   "confidence": 85,
+   "reason": "رسوم جمركية مدفوعة مقدما"
+  },
+  {
+   "row": 136,
+   "row_type": "account",
+   "sub_class": "مصروفات مدفوعة مقدماً",
+   "confidence": 95,
+   "reason": "ايجار مدفوع مقدما"
+  },
+  {
+   "row": 137,
+   "row_type": "account",
+   "sub_class": "مصروفات مدفوعة مقدماً",
+   "confidence": 90,
+   "reason": "مصاريف مدفوعة مقدما أخرى"
+  },
+  {
+   "row": 138,
+   "row_type": "account",
+   "sub_class": "مخزون بضاعة",
+   "confidence": 95,
+   "reason": "بضاعة بالمستودع"
+  },
+  {
+   "row": 139,
+   "row_type": "account",
+   "sub_class": "اطراف ذات علاقة دائنة",
+   "confidence": 75,
+   "reason": "مستحق لطرف ذات علاقة وله رصيد دائن"
+  },
+  {
+   "row": 140,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 60,
+   "reason": "مورد ضمن الذمم الدائنة التجارية"
+  },
+  {
+   "row": 141,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 75,
+   "reason": "مصنف موردين دفعات مقدمة رغم تسميته ذمم مدينة"
+  },
+  {
+   "row": 142,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "مورد ضمن الذمم الدائنة التجارية"
+  },
+  {
+   "row": 143,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "مورد ضمن الذمم الدائنة التجارية"
+  },
+  {
+   "row": 144,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 75,
+   "reason": "دفعة مقدمة لمورد"
+  },
+  {
+   "row": 145,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 75,
+   "reason": "دفعة مقدمة لمورد"
+  },
+  {
+   "row": 146,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 60,
+   "reason": "دفعة مقدمة لمورد"
+  },
+  {
+   "row": 147,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 75,
+   "reason": "دفعة مقدمة لمورد"
+  },
+  {
+   "row": 148,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 85,
+   "reason": "مورد ضمن الذمم الدائنة التجارية"
+  },
+  {
+   "row": 149,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 75,
+   "reason": "دفعة مقدمة لمورد"
+  },
+  {
+   "row": 150,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "مورد ضمن الذمم الدائنة التجارية"
+  },
+  {
+   "row": 151,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 70,
+   "reason": "دفعة مقدمة لمورد شحن"
+  },
+  {
+   "row": 152,
+   "row_type": "account",
+   "sub_class": "اطراف ذات علاقة دائنة",
+   "confidence": 85,
+   "reason": "رصيد دائن لطرف ذات علاقة"
+  },
+  {
+   "row": 153,
+   "row_type": "account",
+   "sub_class": "مصروفات مستحقة",
+   "confidence": 80,
+   "reason": "مصروف شحن مستحق لمزود خدمات لوجستية"
+  },
+  {
+   "row": 154,
+   "row_type": "account",
+   "sub_class": "اطراف ذات علاقة دائنة",
+   "confidence": 60,
+   "reason": "الشريك أ طرف ذو علاقة دائن حسب التصنيف"
+  },
+  {
+   "row": 155,
+   "row_type": "account",
+   "sub_class": "رواتب وأجور مستحقة",
+   "confidence": 92,
+   "reason": "رواتب مستحقة واضحة"
+  },
+  {
+   "row": 156,
+   "row_type": "account",
+   "sub_class": "مصروفات مستحقة",
+   "confidence": 85,
+   "reason": "إجازات مستحقة من ضمن المصروفات المستحقة"
+  },
+  {
+   "row": 157,
+   "row_type": "account",
+   "sub_class": "مصروفات مستحقة",
+   "confidence": 88,
+   "reason": "أتعاب مهنية مستحقة"
+  },
+  {
+   "row": 158,
+   "row_type": "account",
+   "sub_class": "مصروفات مستحقة",
+   "confidence": 85,
+   "reason": "مصروفات نقل مستحقة"
+  },
+  {
+   "row": 159,
+   "row_type": "account",
+   "sub_class": "مصروفات مستحقة",
+   "confidence": 85,
+   "reason": "عمولات بائعين مستحقة"
+  },
+  {
+   "row": 160,
+   "row_type": "account",
+   "sub_class": "مصروفات مستحقة",
+   "confidence": 85,
+   "reason": "مصروفات تأمين مستحقة"
+  },
+  {
+   "row": 161,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "مؤسسة نقليات مورد"
+  },
+  {
+   "row": 162,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "وسطاء شحن مورد"
+  },
+  {
+   "row": 163,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "مورد تجاري"
+  },
+  {
+   "row": 164,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "مورد تجاري"
+  },
+  {
+   "row": 165,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "مورد تجاري"
+  },
+  {
+   "row": 166,
+   "row_type": "account",
+   "sub_class": "موردون",
+   "confidence": 90,
+   "reason": "مورد نقليات"
+  },
+  {
+   "row": 167,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 85,
+   "reason": "دفعة مقدمة لمورد حسب التصنيف"
+  },
+  {
+   "row": 168,
+   "row_type": "account",
+   "sub_class": "دفعات مقدمة للموردين",
+   "confidence": 85,
+   "reason": "دفعة مقدمة لمورد حسب التصنيف"
+  },
+  {
+   "row": 169,
+   "row_type": "account",
+   "sub_class": "مصروفات مستحقة",
+   "confidence": 80,
+   "reason": "عمولات مستحقة لجهة شحن"
+  },
+  {
+   "row": 170,
+   "row_type": "account",
+   "sub_class": "ضريبة القيمة المضافة المستحقة",
+   "confidence": 92,
+   "reason": "ضريبة قيمة مضافة مستحقة"
+  },
+  {
+   "row": 171,
+   "row_type": "account",
+   "sub_class": "مجمع إهلاك الأصول الثابتة",
+   "confidence": 95,
+   "reason": "مجمع إهلاك سيارات"
+  },
+  {
+   "row": 172,
+   "row_type": "account",
+   "sub_class": "مجمع إهلاك الأصول الثابتة",
+   "confidence": 95,
+   "reason": "مجمع إهلاك أثاث"
+  },
+  {
+   "row": 173,
+   "row_type": "account",
+   "sub_class": "مجمع إهلاك الأصول الثابتة",
+   "confidence": 95,
+   "reason": "مجمع إهلاك أجهزة مكتبية"
+  },
+  {
+   "row": 174,
+   "row_type": "account",
+   "sub_class": "مجمع إهلاك الأصول الثابتة",
+   "confidence": 95,
+   "reason": "مجمع إهلاك أنظمة دفاع مدني"
+  },
+  {
+   "row": 175,
+   "row_type": "account",
+   "sub_class": "مخصص نهاية الخدمة",
+   "confidence": 96,
+   "reason": "مخصص مكافأة نهاية خدمة"
+  },
+  {
+   "row": 176,
+   "row_type": "account",
+   "sub_class": "مخصص ديون مشكوك في تحصيلها",
+   "confidence": 97,
+   "reason": "مخصص ديون مشكوك فيها"
+  },
+  {
+   "row": 177,
+   "row_type": "account",
+   "sub_class": "مخصص الزكاة الشرعية",
+   "confidence": 95,
+   "reason": "مخصص زكاة"
+  },
+  {
+   "row": 178,
+   "row_type": "account",
+   "sub_class": "مخصص هبوط أسعار المخزون",
+   "confidence": 80,
+   "reason": "مخصص صيانة بضاعة أقرب لمخصص هبوط أسعار مخزون"
+  },
+  {
+   "row": 179,
+   "row_type": "account",
+   "sub_class": "قروض طويلة الأجل",
+   "confidence": 95,
+   "reason": "قرض طويل الأجل"
+  },
+  {
+   "row": 180,
+   "row_type": "account",
+   "sub_class": "مصروفات مدفوعة مقدماً",
+   "confidence": 80,
+   "reason": "فوائد قروض مؤجلة مدفوعة مقدما"
+  },
+  {
+   "row": 181,
+   "row_type": "account",
+   "sub_class": "رأس المال المدفوع",
+   "confidence": 95,
+   "reason": "رأس مال مدفوع"
+  },
+  {
+   "row": 182,
+   "row_type": "account",
+   "sub_class": "احتياطي نظامي",
+   "confidence": 95,
+   "reason": "احتياطي نظامي"
+  },
+  {
+   "row": 183,
+   "row_type": "account",
+   "sub_class": "جاري الشريك",
+   "confidence": 92,
+   "reason": "جاري شريك"
+  },
+  {
+   "row": 184,
+   "row_type": "account",
+   "sub_class": "جاري الشريك",
+   "confidence": 92,
+   "reason": "جاري شريك"
+  },
+  {
+   "row": 185,
+   "row_type": "account",
+   "sub_class": "جاري الشريك",
+   "confidence": 92,
+   "reason": "جاري شريك"
+  },
+  {
+   "row": 186,
+   "row_type": "account",
+   "sub_class": "أرباح أو خسائر سنوات سابقة",
+   "confidence": 85,
+   "reason": "أرباح وخسائر مبقاة من سنوات سابقة"
+  },
+  {
+   "row": 187,
+   "row_type": "account",
+   "sub_class": "تكلفة المشتريات",
+   "confidence": 88,
+   "reason": "مشتريات آجلة ضمن تكلفة البضاعة"
+  },
+  {
+   "row": 188,
+   "row_type": "account",
+   "sub_class": "إيرادات المبيعات",
+   "confidence": 90,
+   "reason": "مبيعات آجلة"
+  },
+  {
+   "row": 189,
+   "row_type": "account",
+   "sub_class": "مخزون بضاعة",
+   "confidence": 90,
+   "reason": "بضاعة بالمستودع"
+  },
+  {
+   "row": 190,
+   "row_type": "account",
+   "sub_class": "خصم مكتسب",
+   "confidence": 90,
+   "reason": "حسم مكتسب"
+  },
+  {
+   "row": 191,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 192,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 193,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 194,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 195,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 196,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 197,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 198,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 199,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 200,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 201,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 202,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 203,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 204,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 205,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 206,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 207,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 208,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 209,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 210,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 211,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 212,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 213,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 214,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 215,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 216,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 217,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 218,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 90,
+   "reason": "راتب موظف"
+  },
+  {
+   "row": 219,
+   "row_type": "account",
+   "sub_class": "مكافآت وحوافز العاملين",
+   "confidence": 70,
+   "reason": "بدلات اضافية للعاملين"
+  },
+  {
+   "row": 220,
+   "row_type": "account",
+   "sub_class": "سفر وإقامة",
+   "confidence": 80,
+   "reason": "مصروفات تذاكر سفر ونقل وانتقالات"
+  },
+  {
+   "row": 221,
+   "row_type": "account",
+   "sub_class": "اتصالات وإنترنت",
+   "confidence": 75,
+   "reason": "مصروفات بريد وهاتف، الاتصالات أقرب"
+  },
+  {
+   "row": 222,
+   "row_type": "account",
+   "sub_class": "قرطاسية ومطبوعات",
+   "confidence": 90,
+   "reason": "قرطاسية ومطبوعات ولوازم مكتب"
+  },
+  {
+   "row": 223,
+   "row_type": "account",
+   "sub_class": "رسوم وتراخيص",
+   "confidence": 80,
+   "reason": "رسوم حكومية وتأشيرات"
+  },
+  {
+   "row": 224,
+   "row_type": "account",
+   "sub_class": "ضيافة واستقبال",
+   "confidence": 90,
+   "reason": "ضيافة وبوفيه ووجبات طعام"
+  },
+  {
+   "row": 225,
+   "row_type": "account",
+   "sub_class": "مصروفات متنوعة",
+   "confidence": 65,
+   "reason": "مصروفات علاجية غير مصنفة بدقة"
+  },
+  {
+   "row": 226,
+   "row_type": "account",
+   "sub_class": "أتعاب مراجعة ومحاسبة",
+   "confidence": 85,
+   "reason": "أتعاب مراجعة واستشارات"
+  },
+  {
+   "row": 227,
+   "row_type": "account",
+   "sub_class": "صيانة وإصلاحات",
+   "confidence": 80,
+   "reason": "صيانة أجهزة كمبيوتر وبرامج"
+  },
+  {
+   "row": 228,
+   "row_type": "account",
+   "sub_class": "تأمينات اجتماعية",
+   "confidence": 90,
+   "reason": "تأمينات اجتماعية صريحة"
+  },
+  {
+   "row": 229,
+   "row_type": "account",
+   "sub_class": "مصروفات تأمين",
+   "confidence": 80,
+   "reason": "تأمين طبي للموظفين"
+  },
+  {
+   "row": 230,
+   "row_type": "account",
+   "sub_class": "صيانة وإصلاحات",
+   "confidence": 85,
+   "reason": "صيانة وديكور"
+  },
+  {
+   "row": 231,
+   "row_type": "account",
+   "sub_class": "سفر وإقامة",
+   "confidence": 85,
+   "reason": "بدل سفر وانتداب"
+  },
+  {
+   "row": 232,
+   "row_type": "account",
+   "sub_class": "مكافآت وحوافز العاملين",
+   "confidence": 60,
+   "reason": "بدلات اجازة سنوية تصنف كمكافآت"
+  },
+  {
+   "row": 233,
+   "row_type": "account",
+   "sub_class": "إيجارات",
+   "confidence": 90,
+   "reason": "مصروفات الايجارات"
+  },
+  {
+   "row": 234,
+   "row_type": "account",
+   "sub_class": "كهرباء ومياه وغاز",
+   "confidence": 90,
+   "reason": "مصروف كهرباء"
+  },
+  {
+   "row": 235,
+   "row_type": "account",
+   "sub_class": "إهلاك الأصول الثابتة",
+   "confidence": 80,
+   "reason": "مصروفات الإهلاك عام"
+  },
+  {
+   "row": 236,
+   "row_type": "account",
+   "sub_class": "مصروف مكافأة نهاية الخدمة",
+   "confidence": 90,
+   "reason": "مصروف مكافأة نهاية خدمة وليس المخصص"
+  },
+  {
+   "row": 237,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 75,
+   "reason": "مصاريف عمولات ضمن تكلفة الإيرادات"
+  },
+  {
+   "row": 238,
+   "row_type": "account",
+   "sub_class": "أجور ورواتب",
+   "confidence": 80,
+   "reason": "أجور عمال تحميل وتنزيل ضمن تكلفة البضاعة"
+  },
+  {
+   "row": 239,
+   "row_type": "account",
+   "sub_class": "إيجارات",
+   "confidence": 75,
+   "reason": "إيجار سيارات لوري ضمن تكلفة الإيرادات"
+  },
+  {
+   "row": 240,
+   "row_type": "account",
+   "sub_class": "إيجارات",
+   "confidence": 75,
+   "reason": "إيجار سيارات تريلات ضمن تكلفة الإيرادات"
+  },
+  {
+   "row": 241,
+   "row_type": "account",
+   "sub_class": "مردودات ومسموحات المبيعات",
+   "confidence": 50,
+   "reason": "حسم مسموح به للعملاء"
+  },
+  {
+   "row": 242,
+   "row_type": "account",
+   "sub_class": "صيانة وإصلاحات",
+   "confidence": 80,
+   "reason": "صيانة منتجات تحت الضمان"
+  },
+  {
+   "row": 243,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 244,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 245,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 246,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 247,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 248,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 249,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 250,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 251,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 252,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لعميل"
+  },
+  {
+   "row": 253,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولات بيع لمنطقة"
+  },
+  {
+   "row": 254,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولة بيع لمؤسسة عميل"
+  },
+  {
+   "row": 255,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولة بيع لمؤسسة عميل"
+  },
+  {
+   "row": 256,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولة بيع لمؤسسة عميل"
+  },
+  {
+   "row": 257,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولة بيع لشركة عميل"
+  },
+  {
+   "row": 258,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولة بيع لمؤسسة عميل"
+  },
+  {
+   "row": 259,
+   "row_type": "account",
+   "sub_class": "عمولات بيع",
+   "confidence": 90,
+   "reason": "عمولة بيع لمؤسسة عميل"
+  },
+  {
+   "row": 260,
+   "row_type": "account",
+   "sub_class": "وقود ومحروقات",
+   "confidence": 90,
+   "reason": "مصاريف ديزل سيارة"
+  },
+  {
+   "row": 261,
+   "row_type": "account",
+   "sub_class": "صيانة وإصلاحات",
+   "confidence": 80,
+   "reason": "غيار زيت سيارة ضمن الصيانة"
+  },
+  {
+   "row": 262,
+   "row_type": "account",
+   "sub_class": "صيانة وإصلاحات",
+   "confidence": 95,
+   "reason": "صيانة سيارة"
+  },
+  {
+   "row": 263,
+   "row_type": "account",
+   "sub_class": "مصروفات تأمين",
+   "confidence": 90,
+   "reason": "تأمين سيارات"
+  },
+  {
+   "row": 264,
+   "row_type": "account",
+   "sub_class": "رسوم وتراخيص",
+   "confidence": 90,
+   "reason": "تراخيص ومصاريف حكومية للسيارات"
+  },
+  {
+   "row": 265,
+   "row_type": "account",
+   "sub_class": "تسويق ومبيعات",
+   "confidence": 75,
+   "reason": "هدايا وعينات تسويقية"
+  },
+  {
+   "row": 266,
+   "row_type": "account",
+   "sub_class": "مصروفات متنوعة",
+   "confidence": 65,
+   "reason": "زي موحد مصروف متنوع ضمن تكلفة"
+  },
+  {
+   "row": 267,
+   "row_type": "account",
+   "sub_class": "إيجارات",
+   "confidence": 90,
+   "reason": "إيجار مستودعات"
+  },
+  {
+   "row": 268,
+   "row_type": "account",
+   "sub_class": "كهرباء ومياه وغاز",
+   "confidence": 90,
+   "reason": "كهرباء المستودعات"
+  },
+  {
+   "row": 269,
+   "row_type": "account",
+   "sub_class": "مصروفات متنوعة",
+   "confidence": 60,
+   "reason": "حراسة ونظافة مستودعات مصروف متنوع"
+  },
+  {
+   "row": 270,
+   "row_type": "account",
+   "sub_class": "رسوم وتراخيص",
+   "confidence": 80,
+   "reason": "رسوم شهادات منتج"
+  },
+  {
+   "row": 271,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 80,
+   "reason": "شحن دولي ضمن تكلفة المشتريات"
+  },
+  {
+   "row": 272,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 80,
+   "reason": "جمارك ضمن تكلفة المشتريات"
+  },
+  {
+   "row": 273,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 80,
+   "reason": "تخليص جمركي ضمن تكلفة المشتريات"
+  },
+  {
+   "row": 274,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 80,
+   "reason": "شحن داخلي بضاعة استيراد ضمن التكلفة"
+  },
+  {
+   "row": 275,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 75,
+   "reason": "إذن تسليم بضاعة ضمن التكلفة"
+  },
+  {
+   "row": 276,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 75,
+   "reason": "أجور ميناء ضمن التكلفة"
+  },
+  {
+   "row": 277,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 75,
+   "reason": "أجور تفتيش ضمن التكلفة"
+  },
+  {
+   "row": 278,
+   "row_type": "account",
+   "sub_class": "غرامات ومخالفات",
+   "confidence": 75,
+   "reason": "غرامات وكيل"
+  },
+  {
+   "row": 279,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 65,
+   "reason": "مطابقة إرسالية ضمن التكلفة"
+  },
+  {
+   "row": 280,
+   "row_type": "account",
+   "sub_class": "تكلفة البضاعة المباعة",
+   "confidence": 60,
+   "reason": "مصاريف أرضيات ضمن التكلفة"
+  },
+  {
+   "row": 281,
+   "row_type": "account",
+   "sub_class": "عمولات تمويلية",
+   "confidence": 75,
+   "reason": "مصاريف إئتمان مالية"
+  },
+  {
+   "row": 282,
+   "row_type": "account",
+   "sub_class": "عمولات تمويلية",
+   "confidence": 85,
+   "reason": "مصاريف تمويل"
+  },
+  {
+   "row": 283,
+   "row_type": "account",
+   "sub_class": "مصروفات بنكية",
+   "confidence": 90,
+   "reason": "مصروفات بنكية واضحة"
+  },
+  {
+   "row": 284,
+   "row_type": "account",
+   "sub_class": "رسوم وتراخيص",
+   "confidence": 80,
+   "reason": "رسوم إدارية"
+  },
+  {
+   "row": 285,
+   "row_type": "account",
+   "sub_class": "مخزون بضاعة",
+   "confidence": 60,
+   "reason": "بضاعة آخر المدة"
+  },
+  {
+   "row": 286,
+   "row_type": "total"
+  }
+ ]
+}

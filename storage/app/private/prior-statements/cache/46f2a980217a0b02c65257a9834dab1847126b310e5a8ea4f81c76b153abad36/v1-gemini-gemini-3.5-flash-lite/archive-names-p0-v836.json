@@ -1,0 +1,47 @@
+{
+    "input": {
+        "assignments": [
+            {
+                "index": 0,
+                "confident": false,
+                "request_id": null
+            },
+            {
+                "confident": true,
+                "request_id": 65,
+                "index": 1
+            },
+            {
+                "confident": true,
+                "index": 2,
+                "request_id": 5
+            },
+            {
+                "confident": true,
+                "index": 3,
+                "request_id": 67
+            },
+            {
+                "request_id": null,
+                "index": 4,
+                "confident": false
+            },
+            {
+                "index": 5,
+                "request_id": null,
+                "confident": false
+            },
+            {
+                "confident": true,
+                "index": 6,
+                "request_id": 1
+            }
+        ]
+    },
+    "usage": {
+        "input": 3304,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 113
+    }
+}

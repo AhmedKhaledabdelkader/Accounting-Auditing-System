@@ -1,0 +1,29 @@
+{
+    "input": {
+        "partners": [
+            {
+                "name": "مشهور شلوان ناصر العتيبي",
+                "percentage": 50,
+                "shares": 2750,
+                "share_value": 150,
+                "nationality": "السعودية"
+            },
+            {
+                "shares": 2750,
+                "name": "ماجد شلوان ناصر العتيبي",
+                "percentage": 50,
+                "nationality": "السعودية",
+                "share_value": 150
+            }
+        ],
+        "shares_total": 5500,
+        "capital": 825000,
+        "share_value": 150
+    },
+    "usage": {
+        "input": 9456,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 124
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "input": {
+        "is_commercial_registration": true,
+        "registration_number": "1010123456",
+        "city": "الدمام",
+        "activity": "تجارة الجملة والتجزئة في مواد العزل",
+        "unified_number": null,
+        "issue_date_hijri": "1445\/03\/10",
+        "expiry_date": "2026-08-30",
+        "readable": true,
+        "issue_date": "2023-09-25",
+        "company_name": "شركة النور للتجارة المحدودة"
+    },
+    "usage": {
+        "input": 997,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 140
+    }
+}

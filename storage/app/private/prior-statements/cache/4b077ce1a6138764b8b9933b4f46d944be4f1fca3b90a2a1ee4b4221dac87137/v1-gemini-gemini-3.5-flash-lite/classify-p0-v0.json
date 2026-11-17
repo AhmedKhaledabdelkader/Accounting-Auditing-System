@@ -1,0 +1,280 @@
+{
+    "input": {
+        "pages": [
+            {
+                "rotation": 0,
+                "kind": "cover",
+                "notes": [],
+                "printed_page": null,
+                "page": 1
+            },
+            {
+                "printed_page": null,
+                "rotation": 0,
+                "page": 2,
+                "notes": [],
+                "kind": "contents"
+            },
+            {
+                "notes": [],
+                "page": 3,
+                "kind": "auditor_report",
+                "rotation": 0,
+                "printed_page": null
+            },
+            {
+                "rotation": 0,
+                "printed_page": null,
+                "page": 4,
+                "kind": "auditor_report",
+                "notes": []
+            },
+            {
+                "page": 5,
+                "rotation": 0,
+                "notes": [],
+                "printed_page": null,
+                "kind": "auditor_report"
+            },
+            {
+                "kind": "financial_position",
+                "notes": [],
+                "printed_page": "٤",
+                "rotation": 0,
+                "page": 6
+            },
+            {
+                "kind": "comprehensive_income",
+                "printed_page": "٥",
+                "rotation": 0,
+                "page": 7,
+                "notes": []
+            },
+            {
+                "rotation": 0,
+                "kind": "changes_in_equity",
+                "printed_page": "٦",
+                "notes": [],
+                "page": 8
+            },
+            {
+                "kind": "cash_flows",
+                "printed_page": "٧",
+                "notes": [],
+                "rotation": 0,
+                "page": 9
+            },
+            {
+                "kind": "notes",
+                "page": 10,
+                "notes": [
+                    {
+                        "number": "١",
+                        "title": "معلومات عن الشركة"
+                    },
+                    {
+                        "number": "٢",
+                        "title": "أساس الإعداد"
+                    },
+                    {
+                        "number": "٣",
+                        "title": "الأحكام والتقديرات والافتراضات المحاسبية الهامة"
+                    }
+                ],
+                "printed_page": "٨",
+                "rotation": 0
+            },
+            {
+                "page": 11,
+                "printed_page": "٩",
+                "kind": "notes",
+                "rotation": 0,
+                "notes": []
+            },
+            {
+                "printed_page": "١٠",
+                "kind": "notes",
+                "notes": [
+                    {
+                        "number": "٤",
+                        "title": "العملة الوظيفية وعملة العرض"
+                    },
+                    {
+                        "title": "السياسات المحاسبية الهامة",
+                        "number": "٥"
+                    }
+                ],
+                "page": 12,
+                "rotation": 0
+            },
+            {
+                "kind": "notes",
+                "notes": [],
+                "printed_page": "١١",
+                "rotation": 0,
+                "page": 13
+            },
+            {
+                "page": 14,
+                "printed_page": "١٢",
+                "kind": "notes",
+                "rotation": 0,
+                "notes": []
+            },
+            {
+                "printed_page": "١٣",
+                "kind": "notes",
+                "page": 15,
+                "rotation": 0,
+                "notes": []
+            },
+            {
+                "printed_page": "١٤",
+                "rotation": 0,
+                "page": 16,
+                "kind": "notes",
+                "notes": []
+            },
+            {
+                "printed_page": "١٥",
+                "rotation": 0,
+                "kind": "notes",
+                "notes": [
+                    {
+                        "number": "٦",
+                        "title": "المعاملات والأرصدة بالعملات الأجنبية"
+                    }
+                ],
+                "page": 17
+            },
+            {
+                "notes": [
+                    {
+                        "number": "٧",
+                        "title": "النقدية وما في حكمها"
+                    },
+                    {
+                        "title": "مصاريف مدفوعة مقدما وارصدة مدينة أخرى",
+                        "number": "٨"
+                    },
+                    {
+                        "number": "٩",
+                        "title": "المخزون"
+                    }
+                ],
+                "page": 18,
+                "kind": "notes",
+                "rotation": 0,
+                "printed_page": "١٦"
+            },
+            {
+                "rotation": 0,
+                "page": 19,
+                "kind": "notes",
+                "printed_page": "١٧",
+                "notes": [
+                    {
+                        "title": "ممتلكات ومعدات",
+                        "number": "١٠"
+                    }
+                ]
+            },
+            {
+                "kind": "notes",
+                "printed_page": "١٨",
+                "rotation": 0,
+                "notes": [],
+                "page": 20
+            },
+            {
+                "rotation": 0,
+                "page": 21,
+                "printed_page": "١٩",
+                "notes": [
+                    {
+                        "title": "الاصول الغير ملموسة",
+                        "number": "١١"
+                    },
+                    {
+                        "title": "مصاريف مستحقة وارصدة دائنة اخرى",
+                        "number": "١٢"
+                    }
+                ],
+                "kind": "notes"
+            },
+            {
+                "page": 22,
+                "notes": [
+                    {
+                        "title": "معاملات وارصدة مع أطراف ذات علاقة",
+                        "number": "١٣"
+                    },
+                    {
+                        "title": "مخصص مكافأة نهاية الخدمة",
+                        "number": "١٤"
+                    },
+                    {
+                        "number": "١٥",
+                        "title": "رأس المال"
+                    }
+                ],
+                "printed_page": "٢٠",
+                "kind": "notes",
+                "rotation": 0
+            },
+            {
+                "rotation": 0,
+                "printed_page": "٢١",
+                "page": 23,
+                "notes": [
+                    {
+                        "number": "١٦",
+                        "title": "الايرادات"
+                    },
+                    {
+                        "number": "١٧",
+                        "title": "تكلفة الايرادات"
+                    },
+                    {
+                        "number": "١٨",
+                        "title": "مصاريف عمومية وإدارية"
+                    }
+                ],
+                "kind": "notes"
+            },
+            {
+                "kind": "notes",
+                "rotation": 0,
+                "notes": [
+                    {
+                        "title": "الزكاة",
+                        "number": "١٩"
+                    },
+                    {
+                        "number": "٢٠",
+                        "title": "السنة المالية"
+                    },
+                    {
+                        "number": "٢١",
+                        "title": "إدارة المخاطر المالية"
+                    }
+                ],
+                "printed_page": "٢٢",
+                "page": 24
+            },
+            {
+                "page": 25,
+                "rotation": 0,
+                "notes": [],
+                "printed_page": "٢٣",
+                "kind": "notes"
+            }
+        ]
+    },
+    "usage": {
+        "input": 13913,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 1085
+    }
+}

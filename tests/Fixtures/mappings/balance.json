@@ -1,0 +1,32 @@
+{
+  "sheet": 1,
+  "header_rows": [
+    1,
+    2
+  ],
+  "first_data_row": 3,
+  "columns": {
+    "account_number": "A",
+    "account_name": "B",
+    "opening_debit": "C",
+    "opening_credit": "D",
+    "period_debit": "E",
+    "period_credit": "F",
+    "closing_debit": "G",
+    "closing_credit": "H",
+    "notes": "I"
+  },
+  "other_sheets": [
+    {
+      "sheet": 2,
+      "type": "adjustments",
+      "description": "x",
+      "first_data_row": 2,
+      "columns": {
+        "account_name": "A",
+        "debit": "B",
+        "credit": "C"
+      }
+    }
+  ]
+}

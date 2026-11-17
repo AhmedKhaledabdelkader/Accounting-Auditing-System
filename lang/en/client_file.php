@@ -1,0 +1,81 @@
+<?php
+
+/* A client's file: its seven steps in the side menu, and the page of each. */
+return [
+    'nav' => [
+        'label' => 'Client steps', 'all_clients' => 'All clients', 'client_file' => 'Client file', 'change_client' => 'Change client', 'done' => 'Done', 'todo' => 'Not done yet',
+        'steps' => [
+            'details' => 'Client details and period', 'registration' => 'Commercial registration', 'articles' => 'Articles of association',
+            'trial_balance' => 'Trial balance (current and previous, if any)', 'prior' => 'Previous financial statements (opening balances comparison)',
+            'statements' => 'Financial statements', 'zakat' => 'Zakat and income tax',
+            'requirements' => 'Requirements', 'papers' => 'Working papers', 'recalc' => 'Recalculation',
+        ],
+        'follow_up' => 'Follow-up', 'requests' => 'Requests and chat',
+    ],
+    'choose' => [
+        'title' => 'Choose the client', 'sub' => 'This step is about one client.', 'hint' => 'Choose the client you are working on to open the «:step» step for them. Your choice is kept until you open another client.',
+        'search' => 'Search by client, company or registration number', 'none' => 'There are no clients yet; add one first.',
+    ],
+    'registration' => [
+        'title' => 'Commercial registration', 'sub' => 'The AI reviewer reads the commercial registration from the uploaded file; its number is what tells a company from another.',
+        'read' => 'What was read from the registration', 'number' => 'Registration number', 'company_name' => 'Establishment name in the registration', 'activity' => 'Activity', 'city' => 'City',
+        'unified' => 'Unified national number', 'issue_date' => 'Issue date (Gregorian)', 'issue_hijri' => 'Issue date (Hijri)', 'expiry_date' => 'Expiry date',
+        'valid' => 'Valid', 'expired' => 'Expired', 'file' => 'Uploaded file', 'read_at' => 'Last read',
+        'none' => 'No commercial registration has been uploaded for this client yet.', 'replace' => 'Upload a new commercial registration', 'replace_hint' => 'A PDF or a picture (jpg or png). The number is read from the new file and it is refused if it belongs to another client.',
+        'button' => 'Upload and read', 'updated' => 'The commercial registration was uploaded and read.',
+        'legal_form' => 'Legal form', 'owner' => 'Owner',
+        'legal_forms' => ['llc' => 'Company (has articles of association)', 'sole_proprietorship' => 'Sole proprietorship (no articles of association)', 'other' => 'Another form the statements aren\'t made for yet'],
+    ],
+    'articles' => [
+        'title' => 'Articles of association', 'sub' => 'The AI reviewer reads the partners, their nationalities and shares from the articles. Ownership percentages come from them, and zakat falls on the Saudi and Gulf owners\' share and income tax on the foreign owners\'.',
+        'partners' => 'Partners', 'name' => 'Partner', 'nationality' => 'Nationality as given', 'group' => 'Group', 'shares' => 'Shares', 'ownership' => 'Ownership',
+        'groups' => ['saudi' => 'Saudi (zakat)', 'gulf' => 'Gulf (zakat)', 'foreign' => 'Foreign (income tax)', 'unknown' => 'Unclear'],
+        'capital' => 'Capital', 'shares_total' => 'Number of shares', 'share_value' => 'Share value', 'zakat_share' => 'Saudi and Gulf owners\' share',
+        'zakat_share_text' => 'Zakat is calculated on :share% and income tax on :foreign%.', 'zakat_share_unknown' => 'The share could not be worked out because a nationality or a share is unclear in the contract; enter it in the zakat step.',
+        'none' => 'No articles of association have been uploaded for this client yet.', 'file' => 'Uploaded file', 'read_at' => 'Last read',
+        'replace' => 'Upload new articles of association', 'replace_hint' => 'A PDF. The contract is read again and replaces the previous one.', 'button' => 'Upload and read', 'updated' => 'The articles of association were uploaded and read.',
+        'not_needed' => 'This client is a sole proprietorship, which has no articles of association. An establishment is a Saudi\'s, so zakat falls on all of it.',
+        'optional' => 'Whether this client is a company or a sole proprietorship isn\'t known yet; the commercial registration tells it. Only companies have articles of association.',
+    ],
+    'trial_balance' => [
+        'title' => 'Trial balance', 'sub' => 'The trial balance of the current period, and of the previous one if any. Choose the file the client uploaded to classify it, then prepare the financial statements from the classified trial balance.',
+        'current' => 'Current period', 'previous' => 'Previous period (if any)', 'files' => 'Files the client uploaded',
+        'none_files' => 'The client has not uploaded a trial balance for this period yet.', 'name' => 'File', 'request' => 'Request', 'uploaded' => 'Uploaded', 'review' => 'AI reviewer',
+        'fine' => 'Fine', 'remarks' => 'Has remarks', 'not_reviewed' => 'Not reviewed', 'classify' => 'Classify the trial balance', 'view_result' => 'View the classification', 'classifying' => 'Sending the trial balance to be classified…',
+        'runs' => 'Classifications of this client', 'no_runs' => 'There are no classifications for this client yet.', 'run_file' => 'File', 'run_status' => 'Status', 'run_date' => 'Date',
+        'status' => ['queued' => 'Waiting', 'running' => 'Classifying', 'needs_confirmation' => 'Awaiting confirmation', 'done' => 'Done', 'failed' => 'Failed', 'cancelled' => 'Cancelled', 'expired' => 'Expired'],
+        'make_statements' => 'Prepare the financial statements', 'upload_own' => 'Upload a trial balance from your computer', 'upload_hint' => 'Or upload a trial balance from your device, to be classified for this client:', 'error' => 'The trial balance could not be sent for classification.',
+    ],
+    'prior' => [
+        'title' => 'Previous financial statements', 'sub' => 'The approved financial statements of the previous year, against which the opening balances of the current period are compared.',
+        'files' => 'Files the client uploaded', 'none' => 'The client has not uploaded the previous financial statements yet.', 'name' => 'File', 'request' => 'Request', 'uploaded' => 'Uploaded', 'review' => 'AI reviewer',
+        'fine' => 'Fine', 'remarks' => 'Has remarks', 'not_reviewed' => 'Not reviewed',
+        'compare' => 'Comparing the opening balances', 'compare_hint' => 'The previous statements are read in the «previous year» step of the financial statements, and their closing balances are matched with the opening balances of the current trial balance in the «opening balances» step.',
+        'no_statements' => 'No financial statements have been prepared for this client yet; start from the «Financial statements» step.', 'period' => 'Period', 'source' => 'Source of the previous year\'s figures',
+        'open_prior' => 'Open the previous year', 'open_opening' => 'Open the opening balances',
+        'sources' => ['none' => 'Not set', 'first_year' => 'First year', 'report' => 'Previous financial statements in the system', 'run' => 'A previous trial balance', 'manual' => 'Manual entry', 'statements' => 'A file of approved financial statements'],
+    ],
+    'statements' => [
+        'title' => 'Financial statements', 'sub' => 'The financial statements prepared for this client and their versions.', 'period' => 'Period', 'status' => 'Status', 'updated' => 'Last changed', 'open' => 'Open',
+        'statuses' => ['draft' => 'Draft', 'final' => 'Final'], 'none' => 'There are no financial statements for this client yet.',
+        'new' => 'Prepare new financial statements', 'new_hint' => 'Choose a classified trial balance of this client to prepare the financial statements from.', 'from_run' => 'From the trial balance', 'no_runs' => 'There is no classified trial balance; classify it first in the «Trial balance» step.',
+    ],
+    'pick_statements' => 'Choose the financial statements to work on',
+    'zakat' => [
+        'title' => 'Zakat', 'sub' => 'The calculation of zakat and income tax for the company by the Saudi, Gulf and foreign owners\' shares, entered in the financial statements and the notes.',
+        'share' => 'Ownership', 'share_text' => 'Saudi and Gulf owners :share% (zakat), foreign owners :foreign% (income tax). Source: the articles of association.',
+        'share_unknown' => 'The ownership shares are not known yet; upload the articles of association (step 3) or enter the share in the zakat step.', 'per_statement' => 'The zakat calculation of each set of financial statements',
+        'period' => 'Period', 'status' => 'Status', 'charged' => 'Entered in the statements', 'charged_yes' => 'Entered', 'charged_no' => 'Not entered', 'open' => 'Open the zakat calculation', 'none' => 'There are no financial statements for this client yet; start by preparing them.',
+        'statuses' => ['draft' => 'Draft', 'final' => 'Final'],
+    ],
+    'prepared' => [
+        'paper' => ['title' => 'Working papers', 'sub' => 'The AI reviewer prepares the working papers from the documents the client uploaded and from the trial balance; neither the accountant nor the client prepares them. The client only sends the documents asked for in «Requirements».'],
+        'recalc' => ['title' => 'Recalculation', 'sub' => 'The AI reviewer reads the documents of the client and recalculates end-of-service benefits, depreciation, prepaid expenses, the receivables allowance and the payroll matching, then compares with the books; neither the accountant nor the client prepares them.'],
+        'year' => 'Year', 'name' => 'Paper', 'documents' => 'Client documents', 'status' => 'Status', 'result' => 'Result',
+        'prepare_all' => 'Prepare all with the AI reviewer', 'prepare' => 'Prepare', 'again' => 'Prepare again', 'download' => 'Download the paper', 'sources' => 'Documents read', 'notes' => 'Notes of the AI reviewer',
+        'n_docs' => ':count document(s)', 'no_docs' => 'No documents yet', 'progress' => ':done of :total document(s)', 'started' => 'The AI reviewer started preparing :count paper(s).',
+        'none' => 'Not prepared yet', 'blocked' => 'The client has sent no documents for this paper; ask for them in «Requirements».', 'failed' => 'Preparation failed: :error', 'open_requirements' => 'Open the requirements',
+        'status_names' => ['queued' => 'Queued', 'working' => 'The AI reviewer is preparing it', 'done' => 'Done', 'blocked' => 'Waiting for the documents of the client', 'failed' => 'Failed'],
+        'needs_key' => 'Preparing needs the AI provider key.',
+    ],
+];

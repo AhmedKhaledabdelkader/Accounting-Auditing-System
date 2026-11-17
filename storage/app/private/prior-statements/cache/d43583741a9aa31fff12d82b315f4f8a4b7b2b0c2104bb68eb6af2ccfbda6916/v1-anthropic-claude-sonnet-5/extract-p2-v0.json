@@ -1,0 +1,75 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "type": "heading",
+                "number": null,
+                "text": "قائمة المركز المالي",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "table",
+                "number": null,
+                "text": null,
+                "columns": [
+                    {
+                        "header": "2024"
+                    },
+                    {
+                        "header": "2023"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "الممتلكات والآلات والمعدات، بالصافي",
+                        "note": "5",
+                        "cells": [
+                            "115",
+                            "120"
+                        ]
+                    },
+                    {
+                        "label": "النقد ومعادلات النقد",
+                        "note": null,
+                        "cells": [
+                            "100",
+                            "90"
+                        ]
+                    },
+                    {
+                        "label": "إجمالي الأصول",
+                        "note": null,
+                        "cells": [
+                            "215",
+                            "210"
+                        ]
+                    },
+                    {
+                        "label": "رأس المال",
+                        "note": null,
+                        "cells": [
+                            "215",
+                            "210"
+                        ]
+                    },
+                    {
+                        "label": "إجمالي حقوق الملكية والالتزامات",
+                        "note": null,
+                        "cells": [
+                            "215",
+                            "210"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "tables": []
+    },
+    "usage": {
+        "input": 100,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 20
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "input": {
+        "matching_request_ids": [
+            67
+        ],
+        "summary": "سجل تجاري لشركة النور للتجارة المحدودة صادر عن وزارة التجارة.",
+        "readable": true,
+        "registration_number": "1010123456",
+        "pages_unclear": false,
+        "has_signature_or_stamp": false,
+        "issuer": "وزارة التجارة",
+        "document_type": "سجل تجاري",
+        "amounts": [],
+        "expiry_date": "2026-08-30",
+        "period_year": 2023,
+        "document_date": "2023-09-25",
+        "company_name": "شركة النور للتجارة المحدودة"
+    },
+    "usage": {
+        "input": 4028,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 165
+    }
+}

@@ -1,0 +1,52 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "type": "table",
+                "number": null,
+                "text": null,
+                "columns": [
+                    {
+                        "header": "2024"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "النقد ومعادلات النقد",
+                        "note": null,
+                        "cells": [
+                            "90"
+                        ]
+                    },
+                    {
+                        "label": "إجمالي الأصول",
+                        "note": null,
+                        "cells": [
+                            "90"
+                        ]
+                    },
+                    {
+                        "label": "رأس المال",
+                        "note": null,
+                        "cells": [
+                            "90"
+                        ]
+                    },
+                    {
+                        "label": "إجمالي حقوق الملكية والالتزامات",
+                        "note": null,
+                        "cells": [
+                            "90"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "usage": {
+        "input": 100,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 20
+    }
+}

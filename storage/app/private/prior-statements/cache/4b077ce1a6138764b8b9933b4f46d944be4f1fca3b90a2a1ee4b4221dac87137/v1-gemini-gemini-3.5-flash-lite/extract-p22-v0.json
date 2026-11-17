@@ -1,0 +1,276 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "number": null,
+                "rows": [],
+                "columns": [],
+                "text": null,
+                "type": "heading"
+            },
+            {
+                "text": "شركة إعادة الشباب الطبية",
+                "type": "heading",
+                "columns": [],
+                "rows": [],
+                "number": null
+            },
+            {
+                "type": "heading",
+                "columns": [],
+                "text": "(شركة شخص واحد ذات مسؤولية محدودة)",
+                "rows": [],
+                "number": null
+            },
+            {
+                "type": "heading",
+                "text": "إيضاحات حول القوائم المالية (تتمة)",
+                "columns": [],
+                "rows": [],
+                "number": null
+            },
+            {
+                "number": null,
+                "columns": [],
+                "rows": [],
+                "text": "للسنة المنتهية في ٣١ ديسمبر ٢٠٢٤م",
+                "type": "heading"
+            },
+            {
+                "number": null,
+                "columns": [],
+                "rows": [],
+                "text": "(جميع المبالغ بالريال السعودي مالم يذكر خلاف ذلك)",
+                "type": "paragraph"
+            },
+            {
+                "rows": [],
+                "type": "heading",
+                "columns": [],
+                "text": "١٣- معاملات وارصدة مع أطراف ذات علاقة",
+                "number": null
+            },
+            {
+                "type": "heading",
+                "text": "١-١٣ مستحق إلى أطراف ذات علاقة",
+                "rows": [],
+                "columns": [],
+                "number": null
+            },
+            {
+                "text": null,
+                "type": "table",
+                "number": null,
+                "columns": [
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٤م"
+                    },
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٣م"
+                    }
+                ],
+                "rows": [
+                    {
+                        "note": null,
+                        "cells": [
+                            "٣٣,٩٢٢,٤٦٧",
+                            "٣٥,٧٩٠,٣٢٨"
+                        ],
+                        "label": "لؤي عبدالله احمد السالمي"
+                    },
+                    {
+                        "label": "الإجمالي",
+                        "cells": [
+                            "٣٣,٩٢٢,٤٦٧",
+                            "٣٥,٧٩٠,٣٢٨"
+                        ],
+                        "note": null
+                    }
+                ]
+            },
+            {
+                "rows": [],
+                "columns": [],
+                "number": null,
+                "type": "heading",
+                "text": "١٤- مخصص مكافأة نهاية الخدمة"
+            },
+            {
+                "rows": [],
+                "number": null,
+                "columns": [],
+                "text": "إن حركة مخصص مكافأة نهاية الخدمة خلال العام هي كما يلي:",
+                "type": "paragraph"
+            },
+            {
+                "text": null,
+                "type": "table",
+                "columns": [
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٤م"
+                    },
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٣م"
+                    }
+                ],
+                "rows": [
+                    {
+                        "note": null,
+                        "label": "الرصيد بداية السنة",
+                        "cells": [
+                            "٣١,٦٨٥",
+                            null
+                        ]
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "٥٣,٣٥٨",
+                            "٣١,٦٨٥"
+                        ],
+                        "label": "المكون خلال السنة"
+                    },
+                    {
+                        "cells": [
+                            "(٢٥,٤٩٠)",
+                            null
+                        ],
+                        "label": "المسدد خلال السنة",
+                        "note": null
+                    },
+                    {
+                        "label": "الرصيد نهاية السنة",
+                        "cells": [
+                            "٥٩,٥٥٣",
+                            "٣١,٦٨٥"
+                        ],
+                        "note": null
+                    }
+                ],
+                "number": null
+            },
+            {
+                "columns": [],
+                "rows": [],
+                "number": null,
+                "text": "١٥- رأس المال",
+                "type": "heading"
+            },
+            {
+                "type": "paragraph",
+                "columns": [],
+                "text": "حدد رأس مال الشركة بمبلغ (٢٥,٠٠٠) ريال سعودي مقسم إلى (٢٥) حصة، قيمة كل حصة (١,٠٠٠) ريال سعودي تم توزيعها على النحو التالي:",
+                "rows": [],
+                "number": null
+            },
+            {
+                "rows": [
+                    {
+                        "cells": [
+                            "٪١٠٠",
+                            "٢٥,٠٠٠",
+                            "١,٠٠٠",
+                            "٢٥"
+                        ],
+                        "label": "لؤي عبدالله احمد السالمي",
+                        "note": null
+                    },
+                    {
+                        "label": "الإجمالي",
+                        "cells": [
+                            "٪١٠0",
+                            "٢٥,٠٠٠",
+                            null,
+                            "٢٥"
+                        ],
+                        "note": null
+                    }
+                ],
+                "number": null,
+                "columns": [
+                    {
+                        "header": "النسبة"
+                    },
+                    {
+                        "header": "الإجمالي"
+                    },
+                    {
+                        "header": "قيمة الحصة"
+                    },
+                    {
+                        "header": "عدد الحصص"
+                    },
+                    {
+                        "header": "اسم الشريك"
+                    }
+                ],
+                "type": "table",
+                "text": null
+            },
+            {
+                "rows": [],
+                "number": null,
+                "type": "paragraph",
+                "text": "وبتاريخ ٢٩ مايو ٢٠٢٣م الموافق ٠٩ ذو القعدة ١٤٤٤هـ تم تعديل رأس مال الشركة ليصبح (١٠٠,٠٠٠) ريال سعودي مقسم إلى (١٠٠) حصة، قيمة كل حصة (١,٠٠٠) ريال سعودي تم توزيعها على النحو التالي:",
+                "columns": []
+            },
+            {
+                "number": null,
+                "type": "table",
+                "text": null,
+                "rows": [
+                    {
+                        "cells": [
+                            "٪١٠٠",
+                            "١٠٠,٠٠٠",
+                            "١,٠٠٠",
+                            "١٠٠"
+                        ],
+                        "label": "لؤي عبدالله احمد السالمي",
+                        "note": null
+                    },
+                    {
+                        "label": "الإجمالي",
+                        "cells": [
+                            "٪١٠0",
+                            "١٠٠,٠٠٠",
+                            null,
+                            "١٠٠"
+                        ],
+                        "note": null
+                    }
+                ],
+                "columns": [
+                    {
+                        "header": "النسبة"
+                    },
+                    {
+                        "header": "الإجمالي"
+                    },
+                    {
+                        "header": "قيمة الحصة"
+                    },
+                    {
+                        "header": "عدد الحصص"
+                    },
+                    {
+                        "header": "اسم الشريك"
+                    }
+                ]
+            },
+            {
+                "columns": [],
+                "rows": [],
+                "number": null,
+                "type": "paragraph",
+                "text": "٢٠"
+            }
+        ]
+    },
+    "usage": {
+        "input": 1319,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 1149
+    }
+}

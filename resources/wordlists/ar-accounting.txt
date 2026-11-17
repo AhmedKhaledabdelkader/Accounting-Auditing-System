@@ -1,0 +1,17 @@
+# General accounting and zakat words the common list lacks (one per line, as printed). General terms only: a client's
+# own words are learned at runtime (the known words), never added here.
+الحسميات
+الحسومات
+المحسومات
+الزكوي
+الزكوية
+المدورة
+المرحلة
+المستهلكة
+المقفلة
+المطفأة
+الاستهلاكات
+الإهلاكات
+المخصصات
+الدائنون
+المدينون

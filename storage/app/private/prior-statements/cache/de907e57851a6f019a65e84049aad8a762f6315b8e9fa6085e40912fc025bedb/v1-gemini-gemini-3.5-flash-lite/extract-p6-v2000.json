@@ -1,0 +1,218 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "text": "مصنع شركة تاج العوازل الدولية",
+                "rows": [],
+                "type": "heading",
+                "number": null,
+                "columns": []
+            },
+            {
+                "columns": [],
+                "number": null,
+                "rows": [],
+                "type": "heading",
+                "text": "شركة ذات مسؤولية محدودة"
+            },
+            {
+                "rows": [],
+                "number": null,
+                "type": "heading",
+                "columns": [],
+                "text": "قائمة الأرباح أو الخسائر والدخل الشامل الآخر للسنة المالية المنتهية في 2024\/12\/31م"
+            },
+            {
+                "rows": [
+                    {
+                        "label": "الإيرادات",
+                        "note": null,
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ]
+                    },
+                    {
+                        "label": "تكاليف التشغيل",
+                        "cells": [
+                            "(11,826)",
+                            "(16,110)",
+                            "13"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "(11,826)",
+                            "(16,110)",
+                            null
+                        ],
+                        "label": "مجمل الربح"
+                    },
+                    {
+                        "note": null,
+                        "label": "يخصم:",
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ]
+                    },
+                    {
+                        "cells": [
+                            "(392,866)",
+                            "(216,600)",
+                            "14"
+                        ],
+                        "label": "المصروفات الإدارية والعمومية",
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            "(356,756)",
+                            "(459,625)",
+                            "5"
+                        ],
+                        "note": null,
+                        "label": "إستهلاك ممتلكات وآلات ومعدات"
+                    },
+                    {
+                        "label": "اطفاء الأصول أخرى",
+                        "cells": [
+                            "(13,099)",
+                            "(23,817)",
+                            "6"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "(762,721)",
+                            "(700,042)",
+                            null
+                        ],
+                        "label": "مجموع المصروفات"
+                    },
+                    {
+                        "label": "يضاف :",
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ],
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "(774,547)",
+                            "(716,152)",
+                            null
+                        ],
+                        "label": "صافي خسارة قبل الزكاة"
+                    },
+                    {
+                        "label": "يخصم :",
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ],
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            null,
+                            null,
+                            "12"
+                        ],
+                        "label": "مصروف الزكاة الشرعية",
+                        "note": null
+                    },
+                    {
+                        "label": "صافي خسارة السنة",
+                        "cells": [
+                            "(774,547)",
+                            "(716,152)",
+                            null
+                        ],
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ],
+                        "label": "الدخل الشامل الآخر",
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "label": "بنود سيعاد تصنيفها لاحقاً ضمن الربح أو الخسارة",
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ]
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ],
+                        "label": "بنود لن يعاد تصنيفها لاحقاً ضمن الربح أو الخسارة"
+                    },
+                    {
+                        "cells": [
+                            "(774,547)",
+                            "(716,152)",
+                            null
+                        ],
+                        "label": "اجمالي الخسائر الشاملة للسنة",
+                        "note": null
+                    }
+                ],
+                "type": "table",
+                "columns": [
+                    {
+                        "header": "31 ديسمبر 2024م \/ ريال سعودي"
+                    },
+                    {
+                        "header": "31 ديسمبر 2023م \/ ريال سعودي"
+                    },
+                    {
+                        "header": "إيضاح"
+                    }
+                ],
+                "number": null,
+                "text": null
+            },
+            {
+                "type": "paragraph",
+                "rows": [],
+                "text": "تشكل الإيضاحات المرفقة من رقم (1) إلى رقم (19) جزءاً لا يتجزأ من هذه القوائم المالية",
+                "number": null,
+                "columns": []
+            },
+            {
+                "text": "2",
+                "type": "heading",
+                "rows": [],
+                "columns": [],
+                "number": null
+            }
+        ]
+    },
+    "usage": {
+        "input": 1454,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 867
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "sheet": 1,
+    "header_rows": [
+        3
+    ],
+    "first_data_row": 4,
+    "columns": {
+        "account_number": "A",
+        "account_name": "D",
+        "opening_debit": "E",
+        "opening_credit": "F",
+        "period_debit": "G",
+        "period_credit": "H",
+        "adjustment_debit": "I",
+        "adjustment_credit": "J",
+        "closing_debit": "K",
+        "closing_credit": "L",
+        "existing_classification": "B",
+        "existing_note_classification": "C"
+    },
+    "other_sheets": []
+}

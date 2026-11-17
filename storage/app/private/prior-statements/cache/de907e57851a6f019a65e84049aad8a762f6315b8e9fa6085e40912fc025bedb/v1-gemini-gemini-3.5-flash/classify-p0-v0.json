@@ -1,0 +1,300 @@
+{
+    "input": {
+        "pages": [
+            {
+                "page": 1,
+                "notes": [],
+                "rotation": 0,
+                "printed_page": null,
+                "kind": "cover"
+            },
+            {
+                "printed_page": null,
+                "page": 2,
+                "notes": [],
+                "rotation": 0,
+                "kind": "contents"
+            },
+            {
+                "page": 3,
+                "rotation": 0,
+                "notes": [],
+                "printed_page": null,
+                "kind": "auditor_report"
+            },
+            {
+                "printed_page": null,
+                "kind": "auditor_report",
+                "notes": [],
+                "page": 4,
+                "rotation": 0
+            },
+            {
+                "page": 5,
+                "printed_page": "1",
+                "notes": [],
+                "rotation": 0,
+                "kind": "financial_position"
+            },
+            {
+                "notes": [],
+                "kind": "comprehensive_income",
+                "page": 6,
+                "rotation": 0,
+                "printed_page": "2"
+            },
+            {
+                "rotation": 0,
+                "printed_page": "3",
+                "notes": [],
+                "kind": "changes_in_equity",
+                "page": 7
+            },
+            {
+                "rotation": 0,
+                "page": 8,
+                "notes": [],
+                "printed_page": "4",
+                "kind": "cash_flows"
+            },
+            {
+                "rotation": 0,
+                "page": 9,
+                "printed_page": "5",
+                "notes": [
+                    {
+                        "number": "1",
+                        "title": "نبذه عن الشركة و أنشطتها"
+                    },
+                    {
+                        "number": "2",
+                        "title": "أسس اعداد القوائم المالية"
+                    },
+                    {
+                        "title": "المعايير المحاسبية المطبقة",
+                        "number": "2.1"
+                    },
+                    {
+                        "title": "أسس القياس",
+                        "number": "2.2"
+                    },
+                    {
+                        "number": "2.3",
+                        "title": "العملة الوظيفية وعملة العرض"
+                    },
+                    {
+                        "number": "3",
+                        "title": "إستخدام التقديرات والإفتراضات والأحكام"
+                    },
+                    {
+                        "number": "3.1",
+                        "title": "الأعمار الإنتاجية والقيمة المتبقية للممتلكات والألات والمعدات"
+                    },
+                    {
+                        "number": "3.2",
+                        "title": "الزكاة"
+                    }
+                ],
+                "kind": "notes"
+            },
+            {
+                "page": 10,
+                "rotation": 0,
+                "printed_page": "6",
+                "kind": "notes",
+                "notes": [
+                    {
+                        "number": "4",
+                        "title": "السياسات المحاسبية الهامة"
+                    },
+                    {
+                        "title": "الممتلكات والألات والمعدات",
+                        "number": "4.1"
+                    },
+                    {
+                        "title": "الإعتراف والقياس الأولى",
+                        "number": "4.1.1"
+                    },
+                    {
+                        "number": "4.1.2",
+                        "title": "النفقات اللاحقة"
+                    },
+                    {
+                        "number": "4.1.4",
+                        "title": "إلغاء الاثبات"
+                    }
+                ]
+            },
+            {
+                "page": 11,
+                "notes": [
+                    {
+                        "title": "الذمم المدينة والأرصدة المدينة الأخرى",
+                        "number": "4.2"
+                    },
+                    {
+                        "number": "4.3",
+                        "title": "المخصصات"
+                    },
+                    {
+                        "title": "مكافأة نهاية الخدمة",
+                        "number": "4"
+                    },
+                    {
+                        "number": "5",
+                        "title": "النقد وما في حكمه"
+                    },
+                    {
+                        "number": "4.6",
+                        "title": "المعاملات مع الأطراف ذات العلاقة"
+                    },
+                    {
+                        "title": "الذمم الدائنة والأرصدة الدائنة الأخرى",
+                        "number": "4.7"
+                    },
+                    {
+                        "title": "مخصص الزكاة الشرعية",
+                        "number": "4.8"
+                    },
+                    {
+                        "number": "4.9",
+                        "title": "قائمة التدفقات النقدية"
+                    }
+                ],
+                "kind": "notes",
+                "rotation": 0,
+                "printed_page": "7"
+            },
+            {
+                "page": 12,
+                "rotation": 0,
+                "notes": [
+                    {
+                        "title": "ممتلكات وآلات ومعدات (بالصافي)",
+                        "number": "5"
+                    }
+                ],
+                "printed_page": "8",
+                "kind": "notes"
+            },
+            {
+                "notes": [
+                    {
+                        "title": "أصول اخرى",
+                        "number": "6"
+                    },
+                    {
+                        "title": "المخزون",
+                        "number": "7"
+                    },
+                    {
+                        "number": "8",
+                        "title": "مصاريف مقدمة وأرصدة مدينة أخرى"
+                    },
+                    {
+                        "number": "9",
+                        "title": "نقدية وأرصدة لدى البنوك"
+                    }
+                ],
+                "kind": "notes",
+                "printed_page": "9",
+                "page": 13,
+                "rotation": 0
+            },
+            {
+                "page": 14,
+                "rotation": 0,
+                "kind": "notes",
+                "notes": [
+                    {
+                        "number": "10",
+                        "title": "رأس المال"
+                    },
+                    {
+                        "number": "11",
+                        "title": "مصاريف مستحقة وأرصدة دائنة أخرى"
+                    },
+                    {
+                        "number": "12",
+                        "title": "مخصص الزكاة الشرعية"
+                    }
+                ],
+                "printed_page": "10"
+            },
+            {
+                "kind": "notes",
+                "rotation": 0,
+                "printed_page": "11",
+                "page": 15,
+                "notes": [
+                    {
+                        "title": "تكاليف التشغيل",
+                        "number": "13"
+                    },
+                    {
+                        "number": "14",
+                        "title": "المصروفات الإدارية والعمومية"
+                    },
+                    {
+                        "title": "الإلتزامات والإرتباطات المحتملة",
+                        "number": "15"
+                    },
+                    {
+                        "number": "16",
+                        "title": "الأدوات المالية وإدارة المخاطر"
+                    },
+                    {
+                        "number": "1\/16",
+                        "title": "مخاطر الائتمان"
+                    },
+                    {
+                        "number": "2\/16",
+                        "title": "مخاطر السيولة"
+                    }
+                ]
+            },
+            {
+                "kind": "notes",
+                "page": 16,
+                "notes": [
+                    {
+                        "number": "3\/16",
+                        "title": "خطر السوق"
+                    },
+                    {
+                        "title": "مخاطر العملات",
+                        "number": "4\/16"
+                    },
+                    {
+                        "number": "5\/16",
+                        "title": "مخاطر الاسعار"
+                    },
+                    {
+                        "number": "6\/16",
+                        "title": "إدارة رأس المال"
+                    },
+                    {
+                        "number": "17",
+                        "title": "القيمة العادلة للأدوات المالية"
+                    },
+                    {
+                        "title": "أرقام المقارنة",
+                        "number": "18"
+                    },
+                    {
+                        "title": "الموافقة واعتتماد القوائم المالية",
+                        "number": "19"
+                    }
+                ],
+                "printed_page": "12",
+                "rotation": 0
+            }
+        ]
+    },
+    "usage": {
+        "input": 677,
+        "cache_write": 0,
+        "cached": 8576,
+        "output": 3321
+    }
+}

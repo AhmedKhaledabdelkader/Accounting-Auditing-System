@@ -1,0 +1,50 @@
+{
+    "input": {
+        "period_year": 2025,
+        "amounts": [
+            {
+                "value": 24147908.76,
+                "label": "مدين"
+            },
+            {
+                "value": 24147908.76,
+                "label": "دائن"
+            },
+            {
+                "label": "حركة مدينة",
+                "value": 456880562.49
+            },
+            {
+                "value": 456880562.49,
+                "label": "حركة دائنة"
+            },
+            {
+                "label": "أخر مدين",
+                "value": 102308749.66
+            },
+            {
+                "label": "أخر دائن",
+                "value": 102308749.66
+            }
+        ],
+        "company_name": "شركة تاهيل المسكن",
+        "expiry_date": null,
+        "readable": true,
+        "matching_request_ids": [
+            183
+        ],
+        "document_date": null,
+        "issuer": null,
+        "has_signature_or_stamp": false,
+        "registration_number": null,
+        "summary": "ميزان مراجعة شركة تأهيل المسكن عن الفترة المنتهية في 2025.",
+        "document_type": "ميزان مراجعة",
+        "pages_unclear": false
+    },
+    "usage": {
+        "input": 8397,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 267
+    }
+}

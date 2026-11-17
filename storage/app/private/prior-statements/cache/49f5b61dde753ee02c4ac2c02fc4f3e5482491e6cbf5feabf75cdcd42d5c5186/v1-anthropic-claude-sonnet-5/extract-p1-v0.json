@@ -1,0 +1,83 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "type": "heading",
+                "number": null,
+                "text": "قائمة المركز المالي",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "table",
+                "number": null,
+                "text": null,
+                "columns": [
+                    {
+                        "header": "2024"
+                    },
+                    {
+                        "header": "2023"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "مصاريف مقدمة وأرصدة مدينة أخرى",
+                        "note": "8",
+                        "cells": [
+                            "50",
+                            "-"
+                        ]
+                    },
+                    {
+                        "label": "النقد ومعادلات النقد",
+                        "note": null,
+                        "cells": [
+                            "430",
+                            "400"
+                        ]
+                    },
+                    {
+                        "label": "إجمالي الأصول",
+                        "note": null,
+                        "cells": [
+                            "480",
+                            "400"
+                        ]
+                    },
+                    {
+                        "label": "ذمم تجارية دائنة",
+                        "note": null,
+                        "cells": [
+                            "400",
+                            "400"
+                        ]
+                    },
+                    {
+                        "label": "مصاريف مستحقة وأرصدة دائنة أخرى",
+                        "note": "11",
+                        "cells": [
+                            "80",
+                            "-"
+                        ]
+                    },
+                    {
+                        "label": "إجمالي حقوق الملكية والالتزامات",
+                        "note": null,
+                        "cells": [
+                            "480",
+                            "400"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "tables": []
+    },
+    "usage": {
+        "input": 100,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 20
+    }
+}

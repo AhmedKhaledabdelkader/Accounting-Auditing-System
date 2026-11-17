@@ -1,0 +1,184 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "type": "heading",
+                "number": null,
+                "text": "الإيضاحات",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "heading",
+                "number": "4",
+                "text": "السياسات المحاسبية",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "paragraph",
+                "number": null,
+                "text": "يتم احتساب الاستهلاك بطريقة القسط الثابت بالنسب التالية:",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "table",
+                "number": null,
+                "text": null,
+                "columns": [
+                    {
+                        "header": "النسبة %"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "مباني وانشاءات",
+                        "note": null,
+                        "cells": [
+                            "5"
+                        ]
+                    },
+                    {
+                        "label": "سيارات",
+                        "note": null,
+                        "cells": [
+                            "25"
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "number": "5",
+                "text": "ممتلكات وآلات ومعدات",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "table",
+                "number": null,
+                "text": null,
+                "columns": [
+                    {
+                        "header": "مباني وانشاءات \/ ريال"
+                    },
+                    {
+                        "header": "سيارات \/ ريال"
+                    },
+                    {
+                        "header": "الإجمالي \/ ريال"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "التكلفة",
+                        "note": null,
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ]
+                    },
+                    {
+                        "label": "الرصيد في 1 يناير 2024",
+                        "note": null,
+                        "cells": [
+                            "100",
+                            "50",
+                            "150"
+                        ]
+                    },
+                    {
+                        "label": "إضافات خلال السنة",
+                        "note": null,
+                        "cells": [
+                            "10",
+                            "-",
+                            "10"
+                        ]
+                    },
+                    {
+                        "label": "الرصيد في 31 ديسمبر 2024",
+                        "note": null,
+                        "cells": [
+                            "110",
+                            "50",
+                            "160"
+                        ]
+                    },
+                    {
+                        "label": "الإهلاك المتراكم",
+                        "note": null,
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ]
+                    },
+                    {
+                        "label": "الرصيد في 1 يناير 2024",
+                        "note": null,
+                        "cells": [
+                            "20",
+                            "10",
+                            "30"
+                        ]
+                    },
+                    {
+                        "label": "إضافات خلال السنة",
+                        "note": null,
+                        "cells": [
+                            "5",
+                            "10",
+                            "15"
+                        ]
+                    },
+                    {
+                        "label": "الرصيد في 31 ديسمبر 2024",
+                        "note": null,
+                        "cells": [
+                            "25",
+                            "20",
+                            "45"
+                        ]
+                    },
+                    {
+                        "label": "صافي القيمة الدفترية",
+                        "note": null,
+                        "cells": [
+                            null,
+                            null,
+                            null
+                        ]
+                    },
+                    {
+                        "label": "في 31 ديسمبر 2024",
+                        "note": null,
+                        "cells": [
+                            "85",
+                            "30",
+                            "115"
+                        ]
+                    },
+                    {
+                        "label": "في 31 ديسمبر 2023",
+                        "note": null,
+                        "cells": [
+                            "80",
+                            "40",
+                            "120"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "tables": []
+    },
+    "usage": {
+        "input": 100,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 20
+    }
+}

@@ -1,0 +1,128 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.db }} · ${{ matrix.provider }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { db: sqlite, provider: anthropic }
+          - { db: mysql, provider: anthropic }
+          - { db: sqlite, provider: gemini }   # the same suite in Gemini's wire format
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: accounting_test
+        ports: ['33061:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ptest"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, xml, xmlreader, xmlwriter, simplexml, zip, gd, fileinfo, iconv, pdo_sqlite, pdo_mysql
+          coverage: none
+
+      # qpdf cuts the statements' pages out of an uploaded PDF (PriorStatementsPdf). From the runner's package lists first
+      # (an apt-get update can hang on a slow mirror); only if that fails, after an update. Never more than 3 minutes.
+      - name: qpdf
+        timeout-minutes: 3
+        env: { DEBIAN_FRONTEND: noninteractive }
+        run: |
+          sudo apt-get install -y -qq --no-install-recommends -o DPkg::Lock::Timeout=60 qpdf \
+            || { sudo apt-get update -qq -o Acquire::Retries=3 && sudo apt-get install -y -qq --no-install-recommends -o DPkg::Lock::Timeout=60 qpdf; }
+          qpdf --version | head -1
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Prepare .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: utf8mb4 collation (as in docs/08)
+        if: matrix.db == 'mysql'
+        run: mysql -h 127.0.0.1 -P 33061 -uroot -ptest -e "ALTER DATABASE accounting_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+
+      - name: composer test
+        run: composer test
+        env:
+          CLASSIFIER_PROVIDER: ${{ matrix.provider }}
+          DB_CONNECTION: ${{ matrix.db }}
+          DB_HOST: ${{ matrix.db == 'mysql' && '127.0.0.1' || '' }}
+          DB_PORT: ${{ matrix.db == 'mysql' && '33061' || '' }}
+          DB_DATABASE: ${{ matrix.db == 'mysql' && 'accounting_test' || ':memory:' }}
+          DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || '' }}
+          DB_PASSWORD: ${{ matrix.db == 'mysql' && 'test' || '' }}
+
+  browser:
+    name: browser (Dusk)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, xml, xmlreader, xmlwriter, simplexml, zip, gd, fileinfo, iconv, pdo_sqlite
+          coverage: none
+
+      # qpdf cuts the statements' pages out of an uploaded PDF (PriorStatementsPdf). From the runner's package lists first
+      # (an apt-get update can hang on a slow mirror); only if that fails, after an update. Never more than 3 minutes.
+      - name: qpdf
+        timeout-minutes: 3
+        env: { DEBIAN_FRONTEND: noninteractive }
+        run: |
+          sudo apt-get install -y -qq --no-install-recommends -o DPkg::Lock::Timeout=60 qpdf \
+            || { sudo apt-get update -qq -o Acquire::Retries=3 && sudo apt-get install -y -qq --no-install-recommends -o DPkg::Lock::Timeout=60 qpdf; }
+          qpdf --version | head -1
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Prepare .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: ChromeDriver for the runner's Chrome
+        run: php artisan dusk:chrome-driver --detect
+
+      - name: Browser tests
+        run: scripts/dusk.sh
+
+      - name: Screenshots of failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dusk-screenshots
+          path: tests/Browser/screenshots

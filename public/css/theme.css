@@ -1,0 +1,265 @@
+/* The look shared by every page: colours, font, the side menu, the top bar and the page heading (components/shell). */
+:root{
+  --bg:#f7f7f4; --panel:#fff; --panel2:#f3f5f2; --line:#e5e8e3; --line2:#eef0ec;
+  --text:#1d2b2d; --muted:#6c7a7b; --brand:#2e6967; --brand2:#2e6967; --brand-ink:#1f4f4f; --brand-soft:#e7f0ed;
+  --side:#224d4f; --side-line:rgba(255,255,255,.1); --side-muted:rgba(255,255,255,.55);
+  --ok:#2f7a59; --ok-soft:#e5f2ea; --warn:#b07a26; --warn-soft:#fbf1df; --bad:#b4483a; --bad-soft:#fbe9e5;
+  --info:#3f5f8f; --info-soft:#e8eef7; --gold:#c9a25b;
+  --shadow:0 1px 2px rgba(29,43,45,.04),0 4px 14px rgba(29,43,45,.04);
+  --shadow-btn:0 6px 16px rgba(46,105,103,.25);
+  --ok-ink:#1f5a40; --bad-ink:#7e2f24; --warn-ink:#6f4c14; --ok-line:#cfe5d8; --bad-line:#efcfc8; --warn-line:#f0dcb6;
+  --on-brand:#fff; --overlay:rgba(20,35,36,.45); --pop-shadow:0 20px 50px rgba(29,43,45,.18);
+  --glass:rgba(255,255,255,.66); --glass-line:rgba(255,255,255,.8); --form-bg:#fbfbf9;
+  --glow-a:rgba(46,105,103,.12); --glow-b:rgba(201,162,91,.10);
+  color-scheme:light;
+}
+/* Dark: the same teal and gold on a deep ink-green, set by the toggle (data-theme, partials/theme-head) or the device. */
+:root[data-theme=dark]{
+  --bg:#0e1617; --panel:#152123; --panel2:#1a292b; --line:#273a3c; --line2:#1f3032;
+  --text:#e1ebe9; --muted:#8fa3a2; --brand:#5fb3a8; --brand2:#5fb3a8; --brand-ink:#8ad3c7; --brand-soft:#1b3533;
+  --side:#112b2c; --side-line:rgba(255,255,255,.08); --side-muted:rgba(255,255,255,.5);
+  --ok:#5cc28f; --ok-soft:#16302a; --warn:#e2ad58; --warn-soft:#30271a; --bad:#ee8170; --bad-soft:#371f1c;
+  --info:#8db2e8; --info-soft:#1b2537; --gold:#d8b46c;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+  --shadow-btn:0 6px 18px rgba(95,179,168,.18);
+  --ok-ink:#a3e2c2; --bad-ink:#f6b5aa; --warn-ink:#f1d199; --ok-line:#25503e; --bad-line:#5c2e28; --warn-line:#54421f;
+  --on-brand:#08201f; --overlay:rgba(3,8,9,.62); --pop-shadow:0 22px 54px rgba(0,0,0,.55);
+  --glass:rgba(21,33,35,.72); --glass-line:rgba(255,255,255,.06); --form-bg:#111c1d;
+  --glow-a:rgba(95,179,168,.10); --glow-b:rgba(216,180,108,.06);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}   /* a page's display rule never shows what it hid */
+.msg:empty{display:none}
+body{margin:0;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;color:var(--text);min-height:100vh;font-size:15px;
+  background:radial-gradient(1100px 600px at 100% -10%,var(--glow-a),transparent 60%),radial-gradient(900px 500px at -10% 110%,var(--glow-b),transparent 60%),var(--bg);background-attachment:fixed}
+a{color:var(--brand)}
+::selection{background:var(--brand-soft)}
+
+/* Side menu (on the right, a pane of frosted glass) and the main column. «folded» leaves the icons only. */
+.shell{--side-w:292px;display:grid;grid-template-columns:var(--side-w) minmax(0,1fr);min-height:100vh;overflow-x:clip;transition:grid-template-columns .25s ease}
+.shell.folded{--side-w:100px}
+.side-frame{position:sticky;top:12px;height:calc(100vh - 24px);margin:12px;margin-inline-end:0;border-radius:24px;z-index:20;isolation:isolate}
+.sidebar{position:relative;height:100%;padding:18px 14px;border-radius:24px;overflow:hidden auto;
+  display:flex;flex-direction:column;color:#fff;
+  background:linear-gradient(165deg,rgba(43,96,97,.94),rgba(28,66,68,.96));
+  backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 40px rgba(24,58,60,.22),inset 0 1px 0 rgba(255,255,255,.12)}
+.sidebar .brand{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px 18px;border-bottom:1px solid var(--side-line)}
+.sidebar .brand a{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;min-width:0}
+.mark{width:44px;height:44px;border-radius:14px;background:rgba(223,240,234,.95);color:var(--side);display:grid;place-items:center;font-weight:700;font-size:22px;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.sidebar .brand a{flex:1}
+.sidebar .brand b{font-size:20px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fold{width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;display:grid;place-items:center;flex:none;transition:background .15s}
+.fold:hover{background:rgba(255,255,255,.18)}
+.fold svg{transition:transform .25s}
+.sidebar .sec{color:var(--side-muted);font-size:12px;margin:22px 10px 8px;white-space:nowrap;min-height:14px}
+.sidebar nav a{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;color:rgba(255,255,255,.88);text-decoration:none;font-size:15px;margin-bottom:4px;white-space:nowrap;transition:background .15s}
+.sidebar nav a:hover{background:rgba(255,255,255,.1)}
+.sidebar nav a.on{background:rgba(231,240,237,.95);color:var(--side);font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.sidebar svg{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sidebar .foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--side-line);display:flex;flex-direction:column;gap:4px}
+.sidebar .foot .me{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;color:#fff;text-decoration:none}
+.sidebar .foot .me:hover,.sidebar .foot .me.on{background:rgba(255,255,255,.1)}
+.sidebar .foot .me .label{display:flex;flex-direction:column;min-width:0}
+.sidebar .foot .me b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar .foot .me small{color:var(--side-muted);font-size:12px}
+.sidebar .foot .out{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:14px;border:0;background:none;color:rgba(255,255,255,.8);font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+.sidebar .foot .out:hover{background:rgba(255,255,255,.1);color:#fff}
+.avatar{width:40px;height:40px;border-radius:50%;background:rgba(223,240,234,.95);color:var(--side);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none;text-decoration:none}
+.avatar.sm{width:36px;height:36px;background:var(--brand-soft);color:var(--brand-ink);font-size:13px}
+.shell.folded .sidebar .foot .me,.shell.folded .sidebar .foot .out{justify-content:center;padding:8px}
+.shell.folded .sidebar .label{display:none}
+.shell.folded .sidebar .brand{flex-direction:column;gap:12px}
+.shell.folded .sidebar .sec{margin:16px 18px 10px;border-top:1px solid var(--side-line)}
+.shell.folded .sidebar nav a{justify-content:center;padding:12px}
+.shell.folded .fold svg{transform:scaleX(-1)}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:14px;margin:12px 32px 0;padding:12px 18px;border-radius:18px;background:var(--glass);border:1px solid var(--glass-line);
+  backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);box-shadow:var(--shadow)}
+.topbar .menu{display:none;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;place-items:center;color:var(--text)}
+.topbar .menu svg,.topbar .chip svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.topbar .ctx{color:var(--muted);font-size:14px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .ctx b{color:var(--text)}
+.content{padding:32px;max-width:1440px;width:100%}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.page-head .eyebrow{color:var(--brand);font-size:13px;font-weight:600;margin:0 0 4px}
+.page-head h1{margin:0;font-size:30px;font-weight:600;letter-spacing:-.2px}
+.page-head p.sub{margin:6px 0 0;color:var(--muted);font-size:14.5px;max-width:860px;line-height:1.7}
+.page-head .acts{display:flex;gap:10px;flex-wrap:wrap}
+.scrim{display:none}
+/* Left to right (English): numbers align to the end, arrows turn round, the menu sits on the left. */
+[dir=ltr] .num,[dir=ltr] td.num{text-align:right}
+[dir=ltr] .fold svg{transform:scaleX(-1)}
+[dir=ltr] .shell.folded .fold svg{transform:none}
+.topbar .lang{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--panel2);border:1px solid var(--line)}
+.topbar .lang button{border:0;background:none;font:inherit;font-size:12.5px;padding:4px 12px;border-radius:999px;cursor:pointer;color:var(--muted)}
+.topbar .lang button.on{background:var(--panel);color:var(--brand-ink);font-weight:600;box-shadow:var(--shadow)}
+@media (max-width:1000px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .shell,.shell.folded{--side-w:0px}
+  .side-frame{position:fixed;inset-block:0;inset-inline-start:0;width:280px;height:auto;margin:10px;transform:translateX(calc(100% + 20px));transition:transform .2s}
+  .shell.folded .sidebar .label{display:inline} .shell.folded .sidebar nav a{justify-content:flex-start;padding:12px 14px} .shell.folded .sidebar .brand{flex-direction:row}
+  .fold{display:none}
+  [dir=ltr] .side-frame{transform:translateX(calc(-100% - 20px))}
+  [dir=ltr] .shell.open .side-frame{transform:none}
+  .shell.open .side-frame{transform:none}
+  .shell.open .scrim{display:block;position:fixed;inset:0;background:var(--overlay);z-index:15}
+  .topbar{margin:10px 16px 0;padding:10px 14px}
+  .topbar .menu{display:grid}
+  .content{padding:20px 16px}
+  .page-head h1{font-size:24px}
+}
+
+/* Gentle motion: the page rises in, its blocks follow one after another, dialogs and pop-ups open softly, buttons answer
+   the pointer. Opacity and transform only (no layout work); none of it with «reduce motion». */
+@keyframes rise-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop-in{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+.content > *{animation:rise-in .5s cubic-bezier(.2,.7,.2,1) both}
+.content > :nth-child(2){animation-delay:.05s} .content > :nth-child(3){animation-delay:.1s}
+.content > :nth-child(4){animation-delay:.15s} .content > :nth-child(n+5){animation-delay:.2s}
+.sidebar nav a{transition:background .2s,color .2s,transform .2s}
+.sidebar nav a:hover{transform:translateX(-3px)}
+[dir=ltr] .sidebar nav a:hover{transform:translateX(3px)}
+/* `body` first: pages declare their own .btn after this file. */
+body .btn{transition:transform .15s ease,box-shadow .2s ease,background .15s ease,opacity .2s}
+body .btn:not(:disabled):hover{transform:translateY(-1px)}
+body .btn:not(:disabled):active{transform:translateY(0) scale(.98)}
+dialog[open]{animation:pop-in .22s cubic-bezier(.2,.7,.2,1)}
+dialog[open]::backdrop{animation:fade-in .2s ease}
+.cp{animation:pop-in .18s cubic-bezier(.2,.7,.2,1)}
+.anim-in{animation:rise-in .4s cubic-bezier(.2,.7,.2,1) both}
+.ss-panel{animation:pop-in .18s cubic-bezier(.2,.7,.2,1)}
+/* Table rows and badges ease into their hover colour; the current menu link's icon gives a small nudge on arrival. */
+tbody tr{transition:background .18s ease}
+.badge,.pill{transition:transform .15s ease} .badge:hover,.pill:hover{transform:scale(1.05)}
+@keyframes nudge{0%,100%{transform:none}40%{transform:scale(1.18) rotate(-6deg)}}
+.sidebar nav a.on svg{animation:nudge .5s cubic-bezier(.3,1.4,.5,1) .35s both}
+@media (prefers-reduced-motion:reduce){
+  .content > *,dialog[open],dialog[open]::backdrop,.cp,.anim-in,.ss-panel,.sidebar nav a.on svg{animation:none}
+  .sidebar nav a:hover,body .btn:not(:disabled):hover,body .btn:not(:disabled):active,.badge:hover,.pill:hover{transform:none}
+}
+
+
+/* Dark or light (partials/theme-toggle): the moon turns away and the sun rises in its place; the page cross-fades
+   between the two (View Transitions, theme-head). */
+.theme-toggle{position:relative;width:38px;height:38px;flex:none;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;overflow:hidden;transition:border-color .2s,background .2s}
+.theme-toggle:hover{border-color:var(--brand)}
+.theme-toggle svg{position:absolute;inset:9px;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .5s cubic-bezier(.3,1.4,.5,1),opacity .3s}
+.theme-toggle .sun{transform:translateY(22px) rotate(-90deg);opacity:0;color:var(--gold)}
+[data-theme=dark] .theme-toggle .moon{transform:translateY(-22px) rotate(90deg);opacity:0}
+[data-theme=dark] .theme-toggle .sun{transform:none;opacity:1}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.4s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
+[data-theme=dark] .sidebar{background:linear-gradient(165deg,rgba(25,58,59,.94),rgba(13,34,35,.97))}
+
+/* The logo's letter turns over like a coin under the pointer. */
+.mark{transition:transform .7s cubic-bezier(.3,1.3,.5,1)}
+a:hover > .mark{transform:rotateY(1turn)}
+
+/* A total in the statements is ruled twice underneath, as on paper; the rule is drawn in when the table appears. */
+@keyframes rule-draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.fs-table tr.total td.num{position:relative}
+.fs-table tr.total td.num::after{content:'';position:absolute;inset-inline:12px;bottom:5px;height:3px;border-block:1px solid var(--brand-ink);
+  transform-origin:right;animation:rule-draw .7s cubic-bezier(.2,.7,.2,1) .25s both}
+[dir=ltr] .fs-table tr.total td.num::after{transform-origin:left}
+
+/* The audit stamp: pressed on when a trial balance balances (classifier). */
+@keyframes stamp-in{0%{opacity:0;transform:scale(1.9) rotate(-2deg)}55%{opacity:1;transform:scale(.92) rotate(-9deg)}75%{transform:scale(1.03) rotate(-7deg)}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+@keyframes ink-ring{from{opacity:.55;transform:scale(.6)}to{opacity:0;transform:scale(1.5)}}
+.stamp{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:8px 18px;border-radius:12px;
+  border:3px double var(--ok);color:var(--ok);font-weight:800;letter-spacing:.5px;transform:rotate(-8deg);
+  animation:stamp-in .6s cubic-bezier(.3,.8,.3,1) .55s both}
+.stamp::before{content:'';position:absolute;inset:-6px;border-radius:16px;border:2px solid var(--ok);opacity:0;animation:ink-ring .7s ease-out .85s}
+.stamp b{font-size:20px} .stamp small{font-size:11.5px;font-weight:600;opacity:.8}
+
+@media (prefers-reduced-motion:reduce){
+  .theme-toggle svg,.mark{transition:none} a:hover > .mark{transform:none}
+  .fs-table tr.total td.num::after,.stamp,.stamp::before{animation:none}
+}
+
+/* A count beside a menu link (Navigation::counts): accounts waiting for approval. Folded, it sits on the icon. */
+.sidebar nav a{position:relative}
+.nav-count{margin-inline-start:auto;min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:var(--gold);color:#2a1f08;
+  font-size:12px;font-weight:700;display:grid;place-items:center;font-variant-numeric:tabular-nums;animation:pop-in .3s cubic-bezier(.3,1.4,.5,1) .3s both}
+.shell.folded .nav-count{position:absolute;top:4px;inset-inline-end:14px;min-width:18px;height:18px;padding:0 5px;font-size:10.5px}
+@media (prefers-reduced-motion:reduce){.nav-count{animation:none}}
+
+/* Scrollbars in the app's colours: a teal thumb with a hint of gold on hover, on a quiet track; none on the menu.
+   Chrome and Safari draw ::-webkit-scrollbar; Firefox takes scrollbar-color (given only there: in Chrome it would win
+   over the rounded thumb). */
+:root{--scroll-thumb:rgba(46,105,103,.55);--scroll-thumb-hover:linear-gradient(180deg,var(--brand),var(--gold));--scroll-track:transparent}
+:root[data-theme=dark]{--scroll-thumb:rgba(95,179,168,.45)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:var(--scroll-track)}
+::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:99px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb-hover);border-width:2px;background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+/* The menu scrolls (wheel, touch, keys) without a scrollbar of its own. */
+.sidebar{scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+@supports (-moz-appearance:none){
+  *{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) transparent}
+}
+
+/* Column order (public/js/table-columns.js): a header can be dragged; a bar shows where it will land. */
+th.col-drag{cursor:grab;user-select:none;position:relative}
+th.col-drag:hover{color:var(--text)}
+th.col-moving{opacity:.45}
+th.col-before::before,th.col-after::after{content:'';position:absolute;top:4px;bottom:4px;width:3px;border-radius:3px;background:var(--brand)}
+th.col-before::before{inset-inline-start:-2px} th.col-after::after{inset-inline-end:-2px}
+#colToast{position:fixed;bottom:22px;inset-inline-start:50%;transform:translate(50%,12px);z-index:1200;padding:9px 18px;border-radius:12px;
+  background:var(--panel);color:var(--ok);border:1px solid var(--ok-line);box-shadow:var(--pop-shadow);font-size:14px;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s}
+[dir=ltr] #colToast{transform:translate(-50%,12px)}
+#colToast.on{opacity:1;transform:translate(50%,0)} [dir=ltr] #colToast.on{transform:translate(-50%,0)}
+#colToast.bad{color:var(--bad);border-color:var(--bad-line)}
+
+/* Searchable dropdowns (public/js/select-search.js) */
+.ss-panel{position:fixed;z-index:1000;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);overflow:hidden;font:inherit;font-size:14px;color:var(--text)}
+.ss-search{margin:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--text);font:inherit;outline:none}
+.ss-search:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.ss-list{overflow-y:auto;padding:0 6px 6px;scrollbar-width:thin}
+.ss-option{padding:7px 10px;border-radius:7px;cursor:pointer;line-height:1.5}
+.ss-option.active{background:var(--brand-soft);color:var(--brand-ink)}
+.ss-option.selected{font-weight:600}
+.ss-option.disabled{opacity:.45;cursor:default}
+.ss-group{padding:8px 10px 4px;font-size:12px;font-weight:600;color:var(--muted)}
+.ss-empty{padding:10px;color:var(--muted);text-align:center}
+
+/* The hint under a link of the main side menu: what is there, in plain words. */
+.sidebar nav a .label{display:flex;flex-direction:column;min-width:0;line-height:1.35}
+.sidebar nav a .hint{display:block;font-size:11.5px;font-weight:400;opacity:.62;margin-top:1px;white-space:normal}
+.sidebar nav a.on .hint{opacity:.8}
+
+/* The client the work pages are about, under the work section of the main side menu. */
+.sidebar .cur-client{display:flex;flex-direction:column;gap:1px;margin:4px 10px 6px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.1);color:#fff;text-decoration:none;line-height:1.35}
+.sidebar .cur-client small{font-size:11px;opacity:.65}
+.sidebar .cur-client b{font-size:13.5px}
+.shell.folded .sidebar .cur-client{display:none}.mark img{width:100%;height:100%;object-fit:contain;border-radius:inherit;background:#fff;display:block}
+
+/* The loader over a page while something takes time (public/js/busy.js) */
+.busy{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:16px;background:rgba(10,20,30,.55);backdrop-filter:blur(3px);animation:busy-in .2s ease both}
+.busy-card{width:min(380px,100%);padding:28px 26px 22px;border-radius:22px;background:var(--panel,#fff);color:var(--text,#111);border:1px solid var(--line,#ddd);box-shadow:0 24px 60px rgba(0,0,0,.28);text-align:center}
+.busy-ring{position:relative;width:132px;height:132px;margin:0 auto 14px}
+.busy-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+[dir=rtl] .busy-ring svg{transform:rotate(-90deg) scaleY(-1)}
+.busy-ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.busy-ring .t{stroke:var(--line,#e3e3e3)}
+.busy-ring .v{stroke:var(--brand,#0f766e);transition:stroke-dashoffset .35s ease;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--brand,#0f766e) 45%,transparent))}
+.busy-pct{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.busy-title{font-size:17px;font-weight:700}
+.busy-text{min-height:20px;margin-top:4px;color:var(--muted,#667);font-size:13.5px}
+.busy-bar{height:6px;border-radius:99px;background:var(--line,#e3e3e3);overflow:hidden;margin:14px 0 0}
+.busy-bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--brand,#0f766e),var(--brand2,#2dd4bf));transition:width .35s ease}
+.busy-time{margin-top:12px;color:var(--muted,#667);font-size:13px}
+.busy-time b{font-variant-numeric:tabular-nums;color:var(--text,#111)}
+.busy-hint{margin:10px 0 0;color:var(--muted,#667);font-size:12.5px}
+html.busy-on{overflow:hidden}
+@keyframes busy-in{from{opacity:0}to{opacity:1}}
+/* a thin moving line for what the server is still working on in the background (a page that looks again by itself) */
+.busy-line{height:4px;border-radius:99px;background:var(--line,#e3e3e3);overflow:hidden;margin-top:8px;position:relative}
+.busy-line::after{content:'';position:absolute;inset-block:0;width:38%;border-radius:99px;background:linear-gradient(90deg,var(--brand,#0f766e),var(--brand2,#2dd4bf));animation:busy-slide 1.3s ease-in-out infinite}
+@keyframes busy-slide{from{inset-inline-start:-40%}to{inset-inline-start:100%}}
+@media (prefers-reduced-motion:reduce){.busy,.busy-line::after{animation:none}.busy-ring .v,.busy-bar i{transition:none}}

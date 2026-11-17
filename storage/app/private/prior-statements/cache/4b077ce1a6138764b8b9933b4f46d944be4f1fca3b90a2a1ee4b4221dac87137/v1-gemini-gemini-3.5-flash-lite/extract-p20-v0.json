@@ -1,0 +1,232 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "number": null,
+                "type": "heading",
+                "text": "شركة إعادة الشباب الطبية",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "columns": [],
+                "rows": [],
+                "text": "(شركة شخص واحد ذات مسؤولية محدودة)",
+                "type": "heading",
+                "number": null
+            },
+            {
+                "columns": [],
+                "text": "إيضاحات حول القوائم المالية (تتمة)",
+                "number": null,
+                "rows": [],
+                "type": "heading"
+            },
+            {
+                "rows": [],
+                "text": "للسنة المنتهية في ٣١ ديسمبر ٢٠٢٤م",
+                "type": "heading",
+                "columns": [],
+                "number": null
+            },
+            {
+                "number": null,
+                "type": "heading",
+                "columns": [],
+                "text": "(جميع المبالغ بالريال السعودي مالم يذكر خلاف ذلك)",
+                "rows": []
+            },
+            {
+                "type": "heading",
+                "columns": [],
+                "rows": [],
+                "text": "١٠- ممتلكات ومعدات (تتمة)",
+                "number": null
+            },
+            {
+                "columns": [],
+                "type": "heading",
+                "number": null,
+                "text": "٢٠٢٣م",
+                "rows": []
+            },
+            {
+                "text": null,
+                "number": null,
+                "columns": [
+                    {
+                        "header": "ادوات طبية"
+                    },
+                    {
+                        "header": "الات ومعدات"
+                    },
+                    {
+                        "header": "اثاث ومفروشات"
+                    },
+                    {
+                        "header": "سيارات"
+                    },
+                    {
+                        "header": "تحسينات على \/ مباني المستأجرة"
+                    },
+                    {
+                        "header": "الإجمالي"
+                    }
+                ],
+                "rows": [
+                    {
+                        "note": null,
+                        "cells": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        ],
+                        "label": "التكلفة:"
+                    },
+                    {
+                        "cells": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        ],
+                        "note": null,
+                        "label": "كما في ١ يناير ٢٠٢٣م"
+                    },
+                    {
+                        "cells": [
+                            "٢٣٧,١٠٥",
+                            "١,٥٥٢,٥٣٧",
+                            "٩٠٣,٣٩١",
+                            null,
+                            "١٥,٣٧٠,٧١٣",
+                            "١٨,٠٦٣,٧٤٦"
+                        ],
+                        "label": "المحول من مشاريع تحت التنفيذ",
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            "٢٥٣,٤٢٧",
+                            null,
+                            null,
+                            null,
+                            null,
+                            "٢٥٣,٤٢٧"
+                        ],
+                        "note": null,
+                        "label": "المحول من دفعات مقدمة لشراء اصول"
+                    },
+                    {
+                        "cells": [
+                            "١٤,٢٩٦,٧٧١",
+                            "٤٢٨,٣٧٢",
+                            "١٣٦,٤٦٧",
+                            "٨٤,٠٠٠",
+                            "٣٤١,٨٠١",
+                            "١٥,٢٨٧,٤١١"
+                        ],
+                        "label": "إضافات خلال السنة",
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "١٤,٧٨٧,٣٠٣",
+                            "١,٩٨٠,٩٠٩",
+                            "١,٠٣٩,٨٥٨",
+                            "٨٤,٠٠٠",
+                            "١٥,٧١٢,٥١٤",
+                            "٣٣,٦٠٤,٥٨٤"
+                        ],
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٣م"
+                    },
+                    {
+                        "cells": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        ],
+                        "label": "مجمع الاستهلاك",
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        ],
+                        "label": "كما في ١ يناير ٢٠٢٣م"
+                    },
+                    {
+                        "cells": [
+                            "٦٨٣,٠٩٨",
+                            "٢٩٦,٩١٧",
+                            "٧٠,٣٢٨",
+                            "١١,٧٢٨",
+                            "٧٩٦,٠٩٣",
+                            "١,٨٥٨,١٦٤"
+                        ],
+                        "note": null,
+                        "label": "استهلاك السنة"
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "٦٨٣,٠٩٨",
+                            "٢٩٦,٩١٧",
+                            "٧٠,٣٢٨",
+                            "١١,٧٢٨",
+                            "٧٩٦,٠٩٣",
+                            "١,٨٥٨,١٦٤"
+                        ],
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٣م"
+                    },
+                    {
+                        "label": "صافي القيمة الدفترية:",
+                        "cells": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                        ],
+                        "note": null
+                    },
+                    {
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٣م",
+                        "note": null,
+                        "cells": [
+                            "١٤,١٠٤,٢٠٥",
+                            "١,٦٨٣,٩٩٢",
+                            "٩٦٩,٥٣٠",
+                            "٧٢,٢٧٢",
+                            "١٤,٩١٦,٤٢١",
+                            "٣١,٧٤٦,٤٢٠"
+                        ]
+                    }
+                ],
+                "type": "table"
+            }
+        ]
+    },
+    "usage": {
+        "input": 1319,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 1017
+    }
+}

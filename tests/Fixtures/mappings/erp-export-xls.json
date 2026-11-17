@@ -1,0 +1,31 @@
+{
+    "sheet": 3,
+    "header_rows": [
+        2
+    ],
+    "first_data_row": 3,
+    "columns": {
+        "account_number": "D",
+        "account_name": "E",
+        "opening_debit": "F",
+        "opening_credit": "G",
+        "period_debit": "H",
+        "period_credit": "I",
+        "closing_debit": "J",
+        "closing_credit": "K",
+        "existing_classification": "B",
+        "existing_note_classification": "C"
+    },
+    "other_sheets": [
+        {
+            "sheet": 1,
+            "type": "other",
+            "description": "Trial balance report with account totals per account, formatted with header blocks and 'الاجمـــالي' subtotal rows per account; duplicate of sheet 3 data in a different layout"
+        },
+        {
+            "sheet": 2,
+            "type": "other",
+            "description": "Similar trial balance data as sheet 1 but with raw numeric formatting and repeated header\/account block rows, redundant with sheet 3"
+        }
+    ]
+}

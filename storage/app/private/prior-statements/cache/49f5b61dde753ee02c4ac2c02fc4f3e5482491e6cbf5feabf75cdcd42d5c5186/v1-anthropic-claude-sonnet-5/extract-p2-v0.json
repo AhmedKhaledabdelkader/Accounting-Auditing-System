@@ -1,0 +1,104 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "type": "heading",
+                "number": null,
+                "text": "الإيضاحات",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "heading",
+                "number": "8",
+                "text": "مصاريف مقدمة وأرصدة مدينة أخرى",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "table",
+                "number": null,
+                "text": null,
+                "columns": [
+                    {
+                        "header": "2024"
+                    },
+                    {
+                        "header": "2023"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "الزكاة",
+                        "note": null,
+                        "cells": [
+                            "50",
+                            "-"
+                        ]
+                    },
+                    {
+                        "label": "",
+                        "note": null,
+                        "cells": [
+                            "50",
+                            "-"
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "number": "11",
+                "text": "مصاريف مستحقة وأرصدة دائنة أخرى",
+                "columns": [],
+                "rows": []
+            },
+            {
+                "type": "table",
+                "number": null,
+                "text": null,
+                "columns": [
+                    {
+                        "header": "2024"
+                    },
+                    {
+                        "header": "2023"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "ضريبة القيمة المضافة",
+                        "note": null,
+                        "cells": [
+                            "50",
+                            "-"
+                        ]
+                    },
+                    {
+                        "label": "استقطاعات",
+                        "note": null,
+                        "cells": [
+                            "30",
+                            "-"
+                        ]
+                    },
+                    {
+                        "label": "",
+                        "note": null,
+                        "cells": [
+                            "80",
+                            "-"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "tables": []
+    },
+    "usage": {
+        "input": 100,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 20
+    }
+}
