@@ -759,6 +759,50 @@ class ClientPortalTest extends TestCase
         $this->assertSame(4, \App\Models\ClientArchive::count());
     }
 
+    public function test_an_ai_answer_cut_off_by_its_limit_splits_the_batch_and_never_fails_the_archive(): void
+    {
+        Storage::fake('local');
+        $office = $this->office('alpha');
+        $sara = $this->staff($office);
+        [$company, $login] = $this->client($office, $sara);
+        $tb = DocumentRequest::where('company_id', $company->id)->where('title', 'like', '%ميزان مراجعة معتمد%')->first();
+        $names = [];
+        foreach (range(1, 12) as $n) {
+            $names["ملفات/ميزان المراجعة {$n}.pdf"] = "%PDF-1.4 {$n}";
+        }
+        // The AI cuts off (MAX_TOKENS) on any batch of more than 6 files: it must be asked again in halves.
+        $calls = [];
+        $driver = new class($tb->id, $calls) implements \App\Support\Llm\ClassifierDriver
+        {
+            public function __construct(private int $request, public array &$calls) {}
+
+            public function classify(\App\Support\Llm\ToolCall $call): \GuzzleHttp\Promise\PromiseInterface
+            {
+                preg_match_all('/^\[(\d+)\] /m', $call->content, $m);
+                $this->calls[] = count($m[1]);
+                if (count($m[1]) > 6) {
+                    return \GuzzleHttp\Promise\Create::promiseFor(new \App\Support\Llm\ToolAnswer([], null, 'MAX_TOKENS'));
+                }
+
+                return \GuzzleHttp\Promise\Create::promiseFor(new \App\Support\Llm\ToolAnswer(['assignments' => array_map(fn ($i) => ['index' => (int) $i, 'request_id' => $this->request, 'confident' => true], $m[1])], null));
+            }
+        };
+        config(['financial_statements.prior_pdf.cache' => sys_get_temp_dir().'/split-'.uniqid()]);
+        $this->app->instance(\App\Support\Llm\ClassifierDriver::class, $driver);
+        $this->app->forgetInstance(\App\Services\Statements\PriorPdf\Llm::class);
+        $this->actingAs($login);
+
+        $this->post('/portal/archive', ['archive' => $this->zip($names), 'year' => 2025])->assertRedirect();
+
+        $archive = \App\Models\ClientArchive::first();
+        $this->assertSame('done', $archive->status);                                  // not «The AI gave no answer (MAX_TOKENS)»
+        $this->assertNull($archive->error);
+        $this->assertSame([12, 12, 0], [$archive->summary['total'], $archive->summary['placed'], $archive->summary['unsorted']]);
+        $this->assertSame(12, $tb->files()->where('from_client', true)->count());
+        $this->assertContains(12, $driver->calls);                                       // the whole batch was tried first, then halves of 6
+        $this->assertContains(6, $driver->calls);
+    }
+
     public function test_the_office_sends_a_clients_files_in_one_compressed_file_too(): void
     {
         Storage::fake('local');

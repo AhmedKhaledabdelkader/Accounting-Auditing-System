@@ -190,4 +190,60 @@ class ZakatTaxStepTest extends TestCase
         $z = $this->getJson(self::URL."/{$id}")->assertOk()->json('zakat_tax');
         $this->assertEquals([100.0, 'sole_proprietorship'], [$z['inputs']['saudi_share'], $z['saudi_share_from']]);
     }
+
+    public function test_the_accountant_chooses_the_amount_the_statements_carry(): void
+    {
+        // The trial balance books 10; the calculation gives more.
+        $id = $this->report([$this->account(7, 'مصروف الزكاة الشرعية', ['closing' => 10]), $this->account(8, 'مخصص الزكاة الشرعية', ['closing' => -10])]);
+        $z = $this->getJson(self::URL."/{$id}")->json('zakat_tax');
+        $calculated = $z['zakat']['amount'];
+        $this->assertSame('auto', $z['adopt']['zakat']);
+        $this->assertEquals(['calculated' => $calculated, 'booked' => 10.0, 'manual' => null], $z['candidates']['zakat']);
+        $this->assertEquals(10.0, $z['in_statements']['zakat']);
+
+        // The calculation adopted: the statements carry it, the difference posted.
+        $state = $this->putJson(self::URL."/{$id}/zakat-tax", ['adopt' => ['zakat' => 'calculated']])->assertOk()->json();
+        $this->assertSame('calculated', $state['zakat_tax']['adopt']['zakat']);
+        $this->assertEquals(-$calculated, $this->figure($state, 'comprehensive_income', 'is.zakat'));
+        $this->assertEquals($calculated, $this->figure($state, 'financial_position', 'sofp.zakat_provision'));
+        $this->assertEquals($calculated, $state['zakat_tax']['in_statements']['zakat']);
+
+        // The accountant's own amount: required with the choice, then carried.
+        $this->putJson(self::URL."/{$id}/zakat-tax", ['adopt' => ['zakat' => 'manual']])->assertStatus(422)->assertJsonValidationErrors('manual.zakat');
+        $state = $this->putJson(self::URL."/{$id}/zakat-tax", ['adopt' => ['zakat' => 'manual'], 'manual' => ['zakat' => 25.5]])->assertOk()->json();
+        $this->assertEquals(-25.5, $this->figure($state, 'comprehensive_income', 'is.zakat'));
+        $this->assertEquals(25.5, $state['zakat_tax']['candidates']['zakat']['manual']);
+
+        // The books' figure: nothing added.
+        $state = $this->putJson(self::URL."/{$id}/zakat-tax", ['adopt' => ['zakat' => 'booked']])->assertOk()->json();
+        $this->assertEquals(-10.0, $this->figure($state, 'comprehensive_income', 'is.zakat'));
+        // Back to automatic: as the trial balance books it.
+        $state = $this->putJson(self::URL."/{$id}/zakat-tax", ['adopt' => ['zakat' => null]])->assertOk()->json();
+        $this->assertSame('auto', $state['zakat_tax']['adopt']['zakat']);
+        $this->assertEquals(-10.0, $this->figure($state, 'comprehensive_income', 'is.zakat'));
+        $this->putJson(self::URL."/{$id}/zakat-tax", ['adopt' => ['zakat' => 'guess']])->assertStatus(422);
+    }
+
+    public function test_the_accountant_corrects_the_calculation_line_by_line(): void
+    {
+        $id = $this->report();
+        $z = $this->getJson(self::URL."/{$id}")->json('zakat_tax');
+        $capital = collect($z['equity']['rows'])->firstWhere('line', 'sofp.share_capital');
+        $this->assertNotNull($capital);
+        $this->assertFalse($capital['edited']);
+
+        $state = $this->putJson(self::URL."/{$id}/zakat-tax", ['inputs' => ['overrides' => ['sofp.share_capital' => 100100, 'is.profit_before_zakat' => 700]]])->assertOk()->json();
+        $after = $state['zakat_tax'];
+        $row = collect($after['equity']['rows'])->firstWhere('line', 'sofp.share_capital');
+        $this->assertEquals([100100.0, true, $capital['amount']], [$row['amount'], $row['edited'], $row['computed']]);
+        $this->assertEquals($z['equity']['total'] + 100100 - $capital['amount'], $after['equity']['total']);
+        $this->assertTrue($after['profit']['before_charges_edited']);
+        $this->assertEquals(700.0, $after['profit']['before_charges']);
+        $this->assertGreaterThan($z['zakat']['amount'], $after['zakat']['amount']);
+
+        // A line not on the sheet is refused; null drops every correction.
+        $this->putJson(self::URL."/{$id}/zakat-tax", ['inputs' => ['overrides' => ['sofp.unknown_line' => 1]]])->assertStatus(422)->assertJsonValidationErrors('inputs.overrides');
+        $state = $this->putJson(self::URL."/{$id}/zakat-tax", ['inputs' => ['overrides' => null]])->assertOk()->json();
+        $this->assertEquals($z['zakat']['amount'], $state['zakat_tax']['zakat']['amount']);
+    }
 }

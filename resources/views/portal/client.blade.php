@@ -102,6 +102,8 @@
         </details>
       @endif
 
+      @if ($canManage)@include('portal._follow-up', ['year' => $year, 'emails' => $emails])@endif
+
       @if ($canManage)@include('portal._archive', ['action' => route('clients.archive', $company), 'years' => $years, 'year' => $year, 'archives' => $archives])@endif
 
       @include('portal._requests', ['mode' => 'office'])

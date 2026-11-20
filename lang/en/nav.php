@@ -16,6 +16,7 @@ return [
         'requirements' => ['Requirements', 'The documents asked of the client, and their follow-up'],
         'papers' => ['Working papers', 'Prepared by the AI reviewer from the documents of the client'],
         'recalc' => ['Recalculation', 'The AI reviewer recalculates provisions and depreciation'],
+        'findings' => ['Audit findings', 'Differences between the documents, the trial balance and the recalculations'],
         'cache' => ['Classification memory', 'How classifications are kept and used again'],
         'memory' => ['Saved accounts', 'Review and correct the saved classifications'],
         'rules' => ['Classification rules', 'The accountant\'s decisions for groups of accounts'],

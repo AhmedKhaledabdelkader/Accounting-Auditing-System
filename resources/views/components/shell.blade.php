@@ -27,6 +27,14 @@
       </nav>
     @endforeach
     @if ($user)
+      @php $aiBudget = App\Support\Llm\AiBudget::of($user->id); @endphp
+      @if ($aiBudget)
+        @php $aiPct = min(100, round($aiBudget['spent'] / max($aiBudget['limit'], 0.0001) * 100)); @endphp
+        <a class="ai-meter {{ $aiPct >= 100 ? 'out' : ($aiPct >= 80 ? 'low' : '') }}" href="{{ route('ai-limit') }}" title="{{ __('auth_pages.ai_limit.meter') }}">
+          <span class="label">{{ __('auth_pages.ai_limit.meter') }} <b dir="ltr">${{ number_format(max(0, $aiBudget['limit'] - $aiBudget['spent']), 2) }}</b></span>
+          <span class="bar"><i style="width:{{ $aiPct }}%"></i></span>
+        </a>
+      @endif
       <div class="foot">
         <a href="/account" title="{{ __('auth_pages.nav.account') }}" @class(['me', 'on' => request()->is('account')])>
           <span class="avatar">{{ $initials }}</span>

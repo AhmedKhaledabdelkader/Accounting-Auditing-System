@@ -28,7 +28,9 @@ final class ArchiveSorter
     /** The request that holds what could not be placed by its name. */
     public const UNSORTED = 'unsorted';
 
-    private const CHUNK = 80;
+    private const CHUNK = 40;
+
+    private const MIN_BATCH = 5;
 
     public function __construct(private ArchiveExtractor $extractor, private Llm $llm) {}
 
@@ -49,7 +51,9 @@ final class ArchiveSorter
             $summary = $this->file($archive, $company, $files, $assigned, $skipped);
             $archive->update(['status' => ClientArchive::DONE, 'summary' => $summary]);
         } catch (RuntimeException $e) {
-            $archive->update(['status' => ClientArchive::FAILED, 'error' => $e->getMessage()]);
+            // Only the reasons the page has words for; anything else is the AI being unavailable, never a raw message on the page.
+            $known = ['unreadable', 'encrypted', 'no_tool', 'too_big', 'too_many_files', 'empty'];
+            $archive->update(['status' => ClientArchive::FAILED, 'error' => in_array($e->getMessage(), $known, true) ? $e->getMessage() : 'ai_unavailable']);
         } catch (\Throwable $e) {
             report($e);
             $archive->update(['status' => ClientArchive::FAILED, 'error' => 'ai_unavailable']);
@@ -70,16 +74,44 @@ final class ArchiveSorter
     {
         $list = implode("\n", array_map(fn ($id, $t) => "[{$id}] {$t}", array_keys($catalogue), $catalogue));
         $out = array_fill_keys(array_keys($files), null);
-        foreach (array_chunk(array_keys($files), self::CHUNK) as $n => $indexes) {
-            $lines = implode("\n", array_map(fn ($i) => "[{$i}] {$files[$i]['path']} ({$files[$i]['ext']}, ".round($files[$i]['size'] / 1024).' KB)', $indexes));
-            $answer = $this->llm->ask($archivePath, 'archive-names', $n, crc32($list) % 997, fn () => new ToolCall([['text' => self::RULES."\n\nThe client's requests:\n{$list}"]], self::TOOL,
-                "The files in the archive:\n{$lines}", 6000));
-            foreach ((array) ($answer->input['assignments'] ?? []) as $a) {
-                $i = (int) ($a['index'] ?? -1);
-                if (isset($out[$i]) || array_key_exists($i, $out)) {
-                    $id = isset($a['request_id']) ? (int) $a['request_id'] : null;
-                    $out[$i] = $id !== null && isset($catalogue[$id]) && ($a['confident'] ?? false) === true ? $id : null;
-                }
+        foreach (array_chunk(array_keys($files), self::CHUNK) as $indexes) {
+            foreach ($this->assignChunk($archivePath, $files, $indexes, $list, $catalogue) as $i => $id) {
+                $out[$i] = $id;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * One batch of files. The answer can be cut off (the model's limit, its reasoning crowding out the list) or come back empty: the
+     * batch is then split in two and each half asked again, down to a few files; what still cannot be answered is left unplaced (it goes to
+     * the unsorted request for the accountant), never failing the whole archive. A provider failure (key, credit) still stops it.
+     *
+     * @return array<int, ?int> file index → request id
+     */
+    private function assignChunk(string $archivePath, array $files, array $indexes, string $list, array $catalogue): array
+    {
+        $out = array_fill_keys($indexes, null);
+        $lines = implode("\n", array_map(fn ($i) => "[{$i}] {$files[$i]['path']} ({$files[$i]['ext']}, ".round($files[$i]['size'] / 1024).' KB)', $indexes));
+        $page = crc32(implode(',', $indexes));   // each batch (and each half of a split one) is kept under its own key
+        try {
+            $answer = $this->llm->ask($archivePath, 'archive-names', $page, crc32($list) % 997, fn () => new ToolCall([['text' => self::RULES."\n\nThe client's requests:\n{$list}"]], self::TOOL,
+                "The files in the archive:\n{$lines}", 12000));
+        } catch (RuntimeException $e) {
+            if (count($indexes) <= self::MIN_BATCH) {
+                return $out;
+            }
+            $half = intdiv(count($indexes), 2);
+
+            return $this->assignChunk($archivePath, $files, array_slice($indexes, 0, $half), $list, $catalogue)
+                + $this->assignChunk($archivePath, $files, array_slice($indexes, $half), $list, $catalogue);
+        }
+        foreach ((array) ($answer->input['assignments'] ?? []) as $a) {
+            $i = (int) ($a['index'] ?? -1);
+            if (array_key_exists($i, $out)) {
+                $id = isset($a['request_id']) ? (int) $a['request_id'] : null;
+                $out[$i] = $id !== null && isset($catalogue[$id]) && ($a['confident'] ?? false) === true ? $id : null;
             }
         }
 
@@ -129,7 +161,7 @@ final class ArchiveSorter
     }
 
     /** The request holding the files that could not be placed: not asked of the client, open only while it has files. */
-    private function unsortedRequest(Company $company, int $year): DocumentRequest
+    public function unsortedRequest(Company $company, int $year): DocumentRequest
     {
         $request = DocumentRequest::withoutGlobalScopes()->where('company_id', $company->id)->where('year', $year)->where('paper', self::UNSORTED)->first();
         if ($request === null) {

@@ -93,6 +93,8 @@ class FinancialReportPagesTest extends TestCase
             'zakat_step_${key}' => $family('/^zakat_step_(equity|non_current_liabilities|profit_difference|current_excess|extra_additions|deducted_assets|extra_deductions|base|minimum|maximum|final_base)$/'),
             'zakat_art_${key}' => $family('/^zakat_art_(equity|non_current_liabilities|profit_difference|current_excess|extra_additions|deducted_assets|extra_deductions|base|minimum|maximum|final_base)$/'),
             'zakat_charge_${kind}' => ['zakat_charge_zakat', 'zakat_charge_income_tax'],
+            'zakat_charge_${charge}' => ['zakat_charge_zakat', 'zakat_charge_income_tax'],
+            'zakat_adopt_is_${chosen}' => ['zakat_adopt_is_calculated', 'zakat_adopt_is_booked', 'zakat_adopt_is_manual'],
             'zakat_source_${source}' => $family('/^zakat_source_(trial_balance|input|dialog|none)$/'),
             'zakat_in_${key}' => $family('/^zakat_in_(profit_additions|profit_deductions|loss_carryforward|deducted_current_assets|noncurrent_as_current|extra_additions|extra_deductions)$/'),
             'zakat_in_${key}_hint' => $family('/^zakat_in_(profit_additions|profit_deductions|loss_carryforward|deducted_current_assets|noncurrent_as_current|extra_additions|extra_deductions)_hint$/'),

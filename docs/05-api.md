@@ -175,6 +175,25 @@ Validation errors are always JSON for `/api/*`.
 
 Every endpoint, with request and response shapes, is in the OpenAPI spec at `/api/docs`. **None has authentication yet**; the cache import, export and correction endpoints must be protected before any deployment.
 
+## Clients: follow-up by email, prepared papers, the mailbox (2026-11-19)
+
+Documented in `public/docs/openapi.yaml` (tags *Client follow-up*, *Working papers*, *Mailbox*) and checked by `ApiContractTest`. Each needs a signed-in user (session or API key) with `clients.view` (reading) or `clients.manage` (everything else); a client of another office is a 404.
+
+| Method | Path | What |
+|---|---|---|
+| GET | `/api/v1/clients/{id}/follow-up?year=` | What is missing, whether an email can go, the emails sent and received |
+| POST | `/api/v1/clients/{id}/follow-up/draft` | The AI's email for the missing documents (nothing is sent; `draft` null when nothing is missing; 502 when the AI fails) |
+| POST | `/api/v1/clients/{id}/follow-up/send` | Sends it from the user's own mailbox (`[REF]` added to the subject); 422 no address / no mailbox, 502 the mail server refused (in words) |
+| POST | `/api/v1/clients/{id}/follow-up/replies` | A reply entered by hand (multipart, `files[]`): read by the AI, files filed in the requests |
+| GET | `/api/v1/clients/{id}/prepared-papers?year=&kind=` | The 21 working papers / recalculations and where each one's preparation is |
+| POST | `/api/v1/clients/{id}/prepared-papers` | Starts the AI on one paper (`key`) or all of a `kind` (202, queued) |
+| GET | `/api/v1/clients/{id}/prepared-papers/{paper}/download` | The prepared workbook |
+| GET / PUT / DELETE | `/api/v1/account/mail` | The user's mailbox (the password written, never read back); PUT saves and tests (SMTP, then IMAP) |
+| POST | `/api/v1/account/mail/test` | A test message to the mailbox's own address |
+| POST | `/api/v1/account/mail/check` | Reads the clients' replies now |
+
+Also changed in existing responses: the opening-balance comparison (`opening_check`, `approved_opening`) calls a difference under `financial_statements.opening_tolerance` (3 riyals) `rounding` = accepted, and `opening_vs_prior_closing` is raised only from 3 riyals. The income statement's main classes are the functions (docs/16): a row's `main_class` is e.g. «المصروفات الإدارية والعمومية», its nature the `sub_class`.
+
 ## Other routes
 
 | Method | Path | Returns |

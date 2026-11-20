@@ -831,7 +831,8 @@ final class NotesBuilder
             $statement = Figure::sum(array_map(fn ($l) => $shown($l, ($scope === 'current' ? $cur : $cmp)[$l] ?? null), $lines));
             $table     = Figure::sum($parts);
             // In whole riyals, as both print (a table of 0.60 under a line of 1 ties).
-            if ($table->isMissing() || $statement->isMissing() || round($table->amount) == round($statement->amount)) {
+            if ($table->isMissing() || $statement->isMissing() || round($table->amount) == round($statement->amount)
+                || abs($table->amount - $statement->amount) <= ReportChecks::tolerance()) {   // under 2 riyals: rounding
                 return;
             }
             $diff = round($table->amount - $statement->amount, 2);
@@ -873,7 +874,7 @@ final class NotesBuilder
             $get = fn ($r) => $cells["{$s['key']}.{$r}.amount"] ?? new Figure(0.0, 'derived');
             $roll = Figure::sum([$get('opening'), $get($s['increase']), $get('prior_year_adjustments'), AssetNotesBuilder::neg($get($s['decrease'])), AssetNotesBuilder::neg($get('reversal'))]);
             $close = $get('closing');
-            if (! $roll->isMissing() && ! $close->isMissing() && abs($roll->amount - $close->amount) > 0.01) {
+            if (! $roll->isMissing() && ! $close->isMissing() && abs($roll->amount - $close->amount) > ReportChecks::tolerance()) {
                 $checks[] = $this->check('provision_rollforward', 'error', $close->amount, $roll->amount, round($roll->amount - $close->amount, 2),
                     ReportChecks::msg('provision_rollforward_comparative', ['title' => $s['title_ar']]),
                     ['scope' => 'comparative', 'line_key' => $s['line_key'], 'schedule' => $s['key']]);

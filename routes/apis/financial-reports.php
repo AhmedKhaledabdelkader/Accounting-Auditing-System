@@ -15,7 +15,7 @@ Route::put('/{id}/zakat-tax', [FinancialReportController::class, 'updateZakatTax
 Route::put('/{id}/account-overrides', [FinancialReportController::class, 'updateOverrides'])->middleware('can:reports.edit')->name('financial-reports.account-overrides');
 Route::put('/{id}/adjustments', [FinancialReportController::class, 'updateAdjustments'])->middleware('can:reports.edit')->name('financial-reports.adjustments');
 Route::put('/{id}/prior-year', [FinancialReportController::class, 'updatePriorYear'])->middleware('can:reports.edit')->name('financial-reports.prior-year');
-Route::post('/{id}/prior-year/statements-file', [FinancialReportController::class, 'uploadPriorStatements'])->middleware('can:reports.edit')->name('financial-reports.prior-year.statements-file');
+Route::post('/{id}/prior-year/statements-file', [FinancialReportController::class, 'uploadPriorStatements'])->middleware('can:reports.edit')->middleware('ai.budget')->name('financial-reports.prior-year.statements-file');
 Route::put('/{id}/prior-year/statements-file/pages', [FinancialReportController::class, 'priorStatementPages'])->middleware('can:reports.edit')->name('financial-reports.prior-year.statements-file.pages');
 Route::put('/{id}/prior-year/statements-file/wording', [FinancialReportController::class, 'priorStatementsWording'])->middleware('can:reports.edit')->name('financial-reports.prior-year.statements-file.wording');
 Route::put('/{id}/prior-year/approved-opening', [FinancialReportController::class, 'approvedOpening'])->middleware('can:reports.edit')->name('financial-reports.prior-year.approved-opening');

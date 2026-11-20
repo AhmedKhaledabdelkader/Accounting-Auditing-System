@@ -27,6 +27,13 @@
       </form>
     </div>
   </div>
+  @can('clients.manage')
+    <div class="panel">
+      <h2>{{ __('mail_account.title') }}</h2>
+      <p class="note">{{ __('mail_account.sub') }}</p>
+      <a class="btn ghost" href="{{ route('account.mail') }}">{{ __('mail_account.open') }}</a>
+    </div>
+  @endcan
   <div class="panel">
     <h2>{{ __('auth_pages.account.columns') }}</h2>
     <p class="note">{{ __('auth_pages.account.columns_hint') }}</p>

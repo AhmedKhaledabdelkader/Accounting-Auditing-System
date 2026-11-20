@@ -6,6 +6,8 @@ use App\Models\ClientFile;
 use App\Models\ClientMessage;
 use App\Models\Company;
 use App\Models\DocumentRequest;
+use App\Services\Audit\DocumentMatch;
+use App\Services\Audit\TrialBalanceBook;
 use App\Services\Statements\PriorPdf\Llm;
 use App\Support\ImportNormalizer;
 use App\Support\Llm\ToolCall;
@@ -28,7 +30,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
  */
 final class DocumentReviewer
 {
-    public const VERSION = 1;
+    public const VERSION = 2;   // 2: the balances the document shows, matched against the trial balance
 
     /** What a problem is called, for the client and the accountant (lang portal.ai.issue.*). */
     public const PROBLEMS = ['unreadable', 'unrecognised', 'mismatch', 'company_mismatch', 'period_mismatch', 'expired', 'unsigned', 'unsupported',
@@ -52,9 +54,21 @@ final class DocumentReviewer
             $read = $this->read($file, $request, $catalogue);
             $verdict = $read === null ? ['status' => 'unsupported', 'issues' => [['code' => 'unsupported']]] : $this->judge($read, $request, $request->company, array_keys($catalogue))
                 + ['read' => $read];
+            if ($read !== null && $read['balances'] !== [] && $request->company !== null) {
+                $verdict['tb'] = self::matchBooks($request, $read['balances']);   // the accountant's finding, never the client's problem
+            }
         }
         $file->update(['review' => $verdict + ['at' => now()->toIso8601String()]]);
         $this->act($file->fresh(), $request->fresh(), $verdict);
+    }
+
+    /** The document's balances against the trial balance of the request's year (DocumentMatch). */
+    public static function matchBooks(DocumentRequest $request, array $balances): array
+    {
+        $company = $request->company;
+        $end = \Illuminate\Support\Carbon::parse(Workspace::periodOf($company, (int) $request->year)['end'])->toDateString();
+
+        return DocumentMatch::compare(TrialBalanceBook::for($company, (int) $request->year), $balances, $end);
     }
 
     /** The AI could not be asked (a provider failure): the accountant reviews it, and the client is told so. */
@@ -216,7 +230,8 @@ final class DocumentReviewer
             // Judged again against the request it answers (the same copy of the document): it may have its own problems there.
             $read = $verdict['read'];
             $again = self::judge($read, $target, $target->company, [$target->id]);
-            $file->update(['review' => $again + ['read' => $read, 'moved_from' => $request->id, 'at' => now()->toIso8601String()]]);
+            $file->update(['review' => $again + ['read' => $read, 'moved_from' => $request->id, 'at' => now()->toIso8601String()]
+                + (isset($verdict['tb']) ? ['tb' => $verdict['tb']] : [])]);
             $this->say($request, __('portal.ai.moved_from', ['file' => $file->original_name, 'to' => $target->title]));
             $this->say($target, __('portal.ai.moved_to', ['file' => $file->original_name]));
             $target->update(['status' => DocumentRequest::UPLOADED]);
@@ -285,7 +300,18 @@ final class DocumentReviewer
     /** The AI's answer, cleaned: ids only of the client's requests, dates as Y-m-d, numbers as numbers. */
     public static function normalise(array $in, array $catalogueIds): array
     {
-        $date = fn ($v) => is_string($v) && ($t = strtotime($v)) !== false ? date('Y-m-d', $t) : null;
+        // Day first where a date is printed with slashes or dots (31/12/2025, as Saudi documents print it), never month first.
+        $date = function ($v) {
+            if (! is_string($v)) {
+                return null;
+            }
+            $v = trim(\App\Services\AmountParser::asciiDigits($v));
+            if (preg_match('#^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{4})$#', $v, $m)) {
+                return checkdate((int) $m[2], (int) $m[1], (int) $m[3]) ? sprintf('%04d-%02d-%02d', $m[3], $m[2], $m[1]) : null;
+            }
+
+            return ($t = strtotime($v)) !== false ? date('Y-m-d', $t) : null;
+        };
         $text = fn ($v) => is_string($v) && trim($v) !== '' ? trim($v) : null;
 
         return [
@@ -301,7 +327,25 @@ final class DocumentReviewer
             'has_signature_or_stamp' => isset($in['has_signature_or_stamp']) && is_bool($in['has_signature_or_stamp']) ? $in['has_signature_or_stamp'] : null,
             'amounts' => array_values(array_filter(array_map(fn ($a) => isset($a['label'], $a['value']) && is_numeric($a['value']) ? ['label' => (string) $a['label'], 'value' => (float) $a['value']] : null, (array) ($in['amounts'] ?? [])))),
             'summary' => (string) ($text($in['summary'] ?? null) ?? ''),
+            'balances' => self::balances((array) ($in['balances'] ?? []), $date, $text),
         ];
+    }
+
+    /** The balances the document shows, cleaned: a known kind, a number, a date as Y-m-d. */
+    private static function balances(array $in, \Closure $date, \Closure $text): array
+    {
+        $kinds = array_keys((array) config('tb_matching.documents'));
+        $out = [];
+        foreach (array_slice($in, 0, 20) as $b) {
+            if (! is_array($b) || ! isset($b['amount']) || ! is_numeric($b['amount'])) {
+                continue;
+            }
+            $out[] = ['kind' => in_array($b['kind'] ?? null, $kinds, true) ? $b['kind'] : 'other', 'label' => (string) ($text($b['label'] ?? null) ?? ''),
+                'reference' => $text($b['reference'] ?? null), 'counterparty' => $text($b['counterparty'] ?? null), 'as_of' => $date($b['as_of'] ?? null),
+                'amount' => round((float) $b['amount'], 2), 'side' => in_array($b['side'] ?? null, ['debit', 'credit'], true) ? $b['side'] : null];
+        }
+
+        return $out;
     }
 
     public function spreadsheetText(string $path, int $maxRows = 60): string
@@ -351,7 +395,7 @@ final class DocumentReviewer
     private const TOOL = [
         'name' => 'submit_review', 'description' => 'What the uploaded document is and what it shows.', 'strict' => true,
         'schema' => ['type' => 'object', 'additionalProperties' => false,
-            'required' => ['readable', 'pages_unclear', 'document_type', 'matching_request_ids', 'company_name', 'registration_number', 'period_year', 'document_date', 'expiry_date', 'issuer', 'has_signature_or_stamp', 'amounts', 'summary'],
+            'required' => ['readable', 'pages_unclear', 'document_type', 'matching_request_ids', 'company_name', 'registration_number', 'period_year', 'document_date', 'expiry_date', 'issuer', 'has_signature_or_stamp', 'amounts', 'balances', 'summary'],
             'properties' => [
                 'readable' => ['type' => 'boolean'],
                 'pages_unclear' => ['type' => 'boolean'],
@@ -366,6 +410,11 @@ final class DocumentReviewer
                 'has_signature_or_stamp' => ['type' => ['boolean', 'null']],
                 'amounts' => ['type' => 'array', 'items' => ['type' => 'object', 'additionalProperties' => false, 'required' => ['label', 'value'],
                     'properties' => ['label' => ['type' => 'string'], 'value' => ['type' => 'number']]]],
+                'balances' => ['type' => 'array', 'items' => ['type' => 'object', 'additionalProperties' => false,
+                    'required' => ['kind', 'label', 'reference', 'counterparty', 'as_of', 'amount', 'side'],
+                    'properties' => ['kind' => ['type' => 'string', 'enum' => ['bank', 'cash', 'customer', 'supplier', 'loan', 'related_party', 'zakat', 'vat', 'gosi', 'inventory', 'other']],
+                        'label' => ['type' => 'string'], 'reference' => ['type' => ['string', 'null']], 'counterparty' => ['type' => ['string', 'null']],
+                        'as_of' => ['type' => ['string', 'null']], 'amount' => ['type' => 'number'], 'side' => ['type' => ['string', 'null'], 'enum' => ['debit', 'credit', null]]]]],
                 'summary' => ['type' => 'string'],
             ]],
     ];
@@ -383,6 +432,13 @@ final class DocumentReviewer
         - has_signature_or_stamp: true when a signature or stamp is visible, false when a document that should carry one has none, null
           when it doesn't matter.
         - amounts: up to six key totals printed (a closing balance, a total), label as printed.
+        - balances: every balance of an account the client keeps books for that the document states (a bank statement's closing balance,
+          a customer's or a supplier's balance confirmation, a loan statement's outstanding amount, a zakat or VAT assessment, an inventory
+          count's total): kind; label as printed; reference (the account number or IBAN as printed, else null); counterparty (the bank,
+          customer, supplier or lender's name); as_of (the date of the balance, YYYY-MM-DD); amount positive the usual way (money in the
+          bank, owed TO the client by a customer, owed BY the client to a supplier or lender), negative the other way (an overdraft, a
+          customer in credit); side only for a related party, VAT or social insurance (debit: owed to the client, credit: owed by it),
+          else null. Several accounts: one each. None: empty. Copy the printed figure, never a total you computed.
         - summary: one short Arabic sentence: what it is and what it covers.
         Copy, never correct, never decide whether it is acceptable.
         TXT;

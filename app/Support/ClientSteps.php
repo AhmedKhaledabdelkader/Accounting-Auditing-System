@@ -23,7 +23,7 @@ final class ClientSteps
 
     /** The work steps (4 to 7), in the main side menu: step key => the client's page of it. */
     public const WORK = ['trial_balance' => 'clients.file.trial-balance', 'prior' => 'clients.file.prior', 'statements' => 'clients.file.statements', 'zakat' => 'clients.file.zakat',
-        'requirements' => 'clients.show', 'papers' => 'clients.file.papers', 'recalc' => 'clients.file.recalculation'];
+        'requirements' => 'clients.show', 'papers' => 'clients.file.papers', 'recalc' => 'clients.file.recalculation', 'findings' => 'clients.file.findings'];
 
     /**
      * @return array<string, array{done: bool, count: ?int}>
@@ -53,6 +53,9 @@ final class ClientSteps
             'requirements' => ['done' => $requests->isNotEmpty() && $closed === $requests->count(), 'count' => $requests->count() ?: null],
             'papers' => ['done' => $prepared->where('kind', 'paper')->isNotEmpty(), 'count' => $prepared->where('kind', 'paper')->count() ?: null],
             'recalc' => ['done' => $prepared->where('kind', 'recalc')->isNotEmpty(), 'count' => $prepared->where('kind', 'recalc')->count() ?: null],
+            // The findings: settled once every finding the accountant has looked at is decided (none left open).
+            'findings' => ['done' => ($decided = \App\Models\AuditFinding::withoutGlobalScopes()->where('company_id', $company->id)->get(['status']))->isNotEmpty()
+                && $decided->where('status', 'open')->isEmpty(), 'count' => null],
         ];
     }
 }

@@ -12,3 +12,6 @@ Artisan::command('inspire', function () {
 Schedule::command('classification:prune')->hourly();
 // A crashed worker's run must not show "running" for up to an hour: the stalled check alone runs every 5 minutes.
 Schedule::command('classification:prune --stalled')->everyFiveMinutes()->withoutOverlapping();
+
+Schedule::command('portal:fetch-replies')->everyTwoMinutes()->withoutOverlapping();
+Schedule::command('portal:follow-up')->dailyAt('09:00')->withoutOverlapping();

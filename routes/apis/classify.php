@@ -5,16 +5,16 @@ use App\Http\Controllers\Api\ClassificationController;
 use App\Http\Controllers\Api\ClassificationRowController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/trial-balance', [ClassificationController::class, 'classify'])->middleware('can:classify.run')->name('classify.trial-balance');
+Route::post('/trial-balance', [ClassificationController::class, 'classify'])->middleware('can:classify.run')->middleware('ai.budget')->name('classify.trial-balance');
 
 // Background classification: submit, then poll.
-Route::post('/jobs', [ClassificationController::class, 'submit'])->middleware('can:classify.run')->name('classify.jobs.submit');
+Route::post('/jobs', [ClassificationController::class, 'submit'])->middleware('can:classify.run')->middleware('ai.budget')->name('classify.jobs.submit');
 // Runs, newest first, without their results (?status=done to pick a trial balance).
 Route::get('/jobs', [ClassificationController::class, 'index'])->middleware('can:classify.view')->name('classify.jobs.index');
 Route::get('/jobs/{id}', [ClassificationController::class, 'show'])->middleware('can:classify.view')->name('classify.jobs.show');
 
 // A run waiting for the user (status needs_confirmation): confirm / correct the column mapping, or cancel.
-Route::post('/jobs/{id}/structure', [ClassificationController::class, 'confirm'])->middleware('can:classify.run')->name('classify.jobs.structure');
+Route::post('/jobs/{id}/structure', [ClassificationController::class, 'confirm'])->middleware('can:classify.run')->middleware('ai.budget')->name('classify.jobs.structure');
 Route::post('/jobs/{id}/cancel', [ClassificationController::class, 'cancel'])->middleware('can:classify.run')->name('classify.jobs.cancel');
 
 // A manual correction of one row of a finished run (also remembered by the classification cache).

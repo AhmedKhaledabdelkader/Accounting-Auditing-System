@@ -92,6 +92,7 @@
       xhr.upload.onload = () => { if (o.processing !== false) h?.process(o.processText || word('processing'), UP); o.onSent?.(); };
       xhr.onerror = xhr.ontimeout = () => { h?.fail(); reject(new Error(word('network'))); };
       xhr.onload = () => {
+        if (xhr.status === 402 && xhr.getResponseHeader('X-AI-Limit')) { h?.hide(); location.href = '/ai-limit'; return; }   // the monthly AI limit is used up
         h?.done();
         let json = null;
         try { json = JSON.parse(xhr.responseText); } catch { /* not JSON */ }

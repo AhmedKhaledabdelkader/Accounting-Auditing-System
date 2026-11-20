@@ -41,6 +41,8 @@ final class CompanyFacts
                 // «هـ», or «ه» with its stroke lost.
                 if (preg_match('/بتاريخ\s*(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(1[34]\d\d)\s*هـ?(?![ء-ي])/u', $digits, $m)) {
                     $put('cr_date_hijri', sprintf('%s/%02d/%02d', $m[3], $m[2], $m[1]), $s['page']);
+                } elseif (preg_match('/بتاريخ\s*(1[34]\d\d)\s*\/\s*(\d{1,2})\s*\/\s*(\d{1,2})\s*هـ?(?![ء-ي])/u', $digits, $m)) {
+                    $put('cr_date_hijri', sprintf('%s/%02d/%02d', $m[1], $m[2], $m[3]), $s['page']);   // year first: «١٤٣٩/٠٢/١٣ هـ»
                 }
                 if (preg_match('/الصادر\s+من\s+(?:مدينة\s+)?([^\s،.]+)/u', $text, $m) && ! str_contains($m[1], 'وزار')) {
                     $put('city', $m[1], $s['page']);

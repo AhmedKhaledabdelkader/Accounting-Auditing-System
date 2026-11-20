@@ -1,0 +1,112 @@
+{
+    "input": {
+        "assignments": [
+            {
+                "confident": true,
+                "request_id": 431,
+                "index": 0
+            },
+            {
+                "request_id": null,
+                "confident": false,
+                "index": 1
+            },
+            {
+                "request_id": 387,
+                "index": 2,
+                "confident": true
+            },
+            {
+                "confident": true,
+                "index": 3,
+                "request_id": 387
+            },
+            {
+                "confident": false,
+                "request_id": null,
+                "index": 4
+            },
+            {
+                "index": 5,
+                "request_id": null,
+                "confident": false
+            },
+            {
+                "confident": false,
+                "request_id": null,
+                "index": 6
+            },
+            {
+                "confident": false,
+                "request_id": null,
+                "index": 7
+            },
+            {
+                "index": 8,
+                "request_id": null,
+                "confident": false
+            },
+            {
+                "index": 9,
+                "request_id": 416,
+                "confident": true
+            },
+            {
+                "index": 10,
+                "request_id": null,
+                "confident": false
+            },
+            {
+                "index": 11,
+                "confident": true,
+                "request_id": 415
+            },
+            {
+                "confident": false,
+                "index": 12,
+                "request_id": null
+            },
+            {
+                "index": 13,
+                "request_id": null,
+                "confident": false
+            },
+            {
+                "request_id": null,
+                "confident": false,
+                "index": 14
+            },
+            {
+                "confident": false,
+                "request_id": null,
+                "index": 15
+            },
+            {
+                "confident": false,
+                "request_id": null,
+                "index": 16
+            },
+            {
+                "index": 17,
+                "confident": false,
+                "request_id": null
+            },
+            {
+                "request_id": null,
+                "confident": false,
+                "index": 18
+            },
+            {
+                "request_id": null,
+                "confident": false,
+                "index": 19
+            }
+        ]
+    },
+    "usage": {
+        "input": 3918,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 3528
+    }
+}

@@ -137,6 +137,38 @@ final class CurrentYearStatements
                 $taxCharge = (float) $applied['income_tax'];
             }
         }
+        // The amount the accountant adopted for each (the zakat step): the calculated one, their own, or what the books carry. The
+        // statements carry it: the difference from what the trial balance and the entries book is posted (Dr expense, Cr provision).
+        $tolerance = (float) config('classification.balance_tolerance', 0.01);
+        $entriesZakat = $this->adjustments->apply($aggregated, $mapping, $catalogue, $entries, null, null)['zakat'];
+        $tbTax = $aggregated['is.income_tax']['closing']?->amount ?? 0.0;
+        $booked = ['zakat' => round($tbZakat + $entriesZakat, 2), 'income_tax' => round($tbTax, 2)];
+        $adopt = $profile->postClosing ? [] : (array) ($report['zakat_tax']['adopt'] ?? []);
+        $manual = (array) ($report['zakat_tax']['manual'] ?? []);
+        foreach (['zakat', 'income_tax'] as $charge) {
+            $choice = $adopt[$charge] ?? null;
+            $target = match ($choice) {
+                'calculated' => isset($applied[$charge]) ? (float) $applied[$charge] : null,
+                'manual' => isset($manual[$charge]) ? (float) $manual[$charge] : null,
+                'booked' => $booked[$charge],
+                default => false,
+            };
+            if ($target === false) {
+                continue;   // not chosen: as before (charged where nothing else charges it)
+            }
+            $delta = $target === null ? null : round($target - $booked[$charge], 2);
+            $delta = $delta !== null && abs($delta) > $tolerance ? $delta : null;
+            if ($charge === 'zakat') {
+                $zakatCharge = $delta;
+                if ($delta === null) {
+                    unset($inputs['zakat.charge']);
+                } else {
+                    $inputs['zakat.charge'] = $delta;
+                }
+            } else {
+                $taxCharge = $delta;
+            }
+        }
         $adjusted    = $this->adjustments->apply($aggregated, $mapping, $catalogue, $entries, $zakatCharge, $portion, $taxCharge);
 
         $prior    = $report['prior'] ?? ['source' => 'none'];
@@ -173,8 +205,8 @@ final class CurrentYearStatements
         $sofp    = $this->balance->build($catalogue, $adjusted['aggregated'], $is['figures']['is.net_profit'], $profile, $cmpSofp);
         $figures = $sofp['figures'] + $is['figures'];
         $byRow   = array_column($rows, null, 'row');
-        $makeContext = fn (array $categories) => new ScheduleContext($byRow, $profile, $mapping, $catalogue, new LineAggregator($catalogue, $this->taxonomy), $adjusted['postings'],
-            $categories, $report['tags'] ?? [], $cmpSofp, $adjusted['aggregated'], $is['figures']['is.oci_revaluation']);
+        $makeContext = fn (array $categories, array $priorPpe = []) => new ScheduleContext($byRow, $profile, $mapping, $catalogue, new LineAggregator($catalogue, $this->taxonomy), $adjusted['postings'],
+            $categories, $report['tags'] ?? [], $cmpSofp, $adjusted['aggregated'], $is['figures']['is.oci_revaluation'], $priorPpe);
         $context = $makeContext($report['categories'] ?? []);
         // With last year's PPE note from a PDF: an account of no category of its own (accumulated depreciation, mostly) takes
         // the note's category of last year's category it is on (Q8 without asking); the user's choice still wins.
@@ -188,8 +220,16 @@ final class CurrentYearStatements
                     $found[$a['row']] = $own;
                 }
             }
-            if ($found !== []) {
-                $context = $makeContext(($report['categories'] ?? []) + $found);
+            // Last year's closing per category of the note: this year's opening accumulated depreciation is read from it (the
+            // accountant's rule: the opening from last year's statements, the year's charge from the trial balance).
+            $priorPpe = [];
+            foreach ($guess['comparative'] as $cell => $amount) {
+                if (preg_match('/^ppe\.(acc_closing|cost_closing)\.(.+)$/', $cell, $m)) {
+                    $priorPpe[$m[2]][$m[1]] = $amount;
+                }
+            }
+            if ($found !== [] || $priorPpe !== []) {
+                $context = $makeContext(($report['categories'] ?? []) + $found, $priorPpe);
             }
         }
         $suggester = new MovementSuggester($report['decisions'] ?? []);
@@ -375,6 +415,8 @@ final class CurrentYearStatements
             'profile'         => $profile,
             'mapping'         => $tbMapping,
             'line_totals'     => $lineTotals,
+            // What the books charge for the year's zakat and income tax (the trial balance and the entries), before what the accountant adopts.
+            'zakat_booked'    => $booked,
             'statements'      => ['financial_position' => $tag($shown($sofp['rows'], 'financial_position')), 'comprehensive_income' => $tag($shown($is['rows'], 'comprehensive_income')),
                 'changes_in_equity' => ['columns' => $equity['columns'], 'current' => $equity['rows'], 'comparative' => $equity['comparative']],
                 'cash_flows' => $tag($cf['rows'])],

@@ -1,0 +1,34 @@
+{
+    "input": {
+        "registration_number": null,
+        "readable": true,
+        "period_year": 2025,
+        "pages_unclear": false,
+        "document_date": "2025-09-01",
+        "amounts": [
+            {
+                "label": "الرصيد السابق",
+                "value": 34680.54
+            },
+            {
+                "label": "الرصيد النهائي",
+                "value": 36474.41
+            }
+        ],
+        "company_name": null,
+        "matching_request_ids": [
+            185
+        ],
+        "has_signature_or_stamp": false,
+        "summary": "كشف حساب حركة الصندوق الرئيسي للفترة من سبتمبر 2025 يوضح المقبوضات والمدفوعات والرصيد الختامي.",
+        "expiry_date": null,
+        "issuer": null,
+        "document_type": "كشف حساب"
+    },
+    "usage": {
+        "input": 7844,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 666
+    }
+}

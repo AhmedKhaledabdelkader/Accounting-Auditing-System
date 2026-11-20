@@ -1,0 +1,161 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "rows": [],
+                "text": "شركة إعادة الشباب الطبية",
+                "columns": [],
+                "number": null,
+                "type": "heading"
+            },
+            {
+                "rows": [],
+                "text": "(شركة شخص واحد ذات مسؤولية محدودة)",
+                "columns": [],
+                "number": null,
+                "type": "heading"
+            },
+            {
+                "number": null,
+                "rows": [],
+                "type": "heading",
+                "columns": [],
+                "text": "إيضاحات حول القوائم المالية (تتمة)"
+            },
+            {
+                "rows": [],
+                "text": "للسنة المنتهية في ٣١ ديسمبر ٢٠٢٤ م",
+                "number": null,
+                "type": "heading",
+                "columns": []
+            },
+            {
+                "text": "(جميع المبالغ بالريال السعودي مالم يذكر خلاف ذلك)",
+                "type": "heading",
+                "columns": [],
+                "rows": [],
+                "number": null
+            },
+            {
+                "text": "٧- النقدية وما في حكمها",
+                "columns": [],
+                "number": "٧",
+                "type": "heading",
+                "rows": []
+            },
+            {
+                "type": "table",
+                "text": null,
+                "number": null,
+                "columns": [
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٤ م"
+                    },
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٣ م"
+                    }
+                ],
+                "rows": [
+                    {
+                        "cells": [
+                            "٥٥٦,٣١١",
+                            "١,٧٣٥,٥٤٥"
+                        ],
+                        "note": null,
+                        "label": "النقد لدى البنوك"
+                    },
+                    {
+                        "label": "النقد في الصندوق",
+                        "note": null,
+                        "cells": [
+                            "-",
+                            "١٢,٣٢٥"
+                        ]
+                    },
+                    {
+                        "cells": [
+                            "٥٥٦,٣١١",
+                            "١,٧٤٧,٨٧٠"
+                        ],
+                        "note": null,
+                        "label": "الإجمالي"
+                    }
+                ]
+            },
+            {
+                "type": "heading",
+                "text": "٨- مصاريف مدفوعة مقدما وارصدة مدينة أخرى",
+                "columns": [],
+                "number": "٨",
+                "rows": []
+            },
+            {
+                "text": null,
+                "type": "table",
+                "columns": [
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٤ م"
+                    },
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٣ م"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "ضريبة قيمة مضافة المدفوعة مقدما",
+                        "note": null,
+                        "cells": [
+                            "٣٧٧,٦٥٤",
+                            "١٢١,٧٦٤"
+                        ]
+                    },
+                    {
+                        "cells": [
+                            "١١٩,٨٨٠",
+                            "١٨٩,٨٧٩"
+                        ],
+                        "note": null,
+                        "label": "مصاريف مدفوعة مقدما"
+                    },
+                    {
+                        "label": "ايرادات مستحقة",
+                        "note": null,
+                        "cells": [
+                            "-",
+                            "١٧٢,٣٩٠"
+                        ]
+                    },
+                    {
+                        "cells": [
+                            "٤٩٧,٥٣٤",
+                            "٤٨٤,٠٣٣"
+                        ],
+                        "note": null,
+                        "label": "الإجمالي"
+                    }
+                ],
+                "number": null
+            },
+            {
+                "columns": [],
+                "rows": [],
+                "type": "heading",
+                "text": "٩- المخزون",
+                "number": "٩"
+            },
+            {
+                "text": "يتمثل المخزون البالغ رصيده ٥٣٧,٧٦٨ ريال سعودي كما في ٣١ ديسمبر ٢٠٢٤م (٣١ ديسمبر ٢٠٢٣م ٤١٨,٨٩٣ ريال سعودي) في المواد الطبية ومستلزمات التجميل.",
+                "type": "paragraph",
+                "number": null,
+                "columns": [],
+                "rows": []
+            }
+        ]
+    },
+    "usage": {
+        "input": 1338,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 2034
+    }
+}

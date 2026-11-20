@@ -1,0 +1,92 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "type": "heading",
+                "rows": [],
+                "columns": [],
+                "number": null,
+                "text": "مؤسسة لؤلؤة الطب للتجارة"
+            },
+            {
+                "rows": [],
+                "type": "heading",
+                "columns": [],
+                "number": null,
+                "text": "( مؤسسة فردية - سعودية)"
+            },
+            {
+                "rows": [],
+                "type": "heading",
+                "columns": [],
+                "text": "قائمة التغيرات في حقوق الملكية للفترة المنتهية في ۳۱ ديسمبر ۲۰۲۲م",
+                "number": null
+            },
+            {
+                "type": "table",
+                "rows": [
+                    {
+                        "cells": [
+                            "۲٥,۰۰۰",
+                            ".",
+                            "۲٥,۰۰۰"
+                        ],
+                        "label": "الرصيد في ۳۱ ديسمبر ۲۰۲۱ م",
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            ".",
+                            "١٥٢,٩٦٦",
+                            "١٥٢,٩٦٦"
+                        ],
+                        "label": "صافى ربح (خسارة ) السنة"
+                    },
+                    {
+                        "label": "الرصيد في ۳۱ ديسمبر ۲۰۲۲م",
+                        "cells": [
+                            "۲٥,۰۰۰",
+                            "١٥٢,٩٦٦",
+                            "۱۷۷,٩٦٦"
+                        ],
+                        "note": null
+                    }
+                ],
+                "number": null,
+                "columns": [
+                    {
+                        "header": "رأس المال \/ ريال سعودي"
+                    },
+                    {
+                        "header": "الأرباح ( الخسائر) المبقاة \/ ريال سعودي"
+                    },
+                    {
+                        "header": "المجموع \/ ريال سعودي"
+                    }
+                ],
+                "text": null
+            },
+            {
+                "number": null,
+                "type": "paragraph",
+                "rows": [],
+                "columns": [],
+                "text": "تشكل الإيضاحات المرفقة من رقم (۱) إلى رقم (۱۷) جزءاً لا يتجزأ من هذه القوائم المالية"
+            },
+            {
+                "text": "۳",
+                "columns": [],
+                "number": null,
+                "rows": [],
+                "type": "paragraph"
+            }
+        ]
+    },
+    "usage": {
+        "input": 1318,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 1248
+    }
+}

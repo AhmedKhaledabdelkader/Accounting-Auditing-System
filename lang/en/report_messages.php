@@ -313,6 +313,8 @@ return [
         'zakat_input_unknown' => 'This is not an answer of the zakat calculation.',
         'zakat_input_share' => 'The Saudi and GCC owners share must be a number from 0 to 100.',
         'zakat_input_amount' => 'The amount must be a number, zero or more.',
+        'zakat_input_overrides' => 'Correct the amounts of the sheet\'s lines only, each with a number.',
+        'zakat_manual_required' => 'Enter the amount you adopt.',
         'zakat_input_lines' => 'Pick lines among the non-current assets of the calculation only, each once.',
         'zakat_not_applicable' => "This amount can't be charged: it is nil, or already charged by the trial balance, an entry or the intake's zakat charge, so it is never charged twice.",
         'file_no_auditor_report'    => 'The file has no independent auditor\'s report, so it can\'t be accepted as last year\'s approved statements. Add a sheet (or a title) «independent auditor\'s report» to the file and upload it again.',

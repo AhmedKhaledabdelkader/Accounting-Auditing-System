@@ -118,6 +118,14 @@ tags:
     description: Export the cache (Excel, JSON) and import a JSON export on another instance. No auth yet — must be protected before deployment.
   - name: Companies
     description: Company profiles for the financial statements, reused across years. Saudi LLC under IFRS for SMEs, in SAR, only for now. No auth yet — must be protected before deployment.
+  - name: Client follow-up
+    description: A client's missing documents followed up by email. The AI finds what is missing and writes the email; the accountant reads and sends it from their own mailbox; the reply (by email, read from the mailbox, or entered here) is read by the AI, its files filed in the requests. Needs `clients.view` / `clients.manage`.
+  - name: Working papers
+    description: The working papers and recalculations the AI prepares from a client's documents and trial balance (neither the accountant nor the client fills them). Needs `clients.view` / `clients.manage`.
+  - name: Audit findings
+    description: The audit findings of a client's year (ملاحظات المراجعة) - the client's documents and the recalculations matched with the trial balance, the suggested entries, and the accountant's word on each. Needs `clients.view` / `clients.manage`.
+  - name: Mailbox
+    description: The signed-in accountant's own mailbox (SMTP + an app password; IMAP for the replies). The password is written, never read back. Needs `clients.manage`.
   - name: Financial reports
     description: Financial statements built from a finished classification run. All amounts come from the run, the user or a computation in PHP; no AI. No auth yet — must be protected before deployment.
 
@@ -170,6 +178,7 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/TrialBalanceFile'
       responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
         '202':
           description: Accepted; the run is queued.
           content:
@@ -250,6 +259,7 @@ paths:
                   first_data_row: 3
                   columns: { account_number: A, account_name: A, closing_net: D }
       responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
         '202':
           description: Accepted; `status` is `queued` again.
           content:
@@ -453,7 +463,7 @@ paths:
                     properties:
                       row: { type: integer, description: "The row's `row` (Excel row); each row at most once." }
                       sub_class: { type: string, description: 'A sub-class from the taxonomy.' }
-            example: { corrections: [{ row: 4, sub_class: 'نقدية لدى البنوك' }, { row: 3, sub_class: 'إيجارات' }] }
+            example: { corrections: [{ row: 4, sub_class: 'نقدية لدى البنوك' }, { row: 3, sub_class: 'إيجارات' }] }   # «إيجارات» is a sub class of «المصروفات الإدارية والعمومية»
       responses:
         '200':
           description: Corrected.
@@ -652,6 +662,7 @@ paths:
                 file: { type: string, format: binary, description: '`xlsx`, `xls` or `csv`, ≤ 20 MB.' }
                 force: { type: boolean, description: 'Upload again a file already imported (same SHA-256, import not failed).' }
       responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
         '202':
           description: Queued. `warnings` lists recommended columns that are missing (Arabic); `warnings_text` the same in the request's language.
           content:
@@ -974,6 +985,7 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/TrialBalanceFile'
       responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
         '200':
           description: Classified accounts and summary.
           content:
@@ -1121,6 +1133,7 @@ paths:
               properties:
                 file: { type: string, format: binary, description: 'A PDF, JPG or PNG, up to 10 MB.' }
       responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
         '200':
           description: The company, plus `warning` (the registration's name differs from the company's, or null).
           content:
@@ -1159,6 +1172,7 @@ paths:
               properties:
                 file: { type: string, format: binary, description: 'A PDF.' }
       responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
         '200':
           description: The company, with `articles`.
           content:
@@ -1444,6 +1458,11 @@ paths:
         `edit` enters an amount, `reject` leaves the cell missing until an amount is entered, `reset` drops the decision.
         Without movement columns, the movements the trial balance can't give are entered with `edit` (their keys are in
         `missing`). Decisions apply in order. Returns the state. No auth yet — must be protected before deployment.
+
+        The PPE note's accumulated depreciation: the opening of each category is last year's closing as last year's issued
+        statements print it (origin `prior_year_statements`), and the year's depreciation is the trial balance's depreciation
+        expense (per category where the expense accounts name it, else the total); the disposals' accumulated depreciation is
+        then derived (opening + the year's charge − the closing). The year's charge stays a fact the accountant may `edit`.
       parameters:
         - $ref: '#/components/parameters/ReportId'
       requestBody:
@@ -1568,6 +1587,7 @@ paths:
               properties:
                 file: { type: string, format: binary, description: '`.xlsx` or `.xls` (≤ 10 MB), or `.pdf` (≤ `PRIOR_PDF_MAX_KB`, 20 MB).' }
       responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
         '200':
           description: An Excel file, read. The report's state.
           content: { application/json: { schema: { $ref: '#/components/schemas/FinancialReportState' } } }
@@ -1729,6 +1749,17 @@ paths:
         goes back to its default. `apply`: `zakat` and `income_tax`, true to charge the amount calculated now (Dr the
         expense, Cr its provision) and false to take the charge out. A charge is taken only where nothing else charges it: 422
         when the trial balance or an entry has it, the intake's `zakat.charge` is typed, or the amount is nil. Returns the state.
+
+        The calculation is the accountant's to correct: `inputs.overrides` maps a line of the sheet (any row's `line` in the
+        groups, or `is.profit_before_zakat`) to the amount to use instead of the statements' (the whole map is replaced; null
+        or {} drops every correction). Each row then says `edited` and keeps the statements' figure as `computed`.
+
+        `adopt`: for `zakat` and `income_tax`, which amount the statements carry: `calculated` (the calculation, whatever the
+        books book), `booked` (what the trial balance and the entries book, no charge added), `manual` (the accountant's own
+        amount, `manual.<charge>`, required with it; 422 `zakat_manual_required` without one); null goes back to automatic
+        (the calculation where nothing books it). The difference between the adopted amount and the books' is posted (Dr the
+        expense, Cr its provision). The state's `zakat_tax` shows `adopt`, each choice's amount (`candidates`) and what the
+        statements carry now (`in_statements`).
       parameters:
         - $ref: '#/components/parameters/ReportId'
       requestBody:
@@ -1738,12 +1769,33 @@ paths:
             schema:
               type: object
               properties:
-                inputs: { type: object, additionalProperties: true }
+                inputs:
+                  type: object
+                  additionalProperties: true
+                  properties:
+                    overrides:
+                      type: [object, 'null']
+                      additionalProperties: { type: [number, 'null'] }
+                      description: 'Line key → the amount the calculation uses instead of the statements''.'
                 apply:
                   type: object
                   properties:
                     zakat: { type: boolean }
                     income_tax: { type: boolean }
+                adopt:
+                  type: object
+                  properties:
+                    zakat: { type: [string, 'null'], enum: [calculated, booked, manual, null] }
+                    income_tax: { type: [string, 'null'], enum: [calculated, booked, manual, null] }
+                manual:
+                  type: object
+                  properties:
+                    zakat: { type: [number, 'null'], minimum: 0 }
+                    income_tax: { type: [number, 'null'], minimum: 0 }
+            example:
+              adopt: { zakat: manual, income_tax: calculated }
+              manual: { zakat: 15250.5 }
+              inputs: { overrides: { sofp.statutory_reserve: 12000, is.profit_before_zakat: 480000 } }
       responses:
         '200':
           description: The report's state.
@@ -2088,6 +2140,378 @@ paths:
           description: Unknown synonym.
           content: { application/json: { schema: { $ref: '#/components/schemas/Message' }, example: { message: 'هذا المرادف غير موجود.' } } }
 
+  /api/v1/clients/{id}/follow-up:
+    get:
+      tags: [Client follow-up]
+      operationId: getClientFollowUp
+      summary: What is missing for a year, and the emails sent and received
+      description: |
+        `missing`: the client's open requests (not sent, or sent back) for the year; working papers are not asked of the client. `can_send`: the client
+        has an email address and the signed-in user can send (their own mailbox, or a system mailbox that is not `log`). The emails newest first.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer, minimum: 2000, maximum: 2100 }, description: 'Default: the year the client''s period ends in.' }
+      responses:
+        '200':
+          description: The follow-up.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FollowUpState' }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: An invalid year.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+  /api/v1/clients/{id}/follow-up/draft:
+    post:
+      tags: [Client follow-up]
+      operationId: draftClientFollowUp
+      summary: The AI's email for the missing documents (nothing is sent)
+      description: |
+        The AI sees the missing documents and the latest trial balance and writes the subject, a short intro, a reason for a document only where the
+        books show one (a loan balance → the loan agreement) or it was sent back, and at most three questions. The list itself is the requests' own (the
+        AI cannot add, drop or rename one). `body`: the email as it would go, to edit and send with `…/follow-up/send`. Nothing missing: `draft` null
+        and `message`.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [year], properties: { year: { type: integer, minimum: 2000, maximum: 2100 } } }
+            example: { year: 2025 }
+      responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
+        '200':
+          description: The draft, or nothing missing.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FollowUpDraft' }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: The year missing or invalid.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '502': { $ref: '#/components/responses/ProviderError' }
+  /api/v1/clients/{id}/follow-up/send:
+    post:
+      tags: [Client follow-up]
+      operationId: sendClientFollowUp
+      summary: Send the email from the signed-in accountant's mailbox
+      description: |
+        To the client's email, from the sender's own mailbox (Reply-To: their address), else from the system mailbox. A reference `[XXXXXXXX]` is added
+        to the subject, so the reply finds its way back; the email is kept with the requests it asked about and said in the client's chat. An unanswered
+        email is sent again after `PORTAL_MAIL_REMIND_AFTER_DAYS` days, up to `PORTAL_MAIL_MAX_REMINDERS`, when `PORTAL_MAIL_AUTO_REMIND` is on.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year, subject, body, requests]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                subject: { type: string, maxLength: 200 }
+                body: { type: string, maxLength: 20000 }
+                requests: { type: array, minItems: 1, items: { type: integer }, description: 'The requests the email asks for (their ids, from the draft''s items).' }
+            example: { year: 2025, subject: 'المستندات المطلوبة لمراجعة القوائم المالية 2025', body: 'السادة / أحمد السالم المحترمين، …', requests: [184, 185] }
+      responses:
+        '201':
+          description: Sent.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ClientEmail' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: Invalid fields; or (on `follow_up`) the client has no email address, or the sender has no mailbox and the system has none.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '502':
+          description: The mail server refused it, said in words (a wrong app password, the server out of reach, TLS). The email is kept as `failed`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+              example: { message: 'تعذّر إرسال الرسالة: رفض خادم البريد اسم المستخدم أو كلمة المرور. …' }
+  /api/v1/clients/{id}/follow-up/replies:
+    post:
+      tags: [Client follow-up]
+      operationId: enterClientReply
+      summary: A reply that came another way, read by the AI and acted on
+      description: |
+        A forwarded email or a call's note, with its files. As for a reply read from the mailbox: the AI says what it means for each document (attached,
+        will send later, does not apply, a question); the text goes into the client's chat; each file goes to the request it answers (one the AI is not
+        sure of to «غير مصنّف», where the content review files it); nothing is declared for the client (`needs_accountant`). Without the AI the reply
+        still reaches the chat, `analysis.unavailable: true`.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [year, text]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                text: { type: string, maxLength: 20000 }
+                'files[]': { type: array, maxItems: 10, items: { type: string, format: binary }, description: 'Up to 10 files, 20 MB each.' }
+      responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
+        '201':
+          description: The reply, as read.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ClientEmail' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: Invalid fields.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+  /api/v1/clients/{id}/prepared-papers:
+    get:
+      tags: [Working papers]
+      operationId: listPreparedPapers
+      summary: Every working paper and recalculation, and where its preparation is
+      description: |
+        The catalogue (5 recalculations, 16 working papers) with, for the year: `documents` the client's uploads it is prepared from
+        (config/paper_sources.php), `status` (`none` not asked yet, `queued`, `working`, `done`, `blocked`: no document from the client yet, `failed`),
+        `progress` the documents read so far, `summary` what the paper shows (the recalculation against the books), the AI's `notes`, `download_url`.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer, minimum: 2000, maximum: 2100 } }
+        - { name: kind, in: query, schema: { type: string, enum: [paper, recalc] } }
+      responses:
+        '200':
+          description: The papers.
+          content: { application/json: { schema: { $ref: '#/components/schemas/PreparedPapers' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: An invalid year or kind.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+    post:
+      tags: [Working papers]
+      operationId: preparePapers
+      summary: Start the AI on one paper or on all of a kind
+      description: |
+        Queued (a queue worker prepares them); follow with the GET. The AI reads each document of the paper and copies the rows it asks for (never
+        computes, never invents); PHP writes them into the firm's form and recalculates against the books. A paper with no document from the client is
+        `blocked` and the AI is not asked.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year, kind, key]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                kind: { type: string, enum: [paper, recalc] }
+                key: { type: string, description: 'A paper''s key (`eosb`, `depreciation`, `customer-confirmations`…), or `all`.' }
+            example: { year: 2025, kind: recalc, key: all }
+      responses:
+        '402': { $ref: '#/components/responses/AiLimitReached' }
+        '202':
+          description: Queued.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [queued, papers]
+                properties:
+                  queued: { type: integer }
+                  papers: { type: array, items: { $ref: '#/components/schemas/PreparedPaper' } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: Invalid fields, an unknown key, or a key of the other kind.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+  /api/v1/clients/{id}/prepared-papers/{paper}/download:
+    get:
+      tags: [Working papers]
+      operationId: downloadPreparedPaper
+      summary: The prepared workbook
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: paper, in: path, required: true, schema: { type: string }, description: 'The paper''s `id` from the list.' }
+      responses:
+        '200':
+          description: The workbook (the firm's form filled, the recalculation's formulas kept).
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema: { type: string, format: binary }
+        '404':
+          description: Unknown company or paper, or not prepared yet.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+  /api/v1/clients/{id}/findings:
+    get:
+      tags: [Audit findings]
+      operationId: listAuditFindings
+      summary: The audit findings of a client's year (ملاحظات المراجعة)
+      description: |
+        Computed every time from what the AI read and the system matched, never typed: each balance a client's document states (a bank
+        statement's closing balance, a customer's or supplier's confirmation, a loan statement…) against the account of the year's trial
+        balance it is about (found by the reference printed — account number, IBAN — or the counterparty's name, among the accounts of its
+        class); a document whose problems the client hasn't fixed; each recalculation against the trial balance's own figure (its accounts
+        by classification, config/tb_matching.php) with the adjusting entry the difference calls for; the working papers' unexplained
+        differences and open rows. A difference under 2 riyals is rounding, not a finding. The trial balance is the run of the year's
+        financial statements, else the client's latest (`trial_balance.latest`). Each finding keeps the accountant's `status` and `comment`
+        (PUT). Open findings first, differences first, the largest first.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer, minimum: 2000, maximum: 2100 }, description: 'Default: the year of the client''s period.' }
+        - { name: status, in: query, schema: { type: string, enum: [open, adjusted, accepted, dismissed] }, description: 'Only the findings with this status.' }
+      responses:
+        '200':
+          description: The findings.
+          content: { application/json: { schema: { $ref: '#/components/schemas/AuditFindings' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: An invalid year or status.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+  /api/v1/clients/{id}/findings/{key}:
+    put:
+      tags: [Audit findings]
+      operationId: decideAuditFinding
+      summary: The accountant's word on a finding
+      description: '`adjusted` (an adjusting entry was made), `accepted` (explained, nothing to change), `dismissed` (not a finding), or `open` again; with a comment. Returns the year''s findings.'
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: key, in: path, required: true, schema: { type: string }, description: 'The finding''s `key`.' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year, status]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                status: { type: string, enum: [open, adjusted, accepted, dismissed] }
+                comment: { type: [string, 'null'], maxLength: 2000 }
+            example: { year: 2025, status: adjusted, comment: 'سُجل قيد التسوية' }
+      responses:
+        '200':
+          description: The findings.
+          content: { application/json: { schema: { $ref: '#/components/schemas/AuditFindings' } } }
+        '404':
+          description: Unknown company, or no finding with this key for the year.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        '422':
+          description: Invalid fields.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+  /api/v1/clients/{id}/findings/export:
+    get:
+      tags: [Audit findings]
+      operationId: exportAuditFindings
+      summary: The findings as a workbook
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer, minimum: 2000, maximum: 2100 } }
+      responses:
+        '200':
+          description: The findings, right to left, with their amounts, suggested entries, recommendations, statuses and comments.
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema: { type: string, format: binary }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: An invalid year.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+  /api/v1/account/mail:
+    get:
+      tags: [Mailbox]
+      operationId: getMailbox
+      summary: The signed-in accountant's mailbox, and the providers to pick from
+      responses:
+        '200':
+          description: The mailbox (null when not set up) and the providers.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [mailbox, providers]
+                properties:
+                  mailbox: { oneOf: [{ $ref: '#/components/schemas/Mailbox' }, { type: 'null' }] }
+                  providers: { type: object, additionalProperties: { $ref: '#/components/schemas/MailProvider' } }
+    put:
+      tags: [Mailbox]
+      operationId: saveMailbox
+      summary: Save the mailbox and test it at once
+      description: |
+        The test: a message to the mailbox's own address (SMTP), then, with `imap_enabled`, a sign-in to its inbox (IMAP, read-only). A refusal is said in
+        words (`test.message`, `imap.message`). The password: required the first time; left out it stays, except for a new server, port or username
+        (then 422). A Gmail app password's spaces are dropped. Stored encrypted, never returned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider, from_address, host, port, security, username]
+              properties:
+                provider: { type: string, enum: [gmail, outlook, yahoo, zoho, custom] }
+                from_address: { type: string, format: email }
+                from_name: { type: [string, 'null'], maxLength: 120 }
+                host: { type: string, maxLength: 190 }
+                port: { type: integer, enum: [25, 465, 587, 2525] }
+                security: { type: string, enum: [tls, ssl], description: '`tls`: STARTTLS (587); `ssl`: implicit TLS (465).' }
+                username: { type: string, maxLength: 190 }
+                password: { type: [string, 'null'], maxLength: 300, description: 'The app password, not the mailbox''s own.' }
+                imap_enabled: { type: boolean, default: true, description: 'Read the clients'' replies from the inbox every two minutes.' }
+                imap_host: { type: [string, 'null'], maxLength: 190 }
+            example: { provider: gmail, from_address: 'sara@example.com', from_name: 'سارة', host: smtp.gmail.com, port: 587, security: tls, username: 'sara@example.com', password: 'abcd efgh ijkl mnop', imap_enabled: true }
+      responses:
+        '200':
+          description: Saved; the tests' results.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [mailbox, test, imap]
+                properties:
+                  mailbox: { $ref: '#/components/schemas/Mailbox' }
+                  test: { $ref: '#/components/schemas/MailTest' }
+                  imap: { oneOf: [{ $ref: '#/components/schemas/MailTest' }, { type: 'null' }], description: 'Null when the replies are not read or the SMTP test failed.' }
+        '422':
+          description: Invalid fields; or the password left out for a new server, port or username.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+    delete:
+      tags: [Mailbox]
+      operationId: deleteMailbox
+      summary: Delete the mailbox and its saved password
+      responses:
+        '204': { description: Deleted (or there was none). }
+  /api/v1/account/mail/test:
+    post:
+      tags: [Mailbox]
+      operationId: testMailbox
+      summary: Send a test message to the mailbox's own address
+      responses:
+        '200':
+          description: Whether it went, in words.
+          content: { application/json: { schema: { $ref: '#/components/schemas/MailTest' } } }
+        '404':
+          description: No mailbox set up.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+  /api/v1/account/mail/check:
+    post:
+      tags: [Mailbox]
+      operationId: checkMailboxReplies
+      summary: Read the clients' replies now
+      description: The scheduler reads them every two minutes (`portal:fetch-replies`). Only replies to our emails from the client's own address are taken.
+      responses:
+        '200':
+          description: How many replies were taken, or why the inbox could not be read.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, taken, message]
+                properties:
+                  ok: { type: boolean }
+                  taken: { type: integer }
+                  message: { type: [string, 'null'] }
+        '404':
+          description: No mailbox set up.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+
 components:
   securitySchemes:
     apiKey:
@@ -2204,6 +2628,22 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Message' }
           example: { message: 'الاستيراد ده مش موجود.' }
+    AiLimitReached:
+      description: |
+        The signed-in user's monthly AI limit (`users.ai_limit_usd`, set on the users page) is used up: nothing is started. The pages go to `page`
+        (the «رصيد الذكاء الاصطناعي» page) on the `X-AI-Limit` header. Renews at the start of the month, or when the administrator raises it.
+      headers:
+        X-AI-Limit: { schema: { type: string, enum: ['1'] } }
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [message, code, page]
+            properties:
+              message: { type: string }
+              code: { type: string, enum: [ai_limit_reached] }
+              page: { type: string }
+          example: { message: 'استُنفد حد الذكاء الاصطناعي الشهري لهذا المستخدم ($1.00؛ المستخدم $1.05). …', code: ai_limit_reached, page: /ai-limit }
     CompanyNotFound:
       description: Unknown company id.
       content:
@@ -2249,6 +2689,66 @@ components:
           example: { status: error, message: 'SQLSTATE[HY000] ...' }
 
   schemas:
+    AuditFindings:
+      type: object
+      required: [year, period_end, trial_balance, findings, counts]
+      properties:
+        year: { type: integer }
+        period_end: { type: string, format: date }
+        trial_balance:
+          type: [object, 'null']
+          description: 'The trial balance matched with: null when the client has none.'
+          properties:
+            run_id: { type: string }
+            latest: { type: boolean, description: 'The client''s latest trial balance (no financial statements for the year).' }
+        findings: { type: array, items: { $ref: '#/components/schemas/AuditFinding' } }
+        counts:
+          type: object
+          properties:
+            total: { type: integer }
+            open: { type: integer }
+            differences: { type: integer, description: 'Open differences.' }
+    AuditFinding:
+      type: object
+      required: [key, source, type, severity, title, detail, account, amounts, entry, recommendation, status, comment]
+      properties:
+        key: { type: string, example: 'recalc-eosb' }
+        source:
+          type: object
+          properties:
+            type: { type: string, enum: [document, recalculation, working_paper] }
+            id: { type: integer }
+            name: { type: string, description: 'The file''s name, or the paper''s title.' }
+            request: { type: [string, 'null'], description: 'The requirement the document answers.' }
+        type: { type: string, enum: [balance_differs, other_date, account_not_found, no_trial_balance, document_issue, recalc_differs, missing_data, paper_difference] }
+        severity: { type: string, enum: [difference, warning, info] }
+        title: { type: string }
+        detail: { type: string }
+        account: { type: [string, 'null'], description: 'The trial balance account matched («number - name»).' }
+        amounts:
+          type: object
+          properties:
+            document: { type: [number, 'null'], description: 'Per the document, or recalculated.' }
+            book: { type: [number, 'null'], description: 'Per the trial balance (the account''s natural side).' }
+            difference: { type: [number, 'null'] }
+        entry:
+          type: [object, 'null']
+          description: 'The adjusting entry the difference calls for, when the recalculation says which.'
+          properties:
+            debit: { type: string }
+            credit: { type: string }
+            amount: { type: number }
+        recommendation: { type: string }
+        status: { type: string, enum: [open, adjusted, accepted, dismissed] }
+        comment: { type: [string, 'null'] }
+    ZakatCandidates:
+      type: object
+      description: 'What each choice of `adopt` gives: the calculation, what the books book, the accountant''s own amount (null: none typed).'
+      required: [calculated, booked, manual]
+      properties:
+        calculated: { type: number }
+        booked: { type: number }
+        manual: { type: [number, 'null'] }
     CacheEntry:
       type: object
       required: [id, original_name, normalized_key, account_code, budget_item, row_type, main_class, sub_class, source, confidence, taxonomy_version, in_use, hit_count, created_at, updated_at]
@@ -2435,7 +2935,7 @@ components:
                       properties:
                         proposals: { type: array, items: { type: object } }
                         strays: { type: array, items: { type: object } }
-                    opening_check: { type: array, description: 'This year''s opening balances (the trial balance''s opening columns) against the file''s closing figures, line by line on the balance sheet (lines placed exactly, or as the user chose when in use); empty without opening columns or a balance sheet in the file. Every difference is listed: `kind` `equal`, `rounding` (a riyal either way: probably rounding, still shown) or `difference`. `pages`: a PDF''s pages of the line''s rows. Absent from a version saved before it was added.', items: { type: object, required: [line, label, opening, prior, difference, kind, pages], properties: { line: { type: string }, label: { type: string }, opening: { type: number }, prior: { type: number }, difference: { type: number }, kind: { type: string, enum: [equal, rounding, difference] }, pages: { type: array, items: { type: integer } } } } }
+                    opening_check: { type: array, description: 'This year''s opening balances (the trial balance''s opening columns) against the file''s closing figures, line by line on the balance sheet (lines placed exactly, or as the user chose when in use); empty without opening columns or a balance sheet in the file. Every difference is listed: `kind` `equal` (no riyal apart), `rounding` (less than `financial_statements.opening_tolerance` apart, 3 riyals by default: accepted, shown as accepted, never a warning nor a page read again) or `difference`. `pages`: a PDF''s pages of the line''s rows. Absent from a version saved before it was added.', items: { type: object, required: [line, label, opening, prior, difference, kind, pages], properties: { line: { type: string }, label: { type: string }, opening: { type: number }, prior: { type: number }, difference: { type: number }, kind: { type: string, enum: [equal, rounding, difference] }, pages: { type: array, items: { type: integer } } } } }
                     error: { type: [string, 'null'], description: 'A PDF that failed: why, in the request''s language.' }
                     cost_usd: { type: [number, 'null'], description: 'A PDF: what the AI calls cost so far (null: price unknown).' }
                     uploaded_at: { type: string, format: date-time }
@@ -2536,7 +3036,7 @@ components:
                 ppe: { type: object, additionalProperties: { type: string }, description: 'Account row → last year''s PPE category key or `none`. Absent from a version saved before it was added.' }
             ppe_prior:
               type: [object, 'null']
-              description: 'With last year''s statements confirmed from a PDF: the PPE note by last year''s categories (R13). `categories`: each `key`, `label` as printed (corrections applied), `rate` (%) and `life` (100 / rate, only when last year''s file says depreciation is straight-line; else null and a warning `useful_life_not_derived`) from the policies note, `method` (`straight_line`, `other`, or null: the depreciation method last year''s file states), `last` (last year''s cells by row: cost_opening, additions, disposals, cost_closing, acc_opening, depreciation, acc_disposals, acc_closing, nbv_closing, nbv_opening), `current` (this year''s, from the accounts placed on it; movements null without movement columns), `accounts` (how many), `own` (the note''s own category its accounts are in, or null), `opening_check` (per side: this year''s opening against last year''s closing; `kind` equal, rounding, difference). `accounts`: each PPE account''s `row`, `name`, `side` (cost, accumulated), `category` (key or null), `label`, `by` (choice, name, amount, words, none). `comparative`: last year''s cells by the note''s own categories (cell key → amount), the note''s comparative where nothing is typed. Null otherwise; absent from a version saved before it was added.'
+              description: 'With last year''s statements confirmed from a PDF: the PPE note by last year''s categories (R13). `categories`: each `key`, `label` as printed (corrections applied), `rate` (%) and `life` (100 / rate, only when last year''s file says depreciation is straight-line; else null and a warning `useful_life_not_derived`) read from last year''s file, never typed: the policies note''s rates, or its table of useful lives in years (rate = 100 / years), or else implied by last year''s movement (the year''s depreciation over the cost, matched to one usual rate); `rate_source` (`printed`, `movement`, or null) says which, `method` (`straight_line`, `other`, or null: the depreciation method last year''s file states), `last` (last year''s cells by row: cost_opening, additions, disposals, cost_closing, acc_opening, depreciation, acc_disposals, acc_closing, nbv_closing, nbv_opening), `current` (this year''s, from the accounts placed on it; movements null without movement columns), `accounts` (how many), `own` (the note''s own category its accounts are in, or null), `opening_check` (per side: this year''s opening against last year''s closing; `kind` equal, rounding, difference). `accounts`: each PPE account''s `row`, `name`, `side` (cost, accumulated), `category` (key or null), `label`, `by` (choice, name, amount, words, none). `comparative`: last year''s cells by the note''s own categories (cell key → amount), the note''s comparative where nothing is typed. Null otherwise; absent from a version saved before it was added.'
             note_items:
               type: object
               description: 'With last year''s statements confirmed from a PDF: each note whose table is last year''s note (R11, R12, D3), by note key: the PDF note (`note` as printed, `title` corrected, `page`), its `items` (last year''s lines in order: `key`, `label` as printed with corrections, `prior` amount, `page`), and this year''s `accounts` (`ref`: row number or `adjustments`, `label`, `class`, `current`, `opening`, `item`: a line''s key or `new`, `by`: choice, name, amount, words or new). Absent from a version saved before it was added.'
@@ -2556,7 +3056,7 @@ components:
               items: { type: object, required: [key, amount], properties: { key: { type: string, enum: [net_loss, accumulated_losses, current_liabilities, total_liabilities] }, amount: { type: number }, capital: { type: number } } }
             zakat_tax:
               type: object
-              description: 'The year''s zakat and income tax (`PUT …/zakat-tax`): `inputs` (the answers with their defaults; `defaults`), `period` (`days` counted both ends, `hijri_days` 354), the groups `equity`, `non_current_liabilities`, `current_liabilities`, `non_current_assets` (`deducted` the total of the ones deducted, each row `deducted`), `current_assets` (rows `line`, `label`, `amount`; an equity row may say `before_charge` with `reported`, the figure the statements show, or `related`), `allocation`, `profit` (`before_charges`, `difference`, `adjusted`), `base`, `minimum`, `maximum`, `final_base` and `binding` (`base`, `minimum`, `maximum`, `none`), `zakat` (`rate`, `full`, `saudi_share`, `amount`), `income_tax` (`foreign_share`, `profit`, `loss_offset`, `taxable`, `rate`, `amount`), `charged` (what the statements charge now, and `zakat_source` / `tax_source`: `trial_balance`, `input`, `dialog` or null), `applied` (what the dialog took in), `can_apply` and `warnings`.'
+              description: 'The year''s zakat and income tax (`PUT …/zakat-tax`): `inputs` (the answers with their defaults; `defaults`), `period` (`days` counted both ends, `hijri_days` 354), the groups `equity`, `non_current_liabilities`, `current_liabilities`, `non_current_assets` (`deducted` the total of the ones deducted, each row `deducted`), `current_assets` (rows `line`, `label`, `amount`; an equity row may say `before_charge` with `reported`, the figure the statements show, or `related`), `allocation`, `profit` (`before_charges`, `difference`, `adjusted`), `base`, `minimum`, `maximum`, `final_base` and `binding` (`base`, `minimum`, `maximum`, `none`), `zakat` (`rate`, `full`, `saudi_share`, `amount`), `income_tax` (`foreign_share`, `profit`, `loss_offset`, `taxable`, `rate`, `amount`), `charged` (what the statements charge now, and `zakat_source` / `tax_source`: `trial_balance`, `input`, `dialog` or null), `applied` (what the dialog took in), `can_apply` and `warnings`. Every group row also has `edited` (the accountant corrected it: `inputs.overrides`) and `computed` (the statements'' figure); `profit` has `before_charges_edited` and `before_charges_computed`. `adopt` (per charge: `auto`, `calculated`, `booked`, `manual`), `candidates` (per charge: `calculated`, `booked`, `manual` or null) and `in_statements` (per charge: what the statements carry).'
               required: [inputs, period, equity, base, minimum, maximum, final_base, binding, zakat, income_tax, charged, applied, can_apply, warnings]
               properties:
                 inputs: { type: object }
@@ -2581,6 +3081,21 @@ components:
                 applied: { type: object }
                 can_apply: { type: object, properties: { zakat: { type: boolean }, income_tax: { type: boolean } } }
                 warnings: { type: array, items: { type: string } }
+                adopt:
+                  type: object
+                  properties:
+                    zakat: { type: string, enum: [auto, calculated, booked, manual] }
+                    income_tax: { type: string, enum: [auto, calculated, booked, manual] }
+                candidates:
+                  type: object
+                  properties:
+                    zakat: { $ref: '#/components/schemas/ZakatCandidates' }
+                    income_tax: { $ref: '#/components/schemas/ZakatCandidates' }
+                in_statements:
+                  type: object
+                  properties:
+                    zakat: { type: number }
+                    income_tax: { type: number }
             zakat_base:
               type: [object, 'null']
               description: 'With last year''s statements confirmed from a PDF: the zakat base as last year''s zakat note computed it (R11), its `note`, `title`, `page` and `rows` in order: `n`, `label` as printed (corrections applied), `kind` (line, total), last year''s `prior` amount, this year''s `current` figure and where it comes from (`from`: statements, schedules, input: the question `zakat.base.<n>`, total). Null otherwise; absent from a version saved before it was added.'
@@ -2734,7 +3249,7 @@ components:
         `rounding_over_limit` (error: a total's rounding difference above `financial_statements.rounding_limit`, put nowhere),
         `zakat_charge_missing` (profit and no zakat charge: enter it or confirm zero with a reason; `input_key`),
         `empty_required_input` (`input_key`; nothing suggested), `input_to_confirm` (warning: a required field showing a suggested answer not yet saved; `input_key`; never acknowledged: `PUT …/acknowledgements` refuses it, saving the answer clears it), `adjustment_unmapped_row` (an entry on an account with no line; `entry`),
-        `opening_vs_prior_closing` (scope `comparative`: a line's opening ≠ the prior closing; an error, a warning once restated).
+        `opening_vs_prior_closing` (scope `comparative`: a line's opening ≠ the prior closing by 3 riyals or more (`financial_statements.opening_tolerance`; less is accepted and raises nothing); an error, a warning once restated).
         `prior_file_total` (scope `comparative`, error, PR 17): a total of an uploaded file of last year's statements ≠ the same total built from the
         file's lines; `file_row` {sheet, row} names it.
         `period_invalid` (check 22, `kind`: `length`, a period ≠ 12 months, a warning, in months; `comparative_gap`, the comparative
@@ -3333,6 +3848,119 @@ components:
         kept_existing: { type: integer, description: 'Rows apply went through but kept out of the cache (a manual correction or AI answer holds the key, or the key got two sub-classes).' }
         cache_entries: { type: integer, description: 'Cache entries this import wrote (rows sharing a key share one entry).' }
         skipped: { type: integer }
+
+    ClientEmail:
+      type: object
+      required: [id, direction, ref, parent_id, address, subject, body, status, request_ids, reminders, analysis, error, sent_at, created_at]
+      properties:
+        id: { type: integer }
+        direction: { type: string, enum: [out, in] }
+        ref: { type: string, description: 'The thread''s reference, in the subject as `[REF]`.' }
+        parent_id: { type: [integer, 'null'], description: 'A reminder or a reply: the email it follows.' }
+        address: { type: string, description: 'To (out) or from (in).' }
+        subject: { type: string }
+        body: { type: string, description: 'A reply: the client''s own words (the quoted original cut; empty when only files came).' }
+        status: { type: string, enum: [sent, failed, received, unmatched, processed], description: '`unmatched`: a reply not from the client''s address, not acted on.' }
+        request_ids: { type: [array, 'null'], items: { type: integer } }
+        reminders: { type: integer }
+        analysis:
+          type: [object, 'null']
+          description: 'A reply as the AI read it: `summary`, `answers` (per request: attached, will_send_later, not_applicable, question, other), `files` (each file and the request it went to: `title` null = «غير مصنّف»), `needs_accountant`, `unavailable` (the AI could not be asked).'
+        error: { type: [string, 'null'] }
+        sent_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: [string, 'null'], format: date-time }
+    FollowUpState:
+      type: object
+      required: [year, client_email, missing, can_send, emails]
+      properties:
+        year: { type: integer }
+        client_email: { type: [string, 'null'] }
+        missing: { type: integer }
+        can_send: { type: boolean }
+        emails: { type: array, items: { $ref: '#/components/schemas/ClientEmail' } }
+    FollowUpDraft:
+      type: object
+      required: [to, draft, body, message]
+      properties:
+        to: { type: [string, 'null'] }
+        draft:
+          type: [object, 'null']
+          required: [subject, intro, items, questions]
+          properties:
+            subject: { type: string }
+            intro: { type: string }
+            items:
+              type: array
+              items:
+                type: object
+                required: [id, number, title, reason, note]
+                properties:
+                  id: { type: integer }
+                  number: { type: [integer, 'null'] }
+                  title: { type: string }
+                  reason: { type: [string, 'null'], description: 'Only where the books show one, or it was sent back.' }
+                  note: { type: [string, 'null'], description: 'Why it was sent back.' }
+            questions: { type: array, items: { type: string } }
+        body: { type: [string, 'null'] }
+        message: { type: [string, 'null'], description: 'Nothing missing.' }
+    PreparedPaper:
+      type: object
+      required: [id, kind, key, title, documents, status, progress, summary, notes, sources, error, prepared_at, download_url]
+      properties:
+        id: { type: [integer, 'null'] }
+        kind: { type: string, enum: [paper, recalc] }
+        key: { type: string }
+        title: { type: string }
+        documents: { type: integer }
+        status: { type: string, enum: [none, queued, working, done, blocked, failed] }
+        progress: { type: object, required: [done, total], properties: { done: { type: integer }, total: { type: integer } } }
+        summary: { type: [string, 'null'] }
+        notes: { type: array, items: { type: string } }
+        sources: { type: array, items: { type: string } }
+        error: { type: [string, 'null'] }
+        prepared_at: { type: [string, 'null'], format: date-time }
+        download_url: { type: [string, 'null'] }
+    PreparedPapers:
+      type: object
+      required: [year, papers]
+      properties:
+        year: { type: integer }
+        papers: { type: array, items: { $ref: '#/components/schemas/PreparedPaper' } }
+    Mailbox:
+      type: object
+      required: [provider, from_address, from_name, host, port, security, username, has_password, imap_enabled, imap_host, last_test_ok, last_tested_at, last_error, imap_checked_at, imap_error]
+      properties:
+        provider: { type: string }
+        from_address: { type: string }
+        from_name: { type: [string, 'null'] }
+        host: { type: string }
+        port: { type: integer }
+        security: { type: string, enum: [tls, ssl] }
+        username: { type: string }
+        has_password: { type: boolean }
+        imap_enabled: { type: boolean }
+        imap_host: { type: [string, 'null'] }
+        last_test_ok: { type: [boolean, 'null'] }
+        last_tested_at: { type: [string, 'null'], format: date-time }
+        last_error: { type: [string, 'null'] }
+        imap_checked_at: { type: [string, 'null'], format: date-time }
+        imap_error: { type: [string, 'null'] }
+    MailProvider:
+      type: object
+      required: [label, host, port, security, app_password_url, imap_host]
+      properties:
+        label: { type: string }
+        host: { type: string }
+        port: { type: integer }
+        security: { type: string }
+        app_password_url: { type: [string, 'null'] }
+        imap_host: { type: string }
+    MailTest:
+      type: object
+      required: [ok, message]
+      properties:
+        ok: { type: boolean }
+        message: { type: [string, 'null'] }
 
     Message:
       type: object

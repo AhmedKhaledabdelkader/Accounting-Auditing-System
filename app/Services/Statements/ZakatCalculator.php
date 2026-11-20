@@ -65,7 +65,16 @@ final class ZakatCalculator
         'extra_deductions'        => ['amount', 0.0],
         'related_as_liability'    => ['flag', false],
         'deduct_lines'            => ['lines', self::DEDUCT_DEFAULT],
+        // The accountant's own figure for a line of the sheet (line key → amount), instead of the statements': the calculation
+        // is theirs to correct. `is.profit_before_zakat` corrects the profit the adjusted profit starts from.
+        'overrides'               => ['map', []],
     ];
+
+    /** The lines the accountant may correct (overrides). */
+    public static function overridable(): array
+    {
+        return [...self::EQUITY, ...self::RELATED, ...self::NON_CURRENT_LIABILITIES, ...self::CURRENT_LIABILITIES, ...self::NON_CURRENT_ASSETS, ...self::CURRENT_ASSETS, 'is.profit_before_zakat'];
+    }
 
     /**
      * Errors of the accountant's answers (key → message code), none when valid. A null removes an answer.
@@ -91,6 +100,10 @@ final class ZakatCalculator
             } elseif ($type === 'lines' && ! (is_array($value) && array_is_list($value) && count(array_unique($value)) === count($value)
                     && array_diff($value, self::NON_CURRENT_ASSETS) === [])) {
                 $errors[$key] = 'zakat_input_lines';
+            } elseif ($type === 'map' && ! (is_array($value) && ($value === [] || ! array_is_list($value))
+                    && array_diff(array_keys($value), self::overridable()) === []
+                    && array_filter($value, fn ($v) => $v !== null && ! is_int($v) && ! is_float($v)) === [])) {
+                $errors[$key] = 'zakat_input_overrides';
             }
         }
 
@@ -103,6 +116,9 @@ final class ZakatCalculator
         $out = [];
         foreach (self::INPUTS as $key => [$type, $default]) {
             $out[$key] = array_key_exists($key, $saved) && $saved[$key] !== null ? ($type === 'lines' ? array_values($saved[$key]) : $saved[$key]) : $default;
+            if ($type === 'map') {
+                $out[$key] = array_map('floatval', array_filter((array) $out[$key], fn ($v) => $v !== null));
+            }
             $out[$key] = in_array($type, ['share', 'amount'], true) ? (float) $out[$key] : $out[$key];
         }
 
@@ -142,8 +158,13 @@ final class ZakatCalculator
         // What the report has charged for the year already, added back: the calculation stands before it.
         $zakatBooked = -$amount('is.zakat');
         $taxBooked = -$amount('is.income_tax');
-        $row = function (string $line, float $value, array $extra = []) use ($label) {
-            return ['line' => $line, 'label' => $label($line), 'amount' => round($value, 2) + 0.0] + $extra;
+        // A line the accountant corrected: their figure, the statements' kept beside it (`computed`).
+        $overrides = $in['overrides'];
+        $row = function (string $line, float $value, array $extra = []) use ($label, $overrides) {
+            $edited = array_key_exists($line, $overrides);
+
+            return ['line' => $line, 'label' => $label($line), 'amount' => round($edited ? $overrides[$line] : $value, 2) + 0.0]
+                + $extra + ['edited' => $edited, 'computed' => round($value, 2) + 0.0];
         };
         $equity = $liabilitiesNc = $liabilitiesC = [];
         foreach (self::EQUITY as $line) {
@@ -154,7 +175,7 @@ final class ZakatCalculator
                 'sofp.income_tax_provision' => $value - $taxBooked,
                 default => $value,
             };
-            if (abs($before) >= 0.005 || abs($value) >= 0.005) {
+            if (abs($before) >= 0.005 || abs($value) >= 0.005 || array_key_exists($line, $overrides)) {
                 $equity[] = $row($line, $before, ['reported' => $value + 0.0, 'before_charge' => abs($before - $value) >= 0.005]);
             }
         }
@@ -204,7 +225,7 @@ final class ZakatCalculator
 
         // The profit: the adjusted one starts from the profit before the year's zakat and income tax (the book one is after
         // them in the statements; both are taken before, so their difference is the accountant's adjustments alone).
-        $profitBefore = $figure('is.profit_before_zakat');
+        $profitBefore = array_key_exists('is.profit_before_zakat', $overrides) ? $overrides['is.profit_before_zakat'] : $figure('is.profit_before_zakat');
         $profitBefore === null && $warnings[] = 'profit_missing';
         $difference = round($in['profit_additions'] - $in['profit_deductions'], 2);
         $adjusted = round(($profitBefore ?? 0.0) + $difference, 2);
@@ -250,7 +271,7 @@ final class ZakatCalculator
             'current_assets' => ['rows' => $current, 'total' => $ca],
             'allocation' => ['current_asset_deducted' => $a, 'non_current_as_current' => $b, 'current_liabilities_added' => round($addedFromCurrent, 2),
                 'non_current_liabilities_removed' => round($removedFromNonCurrent, 2)],
-            'profit' => ['before_charges' => $profitBefore, 'difference' => $difference, 'adjusted' => $adjusted],
+            'profit' => ['before_charges' => $profitBefore, 'before_charges_edited' => array_key_exists('is.profit_before_zakat', $overrides), 'before_charges_computed' => $figure('is.profit_before_zakat'), 'difference' => $difference, 'adjusted' => $adjusted],
             'base' => ['equity' => $equityTotal, 'non_current_liabilities' => $nclAdded, 'profit_difference' => $difference, 'current_excess' => $currentExcess,
                 'extra_additions' => $in['extra_additions'], 'deducted_assets' => -$faAfter, 'extra_deductions' => -$in['extra_deductions'], 'total' => $base],
             'minimum' => ['assets' => $caAfter, 'profit_difference' => $difference, 'adjusted_profit' => $adjusted, 'total' => $minimum],

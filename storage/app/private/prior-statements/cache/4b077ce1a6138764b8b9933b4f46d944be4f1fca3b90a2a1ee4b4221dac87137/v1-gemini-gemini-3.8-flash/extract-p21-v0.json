@@ -1,0 +1,306 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "columns": [],
+                "text": "شركة إعادة الشباب الطبية",
+                "rows": [],
+                "number": null,
+                "type": "heading"
+            },
+            {
+                "text": "(شركة شخص واحد ذات مسؤولية محدودة)",
+                "columns": [],
+                "type": "heading",
+                "number": null,
+                "rows": []
+            },
+            {
+                "columns": [],
+                "text": "إيضاحات حول القوائم المالية (تتمة)",
+                "number": null,
+                "type": "heading",
+                "rows": []
+            },
+            {
+                "number": null,
+                "rows": [],
+                "type": "heading",
+                "columns": [],
+                "text": "للسنة المنتهية في ٣١ ديسمبر ٢٠٢٤م"
+            },
+            {
+                "type": "paragraph",
+                "number": null,
+                "rows": [],
+                "columns": [],
+                "text": "(جميع المبالغ بالريال السعودي مالم يذكر خلاف ذلك)"
+            },
+            {
+                "rows": [],
+                "type": "heading",
+                "columns": [],
+                "number": "١١",
+                "text": "١١- الاصول الغير ملموسة"
+            },
+            {
+                "rows": [
+                    {
+                        "label": "التكلفة:",
+                        "note": null,
+                        "cells": [
+                            null,
+                            null
+                        ]
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "٢٣٩,٢٨٤",
+                            "٢٣٩,٢٨٤"
+                        ],
+                        "label": "كما في ١ يناير ٢٠٢٤م"
+                    },
+                    {
+                        "label": "إضافات خلال السنة",
+                        "note": null,
+                        "cells": [
+                            "-",
+                            "-"
+                        ]
+                    },
+                    {
+                        "cells": [
+                            "٢٣٩,٢٨٤",
+                            "٢٣٩,٢٨٤"
+                        ],
+                        "note": null,
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٤م"
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            null,
+                            null
+                        ],
+                        "label": "مجمع الاطفاء"
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "١٠,٨٦٦",
+                            "١٠,٨٦٦"
+                        ],
+                        "label": "كما في ١ يناير ٢٠٢٤م"
+                    },
+                    {
+                        "cells": [
+                            "٢٣,٩٢٨",
+                            "٢٣,٩٢٨"
+                        ],
+                        "label": "اطفاء السنة",
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            "٣٤,٧٩٤",
+                            "٣٤,٧٩٤"
+                        ],
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٤م",
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            null,
+                            null
+                        ],
+                        "label": "صافي القيمة الدفترية:"
+                    },
+                    {
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٤م",
+                        "cells": [
+                            "٢٠٤,٤٩٠",
+                            "٢٠٤,٤٩٠"
+                        ],
+                        "note": null
+                    }
+                ],
+                "type": "table",
+                "columns": [
+                    {
+                        "header": "٢٠٢٤ م \/ برامج"
+                    },
+                    {
+                        "header": "٢٠٢٤ م \/ الاجمالي"
+                    }
+                ],
+                "text": null,
+                "number": null
+            },
+            {
+                "type": "table",
+                "number": null,
+                "columns": [
+                    {
+                        "header": "٢٠٢٣ م \/ برامج"
+                    },
+                    {
+                        "header": "٢٠٢٣ م \/ الاجمالي"
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "التكلفة:",
+                        "note": null,
+                        "cells": [
+                            null,
+                            null
+                        ]
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "-",
+                            "-"
+                        ],
+                        "label": "كما في ١ يناير ٢٠٢٣م"
+                    },
+                    {
+                        "label": "المحول من مشاريع تحت التنفيذ",
+                        "cells": [
+                            "٣,٣٠٠",
+                            "٣,٣٠٠"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "label": "إضافات خلال السنة",
+                        "note": null,
+                        "cells": [
+                            "٢٣٥,٩٨٤",
+                            "٢٣٥,٩٨٤"
+                        ]
+                    },
+                    {
+                        "cells": [
+                            "٢٣٩,٢٨٤",
+                            "٢٣٩,٢٨٤"
+                        ],
+                        "note": null,
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٣م"
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            null,
+                            null
+                        ],
+                        "label": "مجمع الاطفاء"
+                    },
+                    {
+                        "note": null,
+                        "label": "كما في ١ يناير ٢٠٢٣م",
+                        "cells": [
+                            "-",
+                            "-"
+                        ]
+                    },
+                    {
+                        "cells": [
+                            "١٠,٨٦٦",
+                            "١٠,٨٦٦"
+                        ],
+                        "label": "اطفاء السنة",
+                        "note": null
+                    },
+                    {
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٣م",
+                        "cells": [
+                            "١٠,٨٦٦",
+                            "١٠,٨٦٦"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            null,
+                            null
+                        ],
+                        "label": "صافي القيمة الدفترية:",
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            "٢٢٨,٤١٨",
+                            "٢٢٨,٤١٨"
+                        ],
+                        "note": null,
+                        "label": "كما في ٣١ ديسمبر ٢٠٢٣م"
+                    }
+                ],
+                "text": null
+            },
+            {
+                "type": "heading",
+                "rows": [],
+                "number": "١٢",
+                "columns": [],
+                "text": "١٢- مصاريف مستحقة وارصدة دائنة اخرى"
+            },
+            {
+                "rows": [
+                    {
+                        "note": null,
+                        "label": "مصاريف اتعاب مهنية مستحقة",
+                        "cells": [
+                            "١٤٤,٣٧٣",
+                            "١٠٠,٨٩٥"
+                        ]
+                    },
+                    {
+                        "label": "رواتب مستحقة",
+                        "cells": [
+                            "٢٩٠,٣٥٠",
+                            "١٥٢,٨٩٦"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            "٢١,٥٣٥",
+                            "-"
+                        ],
+                        "note": null,
+                        "label": "التأمينات الاجتماعية"
+                    },
+                    {
+                        "cells": [
+                            "٤٥٦,٢٥٨",
+                            "٢٥٣,٧٩١"
+                        ],
+                        "label": "الإجمالي",
+                        "note": null
+                    }
+                ],
+                "type": "table",
+                "columns": [
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٤م"
+                    },
+                    {
+                        "header": "٣١ ديسمبر ٢٠٢٣م"
+                    }
+                ],
+                "number": null,
+                "text": null
+            }
+        ]
+    },
+    "usage": {
+        "input": 1338,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 3400
+    }
+}

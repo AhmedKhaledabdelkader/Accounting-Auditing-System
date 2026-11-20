@@ -1,0 +1,34 @@
+{
+    "input": {
+        "company_name": null,
+        "document_type": "كشف حساب",
+        "has_signature_or_stamp": null,
+        "expiry_date": null,
+        "amounts": [
+            {
+                "value": 42752.35,
+                "label": "الرصيد السابق"
+            },
+            {
+                "value": 4854.35,
+                "label": "الرصيد النهائي"
+            }
+        ],
+        "matching_request_ids": [
+            185
+        ],
+        "summary": "كشف حساب لحركة صندوق الدمام من النظام المحاسبي لعام 2025 يوضح المقبوضات والمدفوعات والأرصدة.",
+        "pages_unclear": false,
+        "registration_number": null,
+        "readable": true,
+        "issuer": null,
+        "document_date": "2025-09-01",
+        "period_year": 2025
+    },
+    "usage": {
+        "input": 8091,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 678
+    }
+}

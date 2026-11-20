@@ -75,7 +75,7 @@ class TaxonomyRepositoryTest extends TestCase
         $this->assertSame(['قائمة المركز المالي', 'الذمم المدينة التجارية', 'debit'], $this->taxonomy->find('أوراق قبض'));
         $this->assertSame(['قائمة المركز المالي', 'الذمم الدائنة التجارية', 'credit'], $this->taxonomy->find('أوراق دفع'));
         $this->assertSame(['قائمة المركز المالي', 'استثمارات', 'debit'], $this->taxonomy->find('استثمارات قصيرة الأجل'));
-        $this->assertSame(['قائمة الدخل', 'تكلفة البضاعة المباعة', 'credit'], $this->taxonomy->find('خصم مكتسب'));
+        $this->assertSame(['قائمة الدخل', 'تكلفة الإيرادات', 'credit'], $this->taxonomy->find('خصم مكتسب'));
         $this->assertSame(['قائمة الدخل', 'إيرادات النشاط', 'debit'], $this->taxonomy->find('خصم مسموح به للعملاء'));
     }
 
@@ -105,7 +105,7 @@ class TaxonomyRepositoryTest extends TestCase
         $mains = $this->taxonomy->mainClasses();
         $this->assertSame($mains, array_values(array_unique($mains)));
         $this->assertContains('الممتلكات و الالات و المعدات', $mains);
-        $this->assertCount(72, $mains);   // 65 + 5 new (end-of-service expense sits under salaries) + «مخصصات أخرى» + «أصول أخرى»
+        $this->assertCount(36, $mains);   // the expense natures are sub classes of their function's main class (admin, selling, finance, depreciation, other)
     }
 
     public function test_contra_accounts_sit_under_their_related_asset(): void
@@ -121,7 +121,7 @@ class TaxonomyRepositoryTest extends TestCase
 
     public function test_find_and_normal_side_for_unknown(): void
     {
-        $this->assertSame(['قائمة الدخل', 'إيجارات', 'debit'], $this->taxonomy->find('إيجارات'));
+        $this->assertSame(['قائمة الدخل', 'المصروفات الإدارية والعمومية', 'debit'], $this->taxonomy->find('إيجارات'));
         $this->assertNull($this->taxonomy->find('غير موجود'));
         $this->assertNull($this->taxonomy->normalSide('غير موجود'));
     }
@@ -129,8 +129,8 @@ class TaxonomyRepositoryTest extends TestCase
     public function test_periodic_stock_and_other_provisions(): void
     {
         // Periodic inventory: opening and closing stock reduce or add to cost of sales, not the balance sheet.
-        $this->assertSame(['قائمة الدخل', 'تكلفة البضاعة المباعة', 'debit'], $this->taxonomy->find('مخزون أول المدة'));
-        $this->assertSame(['قائمة الدخل', 'تكلفة البضاعة المباعة', 'credit'], $this->taxonomy->find('مخزون آخر المدة'));
+        $this->assertSame(['قائمة الدخل', 'تكلفة الإيرادات', 'debit'], $this->taxonomy->find('مخزون أول المدة'));
+        $this->assertSame(['قائمة الدخل', 'تكلفة الإيرادات', 'credit'], $this->taxonomy->find('مخزون آخر المدة'));
         // A warranty provision is a liability, not an inventory write-down.
         $this->assertSame(['قائمة المركز المالي', 'مخصصات أخرى', 'credit'], $this->taxonomy->find('مخصص ضمان'));
         $this->assertSame(['قائمة المركز المالي', 'مخصصات أخرى', 'credit'], $this->taxonomy->find('مخصصات أخرى'));
@@ -164,8 +164,8 @@ class TaxonomyRepositoryTest extends TestCase
         $this->assertSame('التزامات', $this->taxonomy->familyOf('الذمم الدائنة التجارية'));
         $this->assertSame('حقوق الملكية', $this->taxonomy->familyOf('رأس المال'));
         $this->assertSame('إيرادات', $this->taxonomy->familyOf('إيرادات النشاط'));
-        $this->assertSame('تكلفة', $this->taxonomy->familyOf('تكلفة البضاعة المباعة'));
-        $this->assertSame('مصروفات', $this->taxonomy->familyOf('دعاية وإعلان'));
+        $this->assertSame('تكلفة', $this->taxonomy->familyOf('تكلفة الإيرادات'));
+        $this->assertSame('مصروفات', $this->taxonomy->familyOf('المصروفات البيعية والتوزيعية'));
         $this->assertNull($this->taxonomy->familyOf('غير موجود'));
     }
 }

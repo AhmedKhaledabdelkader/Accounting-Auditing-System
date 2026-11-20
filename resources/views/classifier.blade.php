@@ -314,6 +314,7 @@
 @inject('taxonomy', 'App\Repositories\Contracts\TaxonomyRepositoryInterface')
 <div id="app-config" data-submit-url="{{ route('classify.jobs.submit', [], false) }}" data-can-mark="{{ auth()->user()?->can('taxonomy.manage') ? '1' : '' }}" data-can-correct="{{ auth()->user()?->can('classify.correct') ? '1' : '' }}"
      data-taxonomy="{{ json_encode($taxonomy->map(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}"
+     data-groups="{{ json_encode(config('classification.display_groups'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}"
      data-t="{{ json_encode(__('classifier_page.js'), JSON_UNESCAPED_UNICODE) }}" hidden></div>
 
 @include('partials.ask-dialog')
@@ -324,6 +325,9 @@
 const SUBMIT_URL = document.getElementById('app-config').dataset.submitUrl;
 // sub_class => [statement, main_class, side]: the choices when correcting a row
 const TAXONOMY = JSON.parse(document.getElementById('app-config').dataset.taxonomy);
+// main class => the group shown in its place when the main class is the sub class's own name (config classification.display_groups)
+const GROUPS = JSON.parse(document.getElementById('app-config').dataset.groups || '{}');
+const shownMain = r => (r.main_class && r.main_class === r.sub_class && GROUPS[r.main_class]) || r.main_class;
 // The page's words in its language (lang/*/classifier_page.php «js»): t(key, {name: value}) fills «:name»; nested keys are dotted.
 const T = JSON.parse(document.getElementById('app-config').dataset.t);
 function t(key, vars = {}){
@@ -758,7 +762,7 @@ function draw(){
   const only = $('onlyReview').checked;
   const list = rows.filter(r =>
     (!only || r.needs_review) &&
-    (!q || [r.account_number, r.account_name, r.sub_class, r.main_class, r.audit_request].join(' ').toLowerCase().includes(q))
+    (!q || [r.account_number, r.account_name, r.sub_class, r.main_class, shownMain(r), r.audit_request].join(' ').toLowerCase().includes(q))
   );
 
   shown = list;
@@ -769,7 +773,7 @@ function draw(){
       <td class="num">${esc(r.account_number)}</td>
       <td class="name">${esc(r.account_name)}</td>
       <td>${pill(r.financial_statement)}</td>
-      <td>${esc(r.main_class ?? '—')}</td>
+      <td>${esc(shownMain(r) ?? '—')}</td>
       <td class="sub-cell">${subCell(r)}</td>
       ${groups().map(g => `<td class="num">${money(r[g[1] + '_debit'])}</td><td class="num">${money(r[g[1] + '_credit'])}</td>`).join('')}
       <td>${confBar(r.classification_confidence ?? r.confidence)}</td>
@@ -1065,7 +1069,7 @@ $('csv').onclick = () => {
     ...groups().flatMap(g => [g[2], g[3]]), col('confidence_pct'), col('needs_review'), col('note'), col('audit_request'), col('note_reference'), col('manual_edit')];
   const cell = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
   const lines = rows.map(r => [
-    r.account_number, r.account_name, r.financial_statement, r.main_class, r.sub_class,
+    r.account_number, r.account_name, r.financial_statement, shownMain(r), r.sub_class,
     ...groups().flatMap(g => [r[g[1] + '_debit'], r[g[1] + '_credit']]),
     r.classification_confidence ?? r.confidence, r.needs_review ? t('yes') : t('no'), r.note_text ?? r.note, r.audit_request, r.note_reference,
     // «تصحيح يدوي» is the reason the API stores for a saved correction (data, not a page word).

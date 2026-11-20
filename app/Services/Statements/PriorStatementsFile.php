@@ -301,13 +301,15 @@ final class PriorStatementsFile
         $raw = (string) $v;
         $s = trim(str_replace(["\u{00A0}", ' ', '٬', '،'], ['', '', ',', ','], self::westernDigits($raw)));
         $s = str_replace('٫', '.', $s);
-        if (in_array($s, ['-', '–', '—', '_'], true)) {
+        if (in_array($s, ['-', '–', '—', '_', '.', '..', '·'], true)) {
             return ['amount' => 0.0, 'raw' => $raw, 'status' => 'ok'];
         }
-        if (preg_match('/^(\()?(-)?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?(\))?$/', $s, $m) && (($m[1] ?? '') === '') === (($m[6] ?? '') === '')) {
+        // The minus before the figure, or after it (copied right to left: «٣,٥١٨,١٢٥-» is -3,518,125), or the brackets.
+        if (preg_match('/^(\()?(-)?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?(\))?(-)?$/', $s, $m) && (($m[1] ?? '') === '') === (($m[6] ?? '') === '')
+            && ! (($m[2] ?? '') === '-' && ($m[7] ?? '') === '-')) {
             $n = (float) str_replace(',', '', $m[3].($m[5] ?? ''));
 
-            return ['amount' => round(($m[1] === '(' || $m[2] === '-') ? -$n : $n, 2) + 0.0, 'raw' => $raw, 'status' => 'ok'];
+            return ['amount' => round(($m[1] === '(' || $m[2] === '-' || ($m[7] ?? '') === '-') ? -$n : $n, 2) + 0.0, 'raw' => $raw, 'status' => 'ok'];
         }
 
         return ['amount' => null, 'raw' => $raw, 'status' => 'unread'];

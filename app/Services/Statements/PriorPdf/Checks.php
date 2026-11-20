@@ -250,7 +250,7 @@ final class Checks
         $balance = null;
         $moves = [];
         $nbv = false;
-        foreach ($t['rows'] as $r) {
+        foreach ($t['rows'] as $k => $r) {
             if (Tables::isHeading($r)) {
                 [$balance, $moves] = [null, []];   // a new part (the cost, then the accumulated depreciation)
                 $nbv = preg_match(Tables::NBV, $r['label']) === 1;   // net book values: balances side by side, nothing rolls
@@ -274,14 +274,31 @@ final class Checks
                         $v = abs($m['cells'][$i]['amount'] ?? 0.0);
                         $expected += preg_match('/استبعاد|المسدد|المستخدم|مدفوع/u', $m['label']) ? -$v : ($m['cells'][$i]['amount'] ?? 0.0);
                     }
-                    if (abs($expected - $c['amount']) > Tables::TOLERANCE) {
-                        $gaps[] = ['label' => $r['label'], 'column' => $i, 'expected' => round($expected, 2), 'printed' => $c['amount']];
+                    // Under 3 riyals is the printed table's own rounding (the accountant's rule), not a misreading.
+                    if (abs($expected - $c['amount']) >= 3.0) {
+                        $gaps[] = ['label' => $r['label'], 'column' => $i, 'expected' => round($expected, 2), 'printed' => $c['amount'], 'row' => $k];
                     }
                 }
             }
             $balance = $r;
             $moves = [];
         }
+
+        // The total column («الإجمالي»): a balance that the categories' own balances add up to is right whatever its movements as read
+        // (a total cell misread, or misprinted); the categories carry the figures and each of them was checked on its own.
+        $total = $t['total_column'] ?? array_key_first(array_filter($t['columns'] ?? [], fn ($c) => preg_match('/^(ال)?(إجمالي|اجمالي|الإجمالي|الاجمالي|المجموع)/u', Tables::columnName((string) $c['header'])) === 1));
+        if ($total !== null) {
+            $gaps = array_values(array_filter($gaps, function ($g) use ($t, $total) {
+                if ($g['column'] !== $total) {
+                    return true;
+                }
+                $row = $t['rows'][$g['row']] ?? [];
+                $parts = array_sum(array_map(fn ($c) => (float) ($c['amount'] ?? 0.0), array_diff_key($row['cells'] ?? [], [$total => 1])));
+
+                return abs($parts - (float) $g['printed']) > Tables::TOLERANCE;
+            }));
+        }
+        $gaps = array_map(fn ($g) => array_diff_key($g, ['row' => 1]), $gaps);
 
         return $gaps;
     }

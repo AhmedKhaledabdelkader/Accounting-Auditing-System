@@ -128,7 +128,7 @@ final class Wording
                 }
                 foreach (isset($isName[$key]) ? [] : $t['raw'] as $i => $word) {
                     $w = $t['words'][$i];
-                    if (isset($joined[$word]) || mb_strlen($w) < self::SHORTEST || ! preg_match('/^\p{Arabic}+$/u', $w) || isset($flagged[$w]) || isset($corrected[$w]) || $outside($w)) {
+                    if (isset($joined[$word]) || mb_strlen($w) < self::SHORTEST || ! self::letters($w) || isset($flagged[$w]) || isset($corrected[$w]) || $outside($w)) {
                         continue;
                     }
                     // Known from the PDF alone, or a general word: only corrected (to a word known outside it), when the
@@ -305,7 +305,8 @@ final class Wording
                 // Only a short word (the words above check the rest), a letter changed: not a hamza on an alef (a madda is
                 // a letter), «ة» for «ه», «ى» for «ي», an article or a joined «و» («غير» in one, «وغير» in the other).
                 [$x, $y] = [$fold($raw[$i + $j]), $fold($parts[$j])];
-                $to[] = $x === $y || mb_strlen($x) !== mb_strlen($y) || mb_strlen($words[$i + $j]) >= self::SHORTEST ? $raw[$i + $j] : $parts[$j];
+                // A year or a figure («۲۰۲۱» beside «۲۰۲۲») is never a misprint of the other: the balance a year earlier is printed too.
+                $to[] = $x === $y || ! self::letters($raw[$i + $j]) || ! self::letters($parts[$j]) || mb_strlen($x) !== mb_strlen($y) || mb_strlen($words[$i + $j]) >= self::SHORTEST ? $raw[$i + $j] : $parts[$j];
             }
             if ($to !== [$raw[$i], $raw[$i + 1]]) {
                 $out[$raw[$i].' '.$raw[$i + 1]] = implode(' ', $to);
@@ -313,6 +314,12 @@ final class Wording
         }
 
         return $out;
+    }
+
+    /** Letters only: Arabic letters, no digit (the Arabic-Indic digits are Arabic script too: «٢٠٢٢م» is a date, not a word). */
+    private static function letters(string $w): bool
+    {
+        return preg_match('/^\p{Arabic}+$/u', $w) === 1 && preg_match('/[٠-٩۰-۹]/u', $w) === 0;
     }
 
     /** Whether a word's joined part ends with the article («ال», «بال», «وال», «لل»). */
@@ -365,7 +372,7 @@ final class Wording
             foreach (self::rawWords((string) $text) as $raw) {
                 $clean = (string) preg_replace('/[\x{064B}-\x{065F}\x{0640}]/u', '', $raw);
                 $w = self::normalised($clean)[0] ?? '';
-                if (! preg_match('/^\p{Arabic}+$/u', $w)) {
+                if (! self::letters($w)) {
                     continue;
                 }
                 $offset = mb_strlen($clean) - mb_strlen($w);
@@ -536,6 +543,6 @@ final class Wording
         $y = mb_str_split($b[$differ[0]]);
 
         return count($x) === count($y) && count($x) >= self::SHORTEST && count(array_diff_assoc($x, $y)) === 1
-            && preg_match('/^\p{Arabic}+$/u', $a[$differ[0]].$b[$differ[0]]) === 1 ? $differ[0] : null;   // letters: a year typed apart is R16's
+            && self::letters($a[$differ[0]].$b[$differ[0]]) ? $differ[0] : null;   // letters: a year typed apart is R16's
     }
 }

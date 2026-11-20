@@ -16,4 +16,15 @@ return [
     'archive_tool' => env('ARCHIVE_TOOL'),
     'archive_tools' => ['7z', '7za', '7zz', 'C:\\Program Files\\7-Zip\\7z.exe', '/usr/bin/7z', '/usr/bin/7zz', '/usr/local/bin/7z'],
     'extensions' => ['xlsx', 'xls', 'csv', 'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'zip', 'txt'],
+
+    // Following the client up by email (FollowUp): the AI finds what is missing and writes the email; the office reads and sends it (nothing
+    // is sent without a click, unless `auto_remind` is on). Replies come to `reply_to` and reach us at POST /mail/inbound (the mail
+    // service's inbound webhook, with the secret in the X-Inbound-Secret header) or are entered by hand on the requirements page.
+    'mail' => [
+        'reply_to' => env('PORTAL_MAIL_REPLY_TO'),                 // the mailbox the client's reply goes to (the one the inbound service watches)
+        'inbound_secret' => env('PORTAL_MAIL_INBOUND_SECRET'),     // empty = the webhook is off
+        'auto_remind' => (bool) env('PORTAL_MAIL_AUTO_REMIND', false),
+        'remind_after_days' => (int) env('PORTAL_MAIL_REMIND_AFTER_DAYS', 3),
+        'max_reminders' => (int) env('PORTAL_MAIL_MAX_REMINDERS', 3),
+    ],
 ];

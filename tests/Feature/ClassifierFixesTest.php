@@ -117,7 +117,7 @@ class ClassifierFixesTest extends TestCase
         // X1 «تكلفة إيرادات» was mapped to cost only; rent and wages are expenses by nature, under that function.
         $this->fakeWithMap(
             [$this->account(2, 'إيجارات'), $this->account(3, 'أجور ورواتب'), $this->account(4, 'إيرادات المبيعات'), $this->account(5, 'نقدية لدى البنوك')],
-            [['existing_id' => 1, 'main_classes' => ['تكلفة البضاعة المباعة']]]
+            [['existing_id' => 1, 'main_classes' => ['تكلفة الإيرادات']]]
         );
 
         $data = $this->postJson(self::URL, ['file' => $this->existingFile([
@@ -166,8 +166,8 @@ class ClassifierFixesTest extends TestCase
             ['2305', 'مخصص ضمان بضاعة مباعة', 0, 200, 50, 80, 0, 230],
         ])])->assertOk()->json('data');
 
-        $this->assertSame(['قائمة الدخل', 'تكلفة البضاعة المباعة'], [$data[0]['financial_statement'], $data[0]['main_class']]);
-        $this->assertSame(['قائمة الدخل', 'تكلفة البضاعة المباعة'], [$data[1]['financial_statement'], $data[1]['main_class']]);
+        $this->assertSame(['قائمة الدخل', 'تكلفة الإيرادات'], [$data[0]['financial_statement'], $data[0]['main_class']]);
+        $this->assertSame(['قائمة الدخل', 'تكلفة الإيرادات'], [$data[1]['financial_statement'], $data[1]['main_class']]);
         $this->assertSame(['قائمة المركز المالي', 'مخصصات أخرى'], [$data[2]['financial_statement'], $data[2]['main_class']]);
         // Closing stock is a credit and the provision a liability: neither is on the wrong side.
         foreach ($data as $row) {

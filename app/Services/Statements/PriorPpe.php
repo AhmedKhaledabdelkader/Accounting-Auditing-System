@@ -51,11 +51,20 @@ final class PriorPpe
         $n = 0;
         foreach ($columns as $i => $label) {
             $rate = $rates[StatementSynonyms::wording($label)] ?? self::nearRate($rates, StatementSynonyms::wording($label));
+            $last = array_map(fn ($byColumn) => $byColumn[$i] ?? 0.0, $cells);
+            $source = $rate !== null ? 'printed' : null;
+            // No rate printed (the policies say «القسط الثابت على مدى الأعمار» only): the rate last year's own movement shows, the
+            // year's depreciation over the cost, when it is a usual rate (10%, 25% …); a category fully depreciated shows none.
+            if ($rate === null && $method !== 'other' && ($implied = self::impliedRate($last)) !== null) {
+                [$rate, $source] = [[$implied, $implied], 'movement'];
+            }
             $range = $rate !== null && $rate[0] !== $rate[1] && $rate[0] > 0 ? $rate : null;
             $single = $rate !== null && $range === null ? $rate[0] : null;
-            $out[] = ['key' => 'c'.++$n, 'label' => $label, 'rate' => $single, 'life' => $single !== null && $single > 0 ? $life($single) : null,
+            // A rate read from the movement is a straight-line one by construction.
+            $lifeOf = $source === 'movement' ? fn (float $r) => round(100 / $r, 2) : $life;
+            $out[] = ['key' => 'c'.++$n, 'label' => $label, 'rate' => $single, 'life' => $single !== null && $single > 0 ? $lifeOf($single) : null,
                 'rate_range' => $range, 'life_range' => $range === null || $method !== 'straight_line' ? null : [$life($range[1]), $life($range[0])],
-                'method' => $method, 'last' => array_map(fn ($byColumn) => $byColumn[$i] ?? 0.0, $cells), 'page' => $t['page']];
+                'rate_source' => $source, 'method' => $method, 'last' => $last, 'page' => $t['page']];
         }
 
         return $out === [] ? null : $out;
@@ -127,7 +136,7 @@ final class PriorPpe
             return null;
         }
         $labels = fn (array $t) => array_filter(array_map(function ($i, $c) use ($t, $fix) {
-            $label = $fix(trim(explode(' / ', $c['header'])[0]));
+            $label = $fix(Tables::columnName($c['header']));   // the category, whether the year is printed above or below it
 
             return $label === '' || $i === ($t['total_column'] ?? null) || preg_match('/^(ال)?(إجمالي|اجمالي|الإجمـالي|المجموع|الاجمالي)/u', preg_replace('/ـ+/u', '', $label)) ? null : $label;
         }, array_keys($t['columns']), $t['columns']));
@@ -374,6 +383,32 @@ final class PriorPpe
         return [$out, $at];
     }
 
+    /** The depreciation rates in use (% a year): a rate read from a movement is taken only when it is one of these. */
+    private const USUAL_RATES = [2.0, 2.5, 3.0, 3.33, 4.0, 5.0, 6.25, 6.67, 7.5, 8.0, 10.0, 12.5, 15.0, 16.67, 20.0, 25.0, 30.0, 33.33, 40.0, 50.0, 100.0];
+
+    /**
+     * The straight-line rate a category's movement shows: the one usual rate between the year's depreciation over the cost at the
+     * start and over the cost at the end. Null without depreciation (fully depreciated), or when none or several usual rates fit.
+     *
+     * @param array<string, float> $last the category's cells (cost_opening, cost_closing, depreciation …)
+     */
+    public static function impliedRate(array $last): ?float
+    {
+        $charge = abs((float) ($last['depreciation'] ?? 0.0));
+        $open = abs((float) ($last['cost_opening'] ?? 0.0));
+        $close = abs((float) ($last['cost_closing'] ?? 0.0));
+        if ($charge < 1.0 || $open < 1.0 || $close < 1.0) {
+            return null;   // nothing charged (fully depreciated), or bought during the year: no year's charge to read a rate from
+        }
+        // The charge lies between the rate on the cost at the start (the additions not depreciated in their year) and on the
+        // cost at the end (depreciated the whole year): the one usual rate between the two (3% of slack for rounding), else none.
+        $low = $charge / max($open, $close) * 100 * 0.97;
+        $high = $charge / min($open, $close) * 100 * 1.03;
+        $fits = array_values(array_filter(self::USUAL_RATES, fn ($r) => $r >= $low && $r <= $high));
+
+        return count($fits) === 1 ? $fits[0] : null;
+    }
+
     /** The rate of the one category within a letter of this one (a reading slip in one of the two tables). */
     private static function nearRate(array $rates, string $wording): ?array
     {
@@ -392,6 +427,19 @@ final class PriorPpe
     {
         $out = [];
         foreach ($doc['tables'] as $t) {
+            // A table of useful lives in years (its header, or its cells, say «سنة / سنوات»): the rate is 100 / the years.
+            $years = preg_match('/سنة|سنوات|سنه|العمر|الأعمار|الاعمار/u', implode(' ', array_column($t['columns'], 'header')).' '.implode(' ', array_map(fn ($r) => implode(' ', array_column($r['cells'], 'raw')), $t['rows'])));
+            if ($years && ! Tables::isRates($t['columns'], $t['rows'])) {
+                foreach ($t['rows'] as $r) {
+                    $n = \App\Services\AmountParser::asciiDigits((string) ($r['cells'][0]['raw'] ?? ''));
+                    if (trim($r['label']) !== '' && preg_match('/^\D*(\d+(?:\.\d+)?)\s*(?:[-–—]|إلى|الى)?\s*(\d+(?:\.\d+)?)?\D*$/u', $n, $m) && (float) $m[1] > 0 && (float) $m[1] <= 100) {
+                        $low = 100 / max((float) $m[1], (float) ($m[2] ?? $m[1]));
+                        $high = 100 / min((float) $m[1], (float) ($m[2] ?? $m[1]));
+                        $out[StatementSynonyms::wording($fix(trim($r['label'])))] = [round($low, 2), round($high, 2)];
+                    }
+                }
+                continue;
+            }
             if (! Tables::isRates($t['columns'], $t['rows'])) {
                 continue;
             }

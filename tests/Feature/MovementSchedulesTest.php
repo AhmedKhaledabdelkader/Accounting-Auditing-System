@@ -79,15 +79,19 @@ class MovementSchedulesTest extends TestCase
         $this->assertContains(['key' => 'ppe.accumulated', 'reason' => 'category_split_required', 'input_key' => null], $state['missing']);
         $this->assertSame([null, 'missing', 'missing'], $this->cell($state, 'ppe', 'acc_closing', 'vehicles'));
         $this->assertSame([31.0, 'trial_balance', 'ok'], $this->cell($state, 'ppe', 'acc_closing'));
-        $this->assertSame([15.0, 'suggested_from_movement', 'pending_confirmation'], $this->cell($state, 'ppe', 'depreciation'));
+        $this->assertSame([15.0, 'trial_balance', 'ok'], $this->cell($state, 'ppe', 'depreciation'));   // the year's charge: the depreciation expense
 
         $state = $this->overrides($id, [['row' => 3, 'category' => 'vehicles']])->assertOk()->json();
         $this->assertSame(['cost' => true, 'accumulated' => true], $this->schedule($state, 'ppe')['split']);
         $this->assertSame(['vehicles', 'total'], array_column($this->schedule($state, 'ppe')['columns'], 'key'));
-        foreach (['additions' => 50.0, 'disposals' => 10.0, 'depreciation' => 15.0, 'acc_disposals' => 4.0] as $row => $amount) {
+        foreach (['additions' => 50.0, 'disposals' => 10.0] as $row => $amount) {
             $this->assertSame([$amount, 'suggested_from_movement', 'pending_confirmation'], $this->cell($state, 'ppe', $row, 'vehicles'), $row);
             $this->assertSame('pending', $this->suggestion($state, "ppe.{$row}.vehicles")['status']);
         }
+        // The year's charge is the depreciation expense of the category («إهلاك السيارات» → the cars' column); the depreciation on
+        // disposals follows (opening 20 + 15 − closing 31).
+        $this->assertSame([15.0, 'trial_balance', 'ok'], $this->cell($state, 'ppe', 'depreciation', 'vehicles'));
+        $this->assertSame([4.0, 'derived'], array_slice($this->cell($state, 'ppe', 'acc_disposals', 'vehicles'), 0, 2));
         $this->assertSame([[140.0, 'derived'], [109.0, 'derived'], [80.0, 'derived']], [array_slice($this->cell($state, 'ppe', 'cost_closing'), 0, 2),
             array_slice($this->cell($state, 'ppe', 'nbv_closing'), 0, 2), array_slice($this->cell($state, 'ppe', 'nbv_opening'), 0, 2)]);
         $this->assertSame([0.0, 'derived', 'ok'], $this->cell($state, 'ppe', 'transfers', 'vehicles'));   // no CWIP
@@ -95,24 +99,23 @@ class MovementSchedulesTest extends TestCase
         $this->assertSame([], $this->checks($state, 'asset_rollforward'));
         $this->assertSame([], $this->checks($state, 'depreciation_mismatch'));
 
-        // Confirm, edit, reject, reset.
+        // Confirm, edit, reset; the charge (the trial balance's expense) can still be changed by the accountant.
         $state = $this->decide($id, [['key' => 'ppe.additions.vehicles', 'action' => 'confirm'], ['key' => 'ppe.disposals.vehicles', 'action' => 'edit', 'amount' => 12],
-            ['key' => 'ppe.depreciation.vehicles', 'action' => 'reject']])->assertOk()->json();
+            ])->assertOk()->json();
         $this->assertSame([50.0, 'derived_from_movement', 'ok'], $this->cell($state, 'ppe', 'additions', 'vehicles'));
         $this->assertSame([12.0, 'user_input', 'ok'], $this->cell($state, 'ppe', 'disposals', 'vehicles'));
         $this->assertSame(['edited', 12], [$this->suggestion($state, 'ppe.disposals.vehicles')['status'], $this->suggestion($state, 'ppe.disposals.vehicles')['value']]);
-        $this->assertSame([null, 'missing', 'missing'], $this->cell($state, 'ppe', 'depreciation', 'vehicles'));
-        $this->assertContains(['key' => 'ppe.depreciation.vehicles', 'reason' => 'suggestion_rejected', 'input_key' => null], $state['missing']);
-        // The edited disposals break the cost roll-forward (an error); the rejected charge leaves its own unchecked.
+        $this->assertSame([15.0, 'trial_balance', 'ok'], $this->cell($state, 'ppe', 'depreciation', 'vehicles'));   // the expense: nothing to confirm
+        // The edited disposals break the cost roll-forward (an error).
         $this->assertSame([['asset_rollforward', 'error', 'vehicles', 'cost', -2]], array_map(fn ($c) => [$c['code'], $c['severity'], $c['column'], $c['kind'], $c['difference']],
             $this->checks($state, 'asset_rollforward')));
 
-        $state = $this->decide($id, [['key' => 'ppe.disposals.vehicles', 'action' => 'reset'], ['key' => 'ppe.depreciation.vehicles', 'action' => 'edit', 'amount' => 14]])->assertOk()->json();
+        $state = $this->decide($id, [['key' => 'ppe.disposals.vehicles', 'action' => 'reset'], ['key' => 'ppe.depreciation.vehicles', 'action' => 'edit', 'amount' => 12]])->assertOk()->json();
         $this->assertSame('pending', $this->suggestion($state, 'ppe.disposals.vehicles')['status']);
-        $this->assertSame(['ppe.additions.vehicles' => ['action' => 'confirm', 'amount' => 50], 'ppe.depreciation.vehicles' => ['action' => 'edit', 'amount' => 14]], $state['movement_decisions']);
-        // 14 against an expense of 15: check 16, and the accumulated depreciation no longer rolls (15).
-        $this->assertSame([[15, 14, -1]], array_map(fn ($c) => [$c['expected'], $c['actual'], $c['difference']], $this->checks($state, 'depreciation_mismatch')));
-        $this->assertSame(['accumulated'], array_column($this->checks($state, 'asset_rollforward'), 'kind'));
+        $this->assertSame(['ppe.additions.vehicles' => ['action' => 'confirm', 'amount' => 50], 'ppe.depreciation.vehicles' => ['action' => 'edit', 'amount' => 12]], $state['movement_decisions']);
+        // 12 against an expense of 15 (2 riyals or more apart): check 16 says so; the depreciation on disposals follows the charge, so the side still rolls.
+        $this->assertSame([[15, 12, -3]], array_map(fn ($c) => [$c['expected'], $c['actual'], $c['difference']], $this->checks($state, 'depreciation_mismatch')));
+        $this->assertSame([], $this->checks($state, 'asset_rollforward'));
 
         // A confirmation is of an amount: when the trial balance suggests another, the suggestion is pending again.
         $report = FinancialReport::find($id);
@@ -372,7 +375,7 @@ class MovementSchedulesTest extends TestCase
         // Depreciation not booked: Dr the expense account, Cr the accumulated depreciation account.
         $state = $this->putJson(self::URL."/{$id}/adjustments", ['entries' => [['reason' => 'إهلاك غير مسجل', 'lines' => [
             ['row' => 6, 'debit' => 5, 'credit' => 0], ['row' => 3, 'debit' => 0, 'credit' => 5]]]]])->assertOk()->json();
-        $this->assertSame([20.0, 'derived', 'pending_confirmation'], $this->cell($state, 'ppe', 'depreciation', 'vehicles'));
+        $this->assertSame([20.0, 'derived', 'ok'], $this->cell($state, 'ppe', 'depreciation', 'vehicles'));   // the expense with the entry on it
         $this->assertSame([36.0, 'derived'], array_slice($this->cell($state, 'ppe', 'acc_closing', 'vehicles'), 0, 2));
         $this->assertSame([], $this->checks($state, 'asset_rollforward'));
         $this->assertSame([], $this->checks($state, 'depreciation_mismatch'));

@@ -28,8 +28,9 @@ final class PageExtractor
      */
     public function extract(string $path, array $pages): array
     {
-        $calls = array_map(fn ($p) => ['extract', $p['page'], $p['rotation'] + 1000 * ($p['attempt'] ?? 0), fn () => new ToolCall([['text' => self::RULES]], self::TOOL,
-            self::content($p), 16000, false, $this->qpdf->extract($path, $p['page'], $p['page'], $p['rotation']))], $pages);
+        $whole = ! $this->qpdf->available();
+        $calls = array_map(fn ($p) => ['extract', $p['page'], $p['rotation'] + 1000 * ($p['attempt'] ?? 0) + ($whole ? 500000 : 0), fn () => new ToolCall([['text' => self::RULES]], self::TOOL,
+            self::whole($p, $whole).self::content($p), 32000, false, $this->qpdf->extract($path, $p['page'], $p['page'], $p['rotation']))], $pages);
         $answers = $this->llm->askMany($path, $calls);
         $out = [];
         foreach ($pages as $i => $p) {
@@ -51,8 +52,9 @@ final class PageExtractor
      */
     public function columns(string $path, array $pages): array
     {
-        $calls = array_map(fn ($p) => ['columns', $p['page'], $p['rotation'], fn () => new ToolCall([['text' => self::COLUMN_RULES]], self::COLUMNS_TOOL,
-            "This is page {$p['page']} of the file. List each amount column's values.", 8000, false, $this->qpdf->extract($path, $p['page'], $p['page'], $p['rotation']))], $pages);
+        $whole = ! $this->qpdf->available();
+        $calls = array_map(fn ($p) => ['columns', $p['page'], $p['rotation'] + ($whole ? 500000 : 0), fn () => new ToolCall([['text' => self::COLUMN_RULES]], self::COLUMNS_TOOL,
+            self::whole($p, $whole)."This is page {$p['page']} of the file. List each amount column's values.", 8000, false, $this->qpdf->extract($path, $p['page'], $p['page'], $p['rotation']))], $pages);
         $answers = $this->llm->askMany($path, $calls);
         $out = [];
         foreach ($pages as $i => $p) {
@@ -62,6 +64,20 @@ final class PageExtractor
         }
 
         return $out;
+    }
+
+    /**
+     * Without qpdf the whole file is sent (Qpdf::extract): the page to read, and its turn, are said in words. With qpdf the page
+     * comes alone and upright: nothing to say.
+     */
+    private static function whole(array $p, bool $whole): string
+    {
+        if (! $whole) {
+            return '';
+        }
+
+        return "The WHOLE file is attached. Read ONLY its page {$p['page']} (the {$p['page']}th page of the PDF, counting from 1; not a page number printed on it); ignore every other page."
+            .($p['rotation'] % 360 ? ' That page is printed turned '.($p['rotation'] % 360).' degrees (a table printed sideways): read it as if it were upright.' : '')."\n\n";
     }
 
     private static function content(array $p): string
@@ -107,14 +123,15 @@ final class PageExtractor
      * A cell as printed, and as an amount: «-» is a zero shown as a dash; words without digits are text; a percentage
      * («٪25», «2,5%») is a `percent` (its number, never added up as money); two numbers apart by a dash or «إلى» («٪20 -
      * ٪10») a `range` (no amount); words with digits that aren't an amount («(حصة 1,200)», «المعيار (17)») text; «?» or
-     * anything else unreadable is unread.
+     * anything else unreadable is unread. A lone dot («.») is the nil mark, a dash.
      */
     public static function cell(?string $raw): array
     {
         if ($raw === null) {
             return ['raw' => null, 'amount' => null, 'status' => 'empty'];
         }
-        if (preg_match('/^[-–—ـ]+$/u', $raw)) {
+        // «-», and a lone dot: the nil mark some statements print (a dash printed small, read as «.»).
+        if (preg_match('/^(?:[-–—ـ]+|[.·•]{1,3})$/u', $raw)) {
             return ['raw' => $raw, 'amount' => 0.0, 'status' => 'dash'];
         }
         // Words, no digit: a text column (a related party's relationship, the nature of its transactions), not an amount.

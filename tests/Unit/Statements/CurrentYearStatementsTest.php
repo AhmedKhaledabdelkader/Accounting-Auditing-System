@@ -251,7 +251,7 @@ class CurrentYearStatementsTest extends TestCase
     public function test_net_income_mismatch_when_a_pl_account_reaches_no_line(): void
     {
         // A safety net over the rules: a P&L class with no line leaves the income statement short.
-        config(['financial_statements.templates.sa-ifrs-smes-3.main_classes.إيجارات' => ['choose' => ['is.general_admin', 'is.cost_of_revenue'], 'reason' => 'اختار.']]);
+        config(['financial_statements.templates.sa-ifrs-smes-3.main_classes.المصروفات الإدارية والعمومية' => ['choose' => ['is.general_admin', 'is.cost_of_revenue'], 'reason' => 'اختار.']]);
         $built = $this->build($this->balanced());
 
         $check = collect($built['checks'])->firstWhere('code', 'net_income_mismatch');

@@ -43,7 +43,16 @@ class ApiContractTest extends TestCase
 
     /** Statuses a live server can't be made to return (an unexpected crash): checked through the kernel only. */
     private const KERNEL_ONLY = ['POST /api/v1/classify/jobs' => ['500'], 'POST /api/v1/classify/trial-balance' => ['500'],
-        'POST /api/v1/financial-reports/{id}/prior-year/statements-file' => ['413']];
+        'POST /api/v1/financial-reports/{id}/prior-year/statements-file' => ['413'],
+        // The clients' follow-up, prepared papers and mailbox need a saved office and a fake mail server: kernel only.
+        'GET /api/v1/clients/{id}/follow-up' => ['200', '404', '422'], 'POST /api/v1/clients/{id}/follow-up/draft' => ['200', '404', '422', '502'],
+        'POST /api/v1/clients/{id}/follow-up/send' => ['201', '404', '422', '502'], 'POST /api/v1/clients/{id}/follow-up/replies' => ['201', '404', '422'],
+        'GET /api/v1/clients/{id}/prepared-papers' => ['200', '404', '422'], 'POST /api/v1/clients/{id}/prepared-papers' => ['202', '404', '422'],
+        'GET /api/v1/clients/{id}/prepared-papers/{paper}/download' => ['200', '404'],
+        'GET /api/v1/clients/{id}/findings' => ['200', '404', '422'], 'PUT /api/v1/clients/{id}/findings/{key}' => ['200', '404', '422'], 'GET /api/v1/clients/{id}/findings/export' => ['200', '404', '422'], 'GET /api/v1/account/mail' => ['200'], 'PUT /api/v1/account/mail' => ['200', '422'],
+        'DELETE /api/v1/account/mail' => ['204'], 'POST /api/v1/account/mail/test' => ['200', '404'], 'POST /api/v1/account/mail/check' => ['200', '404'],
+        // The AI limit needs a saved user with a limit: kernel only (merged with the statuses above in KERNEL_ONLY's lookup).
+    ];
 
     private ?Client $live = null;
 
@@ -700,6 +709,206 @@ class ApiContractTest extends TestCase
         $this->expect($op, 404, 'GET', '/api/v1/financial-reports/'.Str::uuid().'/versions/1/export.pdf');
     }
 
+    /* ---------- clients: follow-up by email, prepared papers, the mailbox ---------- */
+
+    /** An office, its administrator (saved: a mailbox and an email belong to them) and a client with two open requests. */
+    private function officeClient(string $title = 'كشف حساب البنك'): array
+    {
+        $office = \App\Models\Office::create(['name_ar' => 'مكتب', 'code' => 'alpha']);
+        $role = \App\Models\Role::create(['name_ar' => 'مدير', 'is_admin' => true]);
+        $user = \App\Models\User::create(['office_id' => $office->id, 'name' => 'سارة', 'username' => 'sara', 'password' => 'secret123', 'role_id' => $role->id, 'status' => \App\Models\User::ACTIVE]);
+        $this->actingAs($user);
+        $company = \App\Models\Company::forceCreate(['office_id' => $office->id, 'name_ar' => 'شركة النور', 'client_name' => 'أحمد', 'client_email' => 'ahmed@client.test', 'cr_number' => '1010101010',
+            'period_start' => '2025-01-01', 'period_end' => '2025-12-31']);
+        $requests = [];
+        foreach ([[$title, 'النقدية لدى البنوك'], ['سجل الأصول الثابتة', 'الموجودات الثابتة']] as $i => [$t, $section]) {
+            $requests[] = \App\Models\DocumentRequest::create(['office_id' => $office->id, 'company_id' => $company->id, 'year' => 2025, 'section' => $section, 'number' => $i + 1, 'title' => $t, 'position' => $i + 1])->id;
+        }
+
+        return [$user, $company, $requests];
+    }
+
+    /** A mailer that accepts every message, or refuses with $fail; an inbox that holds nothing. */
+    private function fakeMailServer(?string $fail = null): void
+    {
+        $this->app->bind('portal.mailer', fn () => new class($fail)
+        {
+            public function __construct(private ?string $fail) {}
+
+            public function raw(string $body, \Closure $callback): void
+            {
+                $callback(new \Illuminate\Mail\Message(new \Symfony\Component\Mime\Email()));
+                if ($this->fail !== null) {
+                    throw new \RuntimeException($this->fail);
+                }
+            }
+        });
+        $this->app->bind('portal.imap', fn () => new class extends \App\Support\Mail\ImapMailbox
+        {
+            public function __construct() {}
+
+            public function open(): void {}
+
+            public function close(): void {}
+
+            public function fetchAfter(int $afterUid, ?\DateTimeInterface $since = null, int $limit = 30): array
+            {
+                return [];
+            }
+        });
+    }
+
+    public function test_client_follow_up(): void
+    {
+        if ($this->live) {
+            $this->markTestSkipped('Needs a saved office and a fake mail server: kernel only.');
+        }
+        [, $company, $requests] = $this->officeClient();
+        $base = "/api/v1/clients/{$company->id}/follow-up";
+
+        $state = $this->expect('GET /api/v1/clients/{id}/follow-up', 200, 'GET', $base.'?year=2025');
+        $this->assertSame([2, true], [$state['missing'], $state['can_send']]);
+        $this->expect('GET /api/v1/clients/{id}/follow-up', 404, 'GET', '/api/v1/clients/'.Str::uuid().'/follow-up');
+        $this->expect('GET /api/v1/clients/{id}/follow-up', 422, 'GET', $base.'?year=1900');
+
+        $draft = $this->expect('POST /api/v1/clients/{id}/follow-up/draft', 200, 'POST', $base.'/draft', ['year' => 2025]);
+        $this->assertSame(['كشف حساب البنك', 'سجل الأصول الثابتة'], array_column($draft['draft']['items'], 'title'));   // the list is the requests' own
+        $this->assertStringContainsString('هل لدى الشركة قروض قائمة؟', $draft['body']);
+        $this->expect('POST /api/v1/clients/{id}/follow-up/draft', 404, 'POST', '/api/v1/clients/'.Str::uuid().'/follow-up/draft', ['year' => 2025]);
+        $this->expect('POST /api/v1/clients/{id}/follow-up/draft', 422, 'POST', $base.'/draft', []);
+
+        $sent = $this->expect('POST /api/v1/clients/{id}/follow-up/send', 201, 'POST', $base.'/send', ['year' => 2025, 'subject' => $draft['draft']['subject'], 'body' => $draft['body'], 'requests' => $requests]);
+        $this->assertSame(['out', 'sent', 'ahmed@client.test'], [$sent['direction'], $sent['status'], $sent['address']]);
+        $this->assertMatchesRegularExpression('/\[[A-Z0-9]{8}\]$/', $sent['subject']);
+        $this->expect('POST /api/v1/clients/{id}/follow-up/send', 404, 'POST', '/api/v1/clients/'.Str::uuid().'/follow-up/send', ['year' => 2025, 'subject' => 's', 'body' => 'b', 'requests' => [1]]);
+        $this->expect('POST /api/v1/clients/{id}/follow-up/send', 422, 'POST', $base.'/send', ['year' => 2025, 'subject' => 's', 'body' => 'b', 'requests' => []]);
+        // A mailbox whose server refuses the login: 502, said in words, the email kept as failed.
+        \App\Models\MailAccount::create(['user_id' => auth()->id(), 'provider' => 'gmail', 'from_address' => 'sara@example.com', 'host' => 'smtp.gmail.com', 'port' => 587, 'security' => 'tls', 'username' => 'sara@example.com', 'password' => 'x']);
+        $this->fakeMailServer('Expected response code "235" but got code "535"');
+        $refused = $this->expect('POST /api/v1/clients/{id}/follow-up/send', 502, 'POST', $base.'/send', ['year' => 2025, 'subject' => 's', 'body' => 'b', 'requests' => $requests]);
+        $this->assertStringContainsString(__('mail_account.err_auth'), $refused['message']);
+
+        $reply = $this->expect('POST /api/v1/clients/{id}/follow-up/replies', 201, 'POST', $base.'/replies', null, ['files[]' => UploadedFile::fake()->createWithContent('كشف البنك.pdf', '%PDF-1.4')],
+            ['year' => 2025, 'text' => 'سنرسل الباقي الأسبوع القادم.']);
+        $this->assertSame(['in', 'processed', 'سيرسل العميل المستندات لاحقًا.'], [$reply['direction'], $reply['status'], $reply['analysis']['summary']]);
+        $this->expect('POST /api/v1/clients/{id}/follow-up/replies', 404, 'POST', '/api/v1/clients/'.Str::uuid().'/follow-up/replies', ['year' => 2025, 'text' => 'x']);
+        $this->expect('POST /api/v1/clients/{id}/follow-up/replies', 422, 'POST', $base.'/replies', ['year' => 2025]);
+
+        // Nothing missing: no draft. The AI unavailable: 502.
+        \App\Models\DocumentRequest::where('company_id', $company->id)->update(['status' => 'accepted']);
+        $none = $this->expect('POST /api/v1/clients/{id}/follow-up/draft', 200, 'POST', $base.'/draft', ['year' => 2025]);
+        $this->assertSame([null, __('follow_up.nothing_missing')], [$none['draft'], $none['message']]);
+        \App\Models\DocumentRequest::create(['office_id' => $company->office_id, 'company_id' => $company->id, 'year' => 2025, 'section' => 'عامة', 'number' => 9, 'title' => 'FAIL-AI', 'position' => 9]);
+        $this->expect('POST /api/v1/clients/{id}/follow-up/draft', 502, 'POST', $base.'/draft', ['year' => 2025]);
+    }
+
+    public function test_prepared_papers(): void
+    {
+        if ($this->live) {
+            $this->markTestSkipped('Needs a saved office: kernel only.');
+        }
+        [, $company] = $this->officeClient();
+        $base = "/api/v1/clients/{$company->id}/prepared-papers";
+        $request = \App\Models\DocumentRequest::where('company_id', $company->id)->where('title', 'سجل الأصول الثابتة')->first();
+        Storage::disk('local')->put('client-files/assets.csv', "الأصل,التكلفة\nسيارة,100000\n");
+        \App\Models\ClientFile::create(['office_id' => $company->office_id, 'company_id' => $company->id, 'document_request_id' => $request->id, 'from_client' => true, 'original_name' => 'سجل الأصول.csv', 'path' => 'client-files/assets.csv', 'size' => 10]);
+
+        $list = $this->expect('GET /api/v1/clients/{id}/prepared-papers', 200, 'GET', $base.'?year=2025&kind=recalc');
+        $this->assertCount(5, $list['papers']);
+        $this->expect('GET /api/v1/clients/{id}/prepared-papers', 404, 'GET', '/api/v1/clients/'.Str::uuid().'/prepared-papers');
+        $this->expect('GET /api/v1/clients/{id}/prepared-papers', 422, 'GET', $base.'?kind=other');
+
+        $queued = $this->expect('POST /api/v1/clients/{id}/prepared-papers', 202, 'POST', $base, ['year' => 2025, 'kind' => 'recalc', 'key' => 'depreciation']);
+        $paper = collect($queued['papers'])->firstWhere('key', 'depreciation');
+        $this->assertSame(['done', 1], [$paper['status'], $queued['queued']]);   // the test queue runs at once
+        $this->assertNotNull($paper['download_url']);
+        $this->expect('POST /api/v1/clients/{id}/prepared-papers', 404, 'POST', '/api/v1/clients/'.Str::uuid().'/prepared-papers', ['year' => 2025, 'kind' => 'recalc', 'key' => 'all']);
+        $this->expect('POST /api/v1/clients/{id}/prepared-papers', 422, 'POST', $base, ['year' => 2025, 'kind' => 'recalc', 'key' => 'no-such-paper']);
+
+        $r = $this->send('GET', $paper['download_url']);
+        $this->assertSame(200, $r['status']);
+        $this->assertSame([], OpenApiContract::get()->problems('GET /api/v1/clients/{id}/prepared-papers/{paper}/download', 200, $r['type'], $r['body']));
+        $this->expect('GET /api/v1/clients/{id}/prepared-papers/{paper}/download', 404, 'GET', "{$base}/999999/download");
+    }
+
+    public function test_audit_findings(): void
+    {
+        if ($this->live) {
+            $this->markTestSkipped('Needs a saved office: kernel only.');
+        }
+        [, $company] = $this->officeClient();
+        \App\Models\ClassificationRun::forceCreate(['office_id' => $company->office_id, 'id' => (string) Str::uuid(), 'status' => 'done', 'original_name' => 'tb.xlsx', 'company_id' => $company->id,
+            'result' => ['data' => [['row' => 2, 'row_type' => 'account', 'account_number' => '2101', 'account_name' => 'مخصص نهاية الخدمة', 'main_class' => 'مخصص نهاية الخدمة', 'sub_class' => 'مخصص نهاية الخدمة', 'closing_debit' => 0, 'closing_credit' => 5900]]]]);
+        \App\Models\PreparedPaper::forceCreate(['office_id' => $company->office_id, 'company_id' => $company->id, 'year' => 2025, 'kind' => 'recalc', 'key' => 'eosb', 'status' => 'done',
+            'analysis' => ['kind' => 'recalc', 'key' => 'eosb', 'rows_used' => 1, 'computed' => 6400.0, 'book' => 6400.0, 'difference' => 0.0, 'trial_balance' => 5900.0, 'tb_difference' => 500.0, 'differing' => [], 'missing' => [], 'lines' => []]]);
+        $base = "/api/v1/clients/{$company->id}/findings";
+
+        $list = $this->expect('GET /api/v1/clients/{id}/findings', 200, 'GET', $base.'?year=2025');
+        $this->assertSame('recalc-eosb', $list['findings'][0]['key']);
+        $this->expect('GET /api/v1/clients/{id}/findings', 404, 'GET', '/api/v1/clients/'.Str::uuid().'/findings');
+        $this->expect('GET /api/v1/clients/{id}/findings', 422, 'GET', $base.'?status=maybe');
+        $this->expect('PUT /api/v1/clients/{id}/findings/{key}', 200, 'PUT', $base.'/recalc-eosb', ['year' => 2025, 'status' => 'adjusted', 'comment' => 'قيد']);
+        $this->expect('PUT /api/v1/clients/{id}/findings/{key}', 404, 'PUT', $base.'/no-such', ['year' => 2025, 'status' => 'adjusted']);
+        $this->expect('PUT /api/v1/clients/{id}/findings/{key}', 422, 'PUT', $base.'/recalc-eosb', ['year' => 2025]);
+        $r = $this->send('GET', $base.'/export?year=2025');
+        $this->assertSame(200, $r['status']);
+        $this->assertSame([], OpenApiContract::get()->problems('GET /api/v1/clients/{id}/findings/export', 200, $r['type'], $r['body']));
+        $this->expect('GET /api/v1/clients/{id}/findings/export', 404, 'GET', '/api/v1/clients/'.Str::uuid().'/findings/export');
+        $this->expect('GET /api/v1/clients/{id}/findings/export', 422, 'GET', $base.'/export?year=1');
+    }
+
+    public function test_mailbox(): void
+    {
+        if ($this->live) {
+            $this->markTestSkipped('Needs a saved user and a fake mail server: kernel only.');
+        }
+        $this->officeClient();
+        $this->fakeMailServer();
+
+        $empty = $this->expect('GET /api/v1/account/mail', 200, 'GET', '/api/v1/account/mail');
+        $this->assertNull($empty['mailbox']);
+        $this->assertSame('smtp.gmail.com', $empty['providers']['gmail']['host']);
+        $this->expect('POST /api/v1/account/mail/test', 404, 'POST', '/api/v1/account/mail/test');
+        $this->expect('POST /api/v1/account/mail/check', 404, 'POST', '/api/v1/account/mail/check');
+        $this->expect('PUT /api/v1/account/mail', 422, 'PUT', '/api/v1/account/mail', ['provider' => 'gmail', 'from_address' => 'not-an-email']);
+
+        $form = ['provider' => 'gmail', 'from_address' => 'sara@example.com', 'from_name' => 'سارة', 'host' => 'smtp.gmail.com', 'port' => 587, 'security' => 'tls', 'username' => 'sara@example.com', 'password' => 'abcd efgh ijkl mnop'];
+        $saved = $this->expect('PUT /api/v1/account/mail', 200, 'PUT', '/api/v1/account/mail', $form);
+        $this->assertSame([true, true, true], [$saved['test']['ok'], $saved['imap']['ok'], $saved['mailbox']['has_password']]);
+        $this->assertArrayNotHasKey('password', $saved['mailbox']);
+        $this->assertSame('abcdefghijklmnop', \App\Models\MailAccount::first()->password);   // a Gmail app password without its spaces
+
+        $this->assertTrue($this->expect('POST /api/v1/account/mail/test', 200, 'POST', '/api/v1/account/mail/test')['ok']);
+        $this->assertSame(0, $this->expect('POST /api/v1/account/mail/check', 200, 'POST', '/api/v1/account/mail/check')['taken']);
+        $this->assertNotNull($this->expect('GET /api/v1/account/mail', 200, 'GET', '/api/v1/account/mail')['mailbox']);
+
+        $r = $this->send('DELETE', '/api/v1/account/mail');
+        $this->assertSame(204, $r['status']);
+        OpenApiContract::$checked['DELETE /api/v1/account/mail']['204'] = true;
+        $this->assertSame(0, \App\Models\MailAccount::count());
+    }
+
+    /** A user whose monthly AI limit is used up: every endpoint that would start AI work answers 402 and starts nothing. */
+    public function test_ai_limit_reached(): void
+    {
+        if ($this->live) {
+            $this->markTestSkipped('Needs a saved user with a limit: kernel only.');
+        }
+        [$user, $company] = $this->officeClient();
+        $user->forceFill(['ai_limit_usd' => 1])->save();
+        \Illuminate\Support\Facades\DB::table('ai_usage')->insert(['user_id' => $user->id, 'office_id' => $user->office_id, 'kind' => 'submit_rows', 'provider' => 'gemini', 'cost_usd' => 1.2, 'created_at' => now()]);
+        $id = (string) Str::uuid();
+        foreach (['/api/v1/classify/trial-balance' => '/api/v1/classify/trial-balance', '/api/v1/classify/jobs' => '/api/v1/classify/jobs',
+            '/api/v1/classify/jobs/{id}/structure' => "/api/v1/classify/jobs/{$id}/structure", '/api/v1/classification-cache/import' => '/api/v1/classification-cache/import',
+            '/api/v1/financial-reports/{id}/prior-year/statements-file' => "/api/v1/financial-reports/{$id}/prior-year/statements-file",
+            '/api/v1/companies/{id}/registration' => "/api/v1/companies/{$company->id}/registration", '/api/v1/companies/{id}/articles' => "/api/v1/companies/{$company->id}/articles",
+            '/api/v1/clients/{id}/follow-up/draft' => "/api/v1/clients/{$company->id}/follow-up/draft", '/api/v1/clients/{id}/follow-up/replies' => "/api/v1/clients/{$company->id}/follow-up/replies",
+            '/api/v1/clients/{id}/prepared-papers' => "/api/v1/clients/{$company->id}/prepared-papers"] as $operation => $uri) {
+            $body = $this->expect("POST {$operation}", 402, 'POST', $uri, []);
+            $this->assertSame(['ai_limit_reached', '/ai-limit'], [$body['code'], $body['page']], $operation);
+        }
+        $this->assertSame(0, \App\Models\ClassificationRun::count());
+    }
     /* ---------- coverage ---------- */
 
     /** Runs last (declaration order): every status the spec documents was sent and checked above. */
@@ -711,7 +920,7 @@ class ApiContractTest extends TestCase
         $missing = [];
         foreach (OpenApiContract::get()->documented() as $operation => $statuses) {
             foreach ($statuses as $status) {
-                $skip = $this->live && in_array($status, self::KERNEL_ONLY[$operation] ?? [], true);
+                $skip = $this->live && (in_array($status, self::KERNEL_ONLY[$operation] ?? [], true) || $status === '402');   // 402: a user with a limit, kernel only
                 if (! $skip && ! isset(OpenApiContract::$checked[$operation][$status])) {
                     $missing[] = "{$operation} {$status}";
                 }

@@ -219,10 +219,8 @@ class PriorStatementsUploadTest extends TestCase
         $state = $this->putJson(self::URL."/{$id}/prior-year", ['source' => 'statements',
             'rows' => [$this->ref($upload, 'financial_position', 'نقد الشركة في الخزينة والمصارف') => 'sofp.cash']])->assertOk()->json();
         $this->assertSame(['sofp.cash' => 'rounding', 'sofp.share_capital' => 'rounding'], array_column($state['comparative']['upload']['opening_check'], 'kind', 'line'));
-        // Never hidden: a warning to look at, said to be probably rounding.
-        $diff = collect($state['checks'])->firstWhere(fn ($c) => $c['code'] === 'opening_vs_prior_closing' && $c['line_key'] === 'sofp.cash');
-        $this->assertSame('warning', $diff['severity']);
-        $this->assertStringContainsString('probably rounding', $diff['message']);
+        // Less than 3 riyals apart: accepted (the accountant's rule), shown as accepted in the comparison and no check raised.
+        $this->assertNull(collect($state['checks'])->firstWhere(fn ($c) => $c['code'] === 'opening_vs_prior_closing' && $c['line_key'] === 'sofp.cash'));
     }
 
     public function test_accounts_on_another_line_than_last_year_are_proposed_back(): void

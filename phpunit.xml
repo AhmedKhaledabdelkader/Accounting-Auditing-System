@@ -39,6 +39,7 @@
         <env name="CLASSIFIER_LOG_CHANNEL" value="null"/>
         <env name="CLASSIFIER_CACHE" value="false"/>
         <env name="CLASSIFIER_PROVIDER" value="gemini"/>
+        <env name="CLASSIFIER_GEMINI_THINKING_LEVEL" value="low"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>

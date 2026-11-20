@@ -204,7 +204,9 @@ class FinancialReportController extends Controller
      */
     public function updateZakatTax(Request $request, string $id): JsonResponse
     {
-        $request->validate(['inputs' => ['sometimes', 'array'], 'apply' => ['sometimes', 'array:zakat,income_tax'], 'apply.*' => ['boolean']]);
+        $request->validate(['inputs' => ['sometimes', 'array'], 'apply' => ['sometimes', 'array:zakat,income_tax'], 'apply.*' => ['boolean'],
+            'adopt' => ['sometimes', 'array:zakat,income_tax'], 'adopt.*' => ['nullable', 'in:calculated,booked,manual'],
+            'manual' => ['sometimes', 'array:zakat,income_tax'], 'manual.*' => ['nullable', 'numeric', 'min:0', 'max:999999999999']]);
         $report = FinancialReport::find($id);
         if (! $report) {
             return $this->notFound();
@@ -223,7 +225,15 @@ class FinancialReportController extends Controller
         $saved = array_filter(array_merge((array) ($report->zakat_tax['inputs'] ?? []), $patch), fn ($v) => $v !== null);
         $applied = (array) ($report->zakat_tax['applied'] ?? []);
         $off = (array) ($report->zakat_tax['off'] ?? []);
-        $report->update(['zakat_tax' => ['inputs' => $saved, 'applied' => $applied] + ($off ? ['off' => $off] : []), 'last_computed_at' => now()]);
+        // Which amount the statements carry (the calculated, the books', or the accountant's own), and that own amount: null resets.
+        $adopt = array_filter(array_merge((array) ($report->zakat_tax['adopt'] ?? []), (array) $request->input('adopt', [])), fn ($v) => $v !== null);
+        $manual = array_filter(array_merge((array) ($report->zakat_tax['manual'] ?? []), array_map(fn ($v) => $v === null ? null : round((float) $v, 2), (array) $request->input('manual', []))), fn ($v) => $v !== null);
+        foreach ($adopt as $charge => $choice) {
+            if ($choice === 'manual' && ! isset($manual[$charge])) {
+                throw ValidationException::withMessages(["manual.{$charge}" => [ReportIntake::error('zakat_manual_required')]]);
+            }
+        }
+        $report->update(['zakat_tax' => self::zakatState($report, ['inputs' => $saved, 'applied' => $applied, 'off' => $off, 'adopt' => $adopt, 'manual' => $manual]), 'last_computed_at' => now()]);
 
         if ($request->has('apply')) {
             $report = $report->fresh();
@@ -239,10 +249,18 @@ class FinancialReportController extends Controller
                     throw ValidationException::withMessages(["apply.{$charge}" => [ReportIntake::error('zakat_not_applicable')]]);
                 }
             }
-            $report->update(['zakat_tax' => ['inputs' => $saved, 'applied' => $applied] + ($off ? ['off' => $off] : [])]);
+            $report->update(['zakat_tax' => self::zakatState($report, ['inputs' => $saved, 'applied' => $applied, 'off' => $off])]);
         }
 
         return response()->json($this->state($report->fresh(), $report->run));
+    }
+
+    /** The report's zakat state with the given parts changed: every other part kept (an empty one dropped). */
+    private static function zakatState(FinancialReport $report, array $parts): array
+    {
+        $state = array_merge((array) $report->zakat_tax, $parts);
+
+        return array_filter($state, fn ($v, $k) => ! in_array($k, ['off', 'adopt', 'manual'], true) || $v !== [], ARRAY_FILTER_USE_BOTH);
     }
 
     /**
@@ -255,7 +273,10 @@ class FinancialReportController extends Controller
      */
     private function autoCharge(FinancialReport $report, array $built): array
     {
-        if ($built['profile']->postClosing || ! config('financial_statements.auto_charge')) {
+        $adopt = (array) ($report->zakat_tax['adopt'] ?? []);
+        $auto = (bool) config('financial_statements.auto_charge');
+        // The calculation adopted by the accountant is carried whatever the setting; otherwise only with auto-charging on.
+        if ($built['profile']->postClosing || (! $auto && ! in_array('calculated', $adopt, true))) {
             return [$report, $built];
         }
         $calc = $this->zakatTax($report, $built);
@@ -264,7 +285,11 @@ class FinancialReportController extends Controller
         $before = $applied;
         foreach (['zakat' => $calc['zakat']['amount'], 'income_tax' => $calc['income_tax']['amount']] as $charge => $amount) {
             $source = $calc['charged'][$charge === 'zakat' ? 'zakat_source' : 'tax_source'];
-            if (isset($off[$charge]) || ! in_array($source, [null, 'dialog'], true)) {
+            if (($adopt[$charge] ?? null) === 'calculated') {
+                $applied[$charge] = $amount;   // adopted: the statements carry the calculation, the books' figure corrected to it
+                continue;
+            }
+            if (! $auto || isset($adopt[$charge]) || isset($off[$charge]) || ! in_array($source, [null, 'dialog'], true)) {
                 continue;
             }
             if ($calc['can_apply'][$charge]) {
@@ -276,7 +301,7 @@ class FinancialReportController extends Controller
         if ($applied == $before) {
             return [$report, $built];
         }
-        $report->update(['zakat_tax' => ['inputs' => (array) ($report->zakat_tax['inputs'] ?? []), 'applied' => $applied] + ($off ? ['off' => $off] : [])]);
+        $report->update(['zakat_tax' => self::zakatState($report, ['applied' => $applied, 'off' => $off])]);
         $report = $report->fresh();
 
         return [$report, $this->statements->build($report)];
@@ -317,6 +342,15 @@ class FinancialReportController extends Controller
         $calc = ZakatCalculator::of($built['statements'], $inputs,
             ['start' => $report->period_start->format('Y-m-d'), 'end' => $report->period_end->format('Y-m-d')],
             ['zakat_source' => $zakatSource, 'tax_source' => $taxSource, 'applied' => $applied]);
+        $adopt = (array) ($report->zakat_tax['adopt'] ?? []);
+        $manual = (array) ($report->zakat_tax['manual'] ?? []);
+        $books = (array) ($built['zakat_booked'] ?? ['zakat' => 0.0, 'income_tax' => 0.0]);
+        $calc['adopt'] = ['zakat' => $adopt['zakat'] ?? 'auto', 'income_tax' => $adopt['income_tax'] ?? 'auto'];
+        $calc['candidates'] = [
+            'zakat' => ['calculated' => $calc['zakat']['amount'], 'booked' => round((float) ($books['zakat'] ?? 0.0), 2), 'manual' => isset($manual['zakat']) ? (float) $manual['zakat'] : null],
+            'income_tax' => ['calculated' => $calc['income_tax']['amount'], 'booked' => round((float) ($books['income_tax'] ?? 0.0), 2), 'manual' => isset($manual['income_tax']) ? (float) $manual['income_tax'] : null],
+        ];
+        $calc['in_statements'] = ['zakat' => round($booked('is.zakat'), 2) + 0.0, 'income_tax' => round($booked('is.income_tax'), 2) + 0.0];
         $calc['saudi_share_from'] = isset($report->zakat_tax['inputs']['saudi_share']) ? 'user' : ($share !== null ? $report->company->ownersSource() : 'default');
         if ($built['profile']->postClosing) {   // the result is closed into retained earnings already: nothing to charge by here
             $calc['can_apply'] = ['zakat' => false, 'income_tax' => false];

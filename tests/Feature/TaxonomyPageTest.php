@@ -112,7 +112,7 @@ class TaxonomyPageTest extends TestCase
             }
         }
         $this->assertSame($config, $this->taxonomy()->map());
-        $this->assertCount(72, $this->taxonomy()->mainClasses());
+        $this->assertCount(36, $this->taxonomy()->mainClasses());
     }
 
     public function test_the_page_renders_in_arabic_and_in_english_without_codes(): void
@@ -251,12 +251,12 @@ class TaxonomyPageTest extends TestCase
         $this->assertSame('النقدية وما في حكمها', $this->taxonomy()->resolveMain('النقد ومافي حكمه'));
 
         // A main class and a sub class may share a name: renaming the main one leaves the sub one's rules alone.
-        $rent = $this->main('إيجارات');
-        $this->put("/taxonomy/main-classes/{$rent->id}", ['name' => 'مصروفات الإيجار'])->assertSessionHasNoErrors();
+        $other = $this->main('إيرادات أخرى');
+        $this->put("/taxonomy/main-classes/{$other->id}", ['name' => 'مكاسب أخرى'])->assertSessionHasNoErrors();
         $rules = config('financial_statements.templates.sa-ifrs-smes-3');
-        $this->assertSame(['function' => 'general_admin'], $rules['main_classes']['مصروفات الإيجار']);
-        $this->assertArrayNotHasKey('إيجارات', $rules['main_classes']);
-        $this->assertSame(['قائمة الدخل', 'مصروفات الإيجار', 'debit'], $this->taxonomy()->find('إيجارات'));
+        $this->assertSame('is.other_income', $rules['main_classes']['مكاسب أخرى']);
+        $this->assertArrayNotHasKey('إيرادات أخرى', $rules['main_classes']);
+        $this->assertSame(['قائمة الدخل', 'مكاسب أخرى', 'credit'], $this->taxonomy()->find('إيرادات أخرى'));
     }
 
     public function test_the_import_mappers_examples_use_the_current_names(): void
@@ -278,7 +278,8 @@ class TaxonomyPageTest extends TestCase
         app(TaxonomyMapperRepository::class)->mapNotes([1 => ['budget' => 'x', 'note' => 'y', 'names' => ['z'], 'hint_main' => null]], $this->taxonomy()->map());
 
         $this->assertStringContainsString('rent → إيجار,', $driver->call->system[0]['text']);
-        $this->assertStringContainsString('- إيجارات: إيجار | إيجار المقر الإداري', $driver->call->system[0]['text']);   // the tree: the main class kept its name
+        $this->assertStringContainsString('إيجار | إيجار المقر الإداري', $driver->call->system[0]['text']);   // the tree: the sub classes sit under their function's main class
+        $this->assertStringContainsString('- المصروفات الإدارية والعمومية:', $driver->call->system[0]['text']);
     }
 
     public function test_a_renamed_side_pair_member_still_flips(): void
@@ -374,7 +375,7 @@ class TaxonomyPageTest extends TestCase
         app(TaxonomyRules::class)->apply(reload: true);
         $this->assertSame($before, [config('financial_statements'), config('classification')]);
         $this->assertSame([], app(TaxonomyRules::class)->usesOf('sub', 'نقدية بالصندوق', 'نقدية بالصندوق'));
-        $this->assertSame(['statement_rules', 'import_rules'], app(TaxonomyRules::class)->usesOf('main', 'تكلفة البضاعة المباعة', 'تكلفة البضاعة المباعة'));
-        $this->assertSame(1, DB::table('taxonomy_main_classes')->where('name', 'تكلفة البضاعة المباعة')->count());
+        $this->assertSame(['statement_rules', 'import_rules'], app(TaxonomyRules::class)->usesOf('main', 'تكلفة الإيرادات', 'تكلفة الإيرادات'));
+        $this->assertSame(1, DB::table('taxonomy_main_classes')->where('name', 'تكلفة الإيرادات')->count());
     }
 }

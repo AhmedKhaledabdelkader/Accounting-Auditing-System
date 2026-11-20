@@ -135,6 +135,7 @@ return [
         'rows' => 'Rows read: :used',
         'totals' => 'Recalculated :computed, per the books :book, difference :difference',
         'tb' => 'The books\' total in the paper differs from the trial balance by :difference (rows may be missing)',
+        'vs_tb' => 'Recalculated :computed against the trial balance :tb (difference :difference)',
         'row' => ':name: recalculated :computed against the books :book (difference :difference)',
         'more' => 'and :count more row(s) with differences',
         'missing' => 'Missing: :items',
@@ -224,5 +225,6 @@ return [
         'mismatch' => 'The name typed does not match the client\'s name. Nothing was deleted.',
         'done' => 'The client «:name» was deleted for good with everything of theirs (:files files and :statements financial statements).',
     ],
-    'maker' => ['rows_over' => 'The rows exceed the capacity of the paper (:kept): :found were found and the rest was not entered.'],
+    'maker' => ['rows_over' => 'The rows exceed the capacity of the paper (:kept): :found were found and the rest was not entered.',
+        'tb_from_ai' => 'No account of the trial balance is classified for this paper: the books\' figure was copied by the AI from the trial balance; check it.'],
 ];

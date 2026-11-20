@@ -120,7 +120,8 @@ class FinancialReportPagesController extends Controller
         return ['page' => $page, 'api' => '/api/v1', 'urls' => [
             'list' => '/financial-reports', 'new' => '/financial-reports/new', 'report' => '/financial-reports/:id',
             'classifier' => '/classifier', 'synonyms' => '/statement-synonyms',
-        ], 'ui' => self::lang('financial_reports.ui'), 'labels' => self::lang('statements')] + $extra;
+        ], 'ui' => self::lang('financial_reports.ui'), 'labels' => self::lang('statements'),
+            'opening_tolerance' => \App\Services\Statements\OpeningCheck::tolerance()] + $extra;
     }
 
     /** A lang group in the page's language, with the Arabic names for what has no translation (statement and note content). */

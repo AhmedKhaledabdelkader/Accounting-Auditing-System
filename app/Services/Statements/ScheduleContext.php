@@ -27,6 +27,8 @@ final class ScheduleContext
         public readonly array $aggregated,
         /** the year's PPE revaluation surplus (OCI), when entered */
         public readonly ?Figure $revaluation = null,
+        /** last year's closing per PPE category of the note (the category key → acc_closing, cost_closing), from last year's statements */
+        public readonly array $priorPpe = [],
     ) {
     }
 

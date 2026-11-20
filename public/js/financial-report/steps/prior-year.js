@@ -304,7 +304,7 @@ function openingCheck(up, pdf) {
       el('th', { class: 'num' }, ui('opening_check_prior')), el('th', { class: 'num' }, ui('opening_check_difference')), el('th', {})),
       differ.map((l) => el('tr', { 'data-opening-line': l.line },
         el('td', {}, l.label), el('td', { class: 'num' }, money(l.opening)), el('td', { class: 'num' }, money(l.prior)), el('td', { class: 'num' }, money(l.difference)),
-        el('td', {}, el('span', { class: `badge ${l.kind === 'rounding' ? 'b-warn' : 'b-bad'}` }, ui(l.kind === 'rounding' ? 'opening_check_rounding' : 'opening_check_difference_badge')),
+        el('td', {}, el('span', { class: `badge ${l.kind === 'rounding' ? 'b-ok' : 'b-bad'}` }, ui(l.kind === 'rounding' ? 'opening_check_rounding' : 'opening_check_difference_badge')),
           pdf ? l.pages.map((p) => el('a', { href: pdfPage(p), target: '_blank', rel: 'noopener', style: 'margin-inline-start:6px' }, ui('pdf_open_page', { page: p }))) : null)))) : null,
     el('p', { class: 'note' }, ui('opening_check_equal', { count: lines.length - differ.length, total: lines.length })));
 }
@@ -332,7 +332,7 @@ function approvedOpening(ctx, s) {
   const message = { applied: ['warn', ui('approved_opening_applied')], equal: ['ok', ui('approved_opening_equal')],
     no_opening: ['warn', ui('approved_opening_no_opening')], off: ['warn', ui('approved_opening_off')] }[a.status];
   const differ = (a.lines ?? []).filter((l) => l.kind && l.kind !== 'equal');
-  const badge = (kind) => el('span', { class: `badge ${kind === 'rounding' ? 'b-warn' : 'b-bad'}` }, ui(kind === 'rounding' ? 'opening_check_rounding' : 'opening_check_difference_badge'));
+  const badge = (kind) => el('span', { class: `badge ${kind === 'rounding' ? 'b-ok' : 'b-bad'}` }, ui(kind === 'rounding' ? 'opening_check_rounding' : 'opening_check_difference_badge'));
   return el('div', { 'data-approved-opening-panel': a.status }, el('h3', {}, ui('approved_opening_title')),
     el('label', { style: 'display:block;margin:8px 0' }, toggle, ' ', ui('approved_opening_toggle')),
     message ? box(message[0], message[1]) : null,

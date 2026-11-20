@@ -329,6 +329,11 @@ final class Recalculations
         $title = (string) config("recalculations.papers.{$key}");
         $lines = [__('portal.recalc.rows', ['used' => $used]), __('portal.recalc.totals', ['computed' => number_format($computed, 2), 'book' => number_format($book, 2), 'difference' => number_format($computed - $book, 2)])];
         $tbDifference = $tb === null ? null : round($book - $tb, 2);
+        // The recalculation against the trial balance itself: the difference an adjusting entry would correct.
+        $vsTb = $tb === null || $key === 'payroll' ? null : round($computed - $tb, 2);
+        if ($vsTb !== null) {
+            $lines[] = __('portal.recalc.vs_tb', ['computed' => number_format($computed, 2), 'tb' => number_format($tb, 2), 'difference' => number_format($vsTb, 2)]);
+        }
         if ($tbDifference !== null && abs($tbDifference) > (float) config('recalculations.tolerance', 1.0)) {
             $lines[] = __('portal.recalc.tb', ['difference' => number_format($tbDifference, 2)]);
         }
@@ -339,7 +344,7 @@ final class Recalculations
         $missing !== [] && $lines[] = __('portal.recalc.missing', ['items' => implode('، ', array_slice($missing, 0, 6))]);
 
         return ['kind' => 'recalc', 'key' => $key, 'title' => $title, 'rows_used' => $used, 'computed' => $computed, 'book' => $book, 'difference' => round($computed - $book, 2),
-            'trial_balance' => $tb, 'tb_difference' => $tbDifference, 'differing' => $differing, 'missing' => $missing, 'lines' => $lines];
+            'trial_balance' => $tb, 'tb_difference' => $tbDifference, 'computed_vs_tb' => $vsTb, 'differing' => $differing, 'missing' => $missing, 'lines' => $lines];
     }
 
     private static function date(mixed $raw): ?DateTimeImmutable

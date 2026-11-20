@@ -43,6 +43,10 @@ class AppServiceProvider extends ServiceProvider
           $this->app->bind(TaxonomyMapperRepositoryInterface::class, TaxonomyMapperRepository::class);
           $this->app->singleton(Heartbeat::class);
           $this->app->singleton(UsageMeter::class);
+          // The mailer of one accountant's mailbox (MailSender): built from the SMTP settings they entered; a test binds its own.
+          $this->app->bind('portal.mailer', fn ($app, array $p) => \Illuminate\Support\Facades\Mail::build($p['config']));
+          // The IMAP connection of one mailbox (ReplyFetcher): a test binds a fake that gives it messages.
+          $this->app->bind('portal.imap', fn ($app, array $p) => new \App\Support\Mail\ImapMailbox(\App\Services\Portal\ReplyFetcher::hostOf($p['account']), $p['account']->imap_port ?: 993, $p['account']->username, $p['account']->password));
           $this->app->singleton(LlmTransport::class);
           // One per request or job: where it keeps the AI's answers on a PDF is shared by its classifier and extractor.
           $this->app->scoped(\App\Services\Statements\PriorPdf\Llm::class);
@@ -51,12 +55,13 @@ class AppServiceProvider extends ServiceProvider
               $provider = config('classification.provider');
               $config   = config("classification.providers.{$provider}", []);
 
-              return match ($provider) {
+              // Metered: every call checked against the user's monthly limit and recorded (MeteredDriver, AiBudget).
+              return new \App\Support\Llm\MeteredDriver(match ($provider) {
                   'anthropic' => new AnthropicDriver($app->make(LlmTransport::class), $config),
                   'gemini'    => new GeminiDriver($app->make(LlmTransport::class), $config),
                   'openai'    => new OpenAiDriver($app->make(LlmTransport::class), $config),
                   default     => throw new RuntimeException("Unknown CLASSIFIER_PROVIDER [{$provider}]. Use one of: anthropic, gemini, openai."),
-              };
+              });
           });
     }
 

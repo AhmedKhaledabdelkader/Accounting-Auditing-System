@@ -11,8 +11,11 @@ namespace App\Services\Statements;
  */
 final class OpeningCheck
 {
-    /** A difference this small, either way, is probably rounding. */
-    public const ROUNDING = 1.0;
+    /** A difference below this, either way, in whole riyals, is accepted (config financial_statements.opening_tolerance: 3 riyals). */
+    public static function tolerance(): float
+    {
+        return app()->bound('config') ? (float) config('financial_statements.opening_tolerance', 3) : 3.0;
+    }
 
     /**
      * @param ?array<string, Figure> $opening the balance sheet at the start of the year (CurrentYearStatements), null without opening columns
@@ -63,13 +66,13 @@ final class OpeningCheck
 
     /**
      * Two figures in whole riyals, as the statements show them: `equal` (no riyal apart: halalas aren't printed),
-     * `rounding` (a riyal either way), `difference`.
+     * `rounding` (less than the tolerance apart, 3 riyals: accepted), `difference`.
      */
     public static function kind(float $a, float $b): string
     {
         $d = abs(round($a) - round($b));
 
-        return $d < 0.5 ? 'equal' : ($d <= self::ROUNDING ? 'rounding' : 'difference');
+        return $d < 0.5 ? 'equal' : ($d < self::tolerance() ? 'rounding' : 'difference');
     }
 
     /** The lines the file's rows are placed on, each with the PDF pages of its rows (none for an Excel file). */

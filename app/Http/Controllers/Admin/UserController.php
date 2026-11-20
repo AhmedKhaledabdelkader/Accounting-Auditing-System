@@ -20,7 +20,10 @@ class UserController extends Controller
     {
         $users = $this->staff($request)->with(['role', 'requestedRole'])->orderByRaw("case status when 'pending' then 0 when 'active' then 1 else 2 end")->orderBy('name')->get();
 
-        return view('admin.users', ['users' => $users, 'office' => $request->user()->office, 'roles' => Role::where('is_client', false)->orderBy('name_ar')->get()]);
+        $spent = \Illuminate\Support\Facades\DB::table('ai_usage')->whereIn('user_id', $users->pluck('id'))->where('created_at', '>=', now()->utc()->startOfMonth())
+            ->groupBy('user_id')->selectRaw('user_id, sum(cost_usd) as usd')->pluck('usd', 'user_id');
+
+        return view('admin.users', ['users' => $users, 'spent' => $spent, 'office' => $request->user()->office, 'roles' => Role::where('is_client', false)->orderBy('name_ar')->get()]);
     }
 
     /** Role and status in one save; approving a pending user is a save with status active. */
@@ -51,6 +54,16 @@ class UserController extends Controller
         $user->tokens()->delete();
 
         return back()->with('status', __('auth_pages.users.password_set'));
+    }
+
+    /** The user's monthly AI limit in dollars (empty: no limit). The month's spending is kept: lowering the limit below it stops them at once. */
+    public function aiLimit(Request $request, User $user): RedirectResponse
+    {
+        $this->own($request, $user);
+        $data = $request->validate(['ai_limit_usd' => ['nullable', 'numeric', 'min:0', 'max:100000']]);
+        $user->forceFill(['ai_limit_usd' => $data['ai_limit_usd'] ?? null])->save();
+
+        return back()->with('status', __('auth_pages.users.ai_limit_saved'));
     }
 
     /** The office's own staff: a client's portal user is managed from the client's page. */

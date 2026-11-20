@@ -141,7 +141,7 @@ class AccessTest extends TestCase
     public function test_every_page_and_endpoint_needs_its_permission(): void
     {
         $catalogue = Role::catalogue();
-        $open = ['login', 'register', 'locale', 'logout', 'home', 'account', 'account.password', 'account.preferences', 'account.columns.reset', 'account.tokens.store', 'account.tokens.destroy',
+        $open = ['login', 'register', 'locale', 'logout', 'home', 'account', 'ai-limit', 'account.password', 'account.preferences', 'account.columns.reset', 'account.tokens.store', 'account.tokens.destroy',
             'sanctum.csrf-cookie', 'storage.local', 'storage.local.upload'];
         foreach (Route::getRoutes() as $route) {
             $name = $route->getName();

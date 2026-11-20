@@ -46,6 +46,7 @@ class Navigation
                 $item('/work/requirements', ['work/requirements', 'clients/*/requirements'], 'requirements', 'clients.view'),
                 $item('/work/working-papers', ['work/working-papers', 'clients/*/working-papers'], 'papers', 'clients.view'),
                 $item('/work/recalculation', ['work/recalculation', 'clients/*/recalculation'], 'recalc', 'clients.view'),
+                $item('/work/findings', ['work/findings', 'clients/*/findings*'], 'findings', 'clients.view'),
             ],
             'nav.sections.tuning' => [
                 $item('/classification-cache', ['classification-cache*'], 'cache', 'cache.view'),
@@ -66,7 +67,7 @@ class Navigation
     }
 
     /** Links whose icon is another's. */
-    private const ICON_OF = ['memory' => 'synonyms', 'trial_balance' => 'classifier', 'prior' => 'cache', 'statements' => 'reports', 'requirements' => 'users', 'papers' => 'reports', 'recalc' => 'rules', 'classifier' => 'classifier'];
+    private const ICON_OF = ['memory' => 'synonyms', 'trial_balance' => 'classifier', 'prior' => 'cache', 'statements' => 'reports', 'requirements' => 'users', 'papers' => 'reports', 'recalc' => 'rules', 'findings' => 'rules', 'classifier' => 'classifier'];
 
     /** The link of the main side menu the current page belongs to: the most specific pattern that matches (a client's zakat page over the list of clients). */
     public static function activeHref(?User $user): ?string

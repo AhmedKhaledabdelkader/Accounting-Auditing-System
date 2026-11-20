@@ -1,0 +1,276 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "text": "مؤسسة لؤلؤة الطب للتجارة",
+                "columns": [],
+                "rows": [],
+                "number": null,
+                "type": "heading"
+            },
+            {
+                "columns": [],
+                "number": null,
+                "rows": [],
+                "type": "heading",
+                "text": "(مؤسسة فردية - سعودية )"
+            },
+            {
+                "rows": [],
+                "type": "heading",
+                "number": null,
+                "text": "الإيضاحات المتممة للقوائم المالية للفترة المالية المنتهية في ٢٠٢٢\/١٢\/٣١م",
+                "columns": []
+            },
+            {
+                "type": "heading",
+                "columns": [],
+                "rows": [],
+                "text": "٦- الذمم المدينة التجارية، بالصافي :",
+                "number": "٦"
+            },
+            {
+                "text": null,
+                "number": null,
+                "rows": [
+                    {
+                        "cells": [
+                            "١,١٠٧,٨٦٥"
+                        ],
+                        "label": "عملاء",
+                        "note": null
+                    },
+                    {
+                        "label": "موردين دفعات مقدمة",
+                        "cells": [
+                            "٧٢٤,٦٢٢"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            "١,٨٣٢,٤٨٧"
+                        ],
+                        "label": "المجموع",
+                        "note": null
+                    }
+                ],
+                "columns": [
+                    {
+                        "header": "٢٠٢٢م \/ ريال سعودي"
+                    }
+                ],
+                "type": "table"
+            },
+            {
+                "columns": [],
+                "text": "٧- مصاريف مقدمة وأرصدة مدينة أخرى :",
+                "type": "heading",
+                "number": "٧",
+                "rows": []
+            },
+            {
+                "type": "table",
+                "rows": [
+                    {
+                        "note": null,
+                        "label": "عهد وسلف",
+                        "cells": [
+                            "٢٦,٢١٠"
+                        ]
+                    },
+                    {
+                        "cells": [
+                            "٢٥,١٩٨"
+                        ],
+                        "label": "ضريبة القيمة المضافة",
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "label": "المجموع",
+                        "cells": [
+                            "٥١,٤٠٨"
+                        ]
+                    }
+                ],
+                "number": null,
+                "text": null,
+                "columns": [
+                    {
+                        "header": "٢٠٢٢م \/ ريال سعودي"
+                    }
+                ]
+            },
+            {
+                "rows": [],
+                "type": "heading",
+                "number": "٨",
+                "text": "٨- نقدية وأرصدة لدى البنوك :",
+                "columns": []
+            },
+            {
+                "type": "table",
+                "rows": [
+                    {
+                        "cells": [
+                            "٨٢,٧٤٤"
+                        ],
+                        "label": "بنك الرياض",
+                        "note": null
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "١,٤١٢,٠٢١"
+                        ],
+                        "label": "البنك الأهلي التجاري"
+                    },
+                    {
+                        "cells": [
+                            "٢,٢٠٠"
+                        ],
+                        "label": "الصندوق",
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            "١,٤٩٦,٩٦٥"
+                        ],
+                        "note": null,
+                        "label": "المجموع"
+                    }
+                ],
+                "columns": [
+                    {
+                        "header": "٢٠٢٢م \/ ريال سعودي"
+                    }
+                ],
+                "text": null,
+                "number": null
+            },
+            {
+                "number": "٩",
+                "type": "heading",
+                "columns": [],
+                "rows": [],
+                "text": "٩- مخصص مكافأة نهاية الخدمة:"
+            },
+            {
+                "number": null,
+                "rows": [
+                    {
+                        "cells": [
+                            "."
+                        ],
+                        "label": "الرصيد بداية السنة",
+                        "note": null
+                    },
+                    {
+                        "cells": [
+                            "٢٦,٢٥١"
+                        ],
+                        "note": null,
+                        "label": "المكون خلال السنة"
+                    },
+                    {
+                        "note": null,
+                        "label": "المسدد خلال السنة",
+                        "cells": [
+                            "."
+                        ]
+                    },
+                    {
+                        "note": null,
+                        "cells": [
+                            "٢٦,٢٥١"
+                        ],
+                        "label": "الرصيد في نهاية السنة"
+                    }
+                ],
+                "type": "table",
+                "columns": [
+                    {
+                        "header": "٢٠٢٢م \/ ريال سعودي"
+                    }
+                ],
+                "text": null
+            },
+            {
+                "rows": [],
+                "type": "heading",
+                "number": "١٠",
+                "text": "١٠- الأطراف ذات العلاقة :",
+                "columns": []
+            },
+            {
+                "columns": [],
+                "text": "تعرف الأطراف ذات العلاقة وفقاً للمعيار الدولي للتقرير المالي القسم رقم ٣٣ \"الافصاحات عن الأطراف ذات العلاقة\" على أنها شخص له علاقة أو منشأة لها علاقة بالمنشأة التي تعد قوائمها المالية.",
+                "type": "paragraph",
+                "rows": [],
+                "number": null
+            },
+            {
+                "type": "paragraph",
+                "rows": [],
+                "columns": [],
+                "number": null,
+                "text": "عند الإفصاح عن الأطراف ذات العلاقة للمنشأة يتم التقييم وفقاً لجوهر العلاقة وليس لمجرد الشكل القانوني."
+            },
+            {
+                "text": "مستحقة الى اطراف ذات علاقة",
+                "type": "heading",
+                "columns": [],
+                "number": null,
+                "rows": []
+            },
+            {
+                "type": "table",
+                "columns": [
+                    {
+                        "header": "الرصيد \/ الافتتاحي"
+                    },
+                    {
+                        "header": "مدين"
+                    },
+                    {
+                        "header": "دائن"
+                    },
+                    {
+                        "header": "الرصيد في ٣١ ديسمبر \/ ٢٠٢٢م"
+                    }
+                ],
+                "rows": [
+                    {
+                        "note": null,
+                        "cells": [
+                            "١٥٠,٤٦٣",
+                            "٩,٣٠٥,٩٢٤",
+                            "١٢,٩٧٤,٥١٢",
+                            "٣,٥١٨,١٢٥-"
+                        ],
+                        "label": "السيدة \/ فاطمة سامح رمضان الشوا شريك تشغيلي"
+                    },
+                    {
+                        "label": "الإجمالي",
+                        "cells": [
+                            "١٥٠,٤٦٣",
+                            "٩,٣٠٥,٩٢٤",
+                            "١٢,٩٧٤,٥١٢",
+                            "٣,٥١٨,١٢٥-"
+                        ],
+                        "note": null
+                    }
+                ],
+                "text": null,
+                "number": null
+            }
+        ]
+    },
+    "usage": {
+        "input": 1433,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 5075
+    }
+}

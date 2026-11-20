@@ -7,13 +7,14 @@ import { el, ui, exact, money, box, field, numberOf, showErrors, add } from '../
 
 const INPUT_AMOUNTS = ['profit_additions', 'profit_deductions', 'loss_carryforward', 'deducted_current_assets', 'noncurrent_as_current', 'extra_additions', 'extra_deductions'];
 
-/** A table of a group's lines with their total. */
-function group(title, rows, total, attrs = {}) {
+/** A table of a group's lines with their total; with `edit` (the zakat step), each amount is the accountant's to correct. */
+function group(title, rows, total, attrs = {}, edit = null) {
   return el('div', { class: 'panel', ...attrs }, el('h3', {}, title),
-    rows.length ? el('table', {}, rows.map((r) => el('tr', { 'data-zakat-line': r.line },
+    rows.length ? el('table', {}, rows.map((r) => el('tr', { 'data-zakat-line': r.line, class: r.edited ? 'edited' : null },
       el('td', {}, r.label, r.before_charge ? el('div', { class: 'note' }, ui('zakat_before_charge', { reported: money(r.reported) })) : null,
-        r.related ? el('div', { class: 'note' }, ui('zakat_related_note')) : null),
-      el('td', { class: 'num' }, money(r.amount)))),
+        r.related ? el('div', { class: 'note' }, ui('zakat_related_note')) : null,
+        r.edited ? el('div', { class: 'note' }, el('span', { class: 'badge b-warn' }, ui('zakat_edited')), ' ', ui('zakat_computed_was', { amount: exact(r.computed) })) : null),
+      el('td', { class: 'num' }, edit ? edit.input(r.line, r.amount, r.computed) : money(r.amount)))),
     el('tr', { class: 'total' }, el('td', {}, el('b', {}, ui('zakat_total'))), el('td', { class: 'num' }, el('b', {}, money(total))))) : el('p', { class: 'note' }, ui('zakat_none_here')));
 }
 
@@ -54,14 +55,14 @@ function charges(ctx, z) {
  * maximum, the zakat, and the foreign owners' income tax. The zakat step shows it with its answers and charges; the review
  * step shows it under the statements, to be read apart from them.
  */
-export function calculation(z) {
+export function calculation(z, edit = null) {
   const out = [];
   // What the statements give, group by group, as the sheet has them.
-  out.push(group(ui('zakat_equity_title'), z.equity.rows, z.equity.total, { 'data-zakat-group': 'equity' }),
-    group(ui('zakat_ncl_title'), z.non_current_liabilities.rows, z.non_current_liabilities.total, { 'data-zakat-group': 'non_current_liabilities' }),
-    group(ui('zakat_cl_title'), z.current_liabilities.rows, z.current_liabilities.total, { 'data-zakat-group': 'current_liabilities' }),
-    group(ui('zakat_fa_title'), z.non_current_assets.rows.filter((r) => r.deducted), z.non_current_assets.deducted, { 'data-zakat-group': 'deducted_assets' }),
-    group(ui('zakat_ca_title'), z.current_assets.rows, z.current_assets.total, { 'data-zakat-group': 'current_assets' }));
+  out.push(group(ui('zakat_equity_title'), z.equity.rows, z.equity.total, { 'data-zakat-group': 'equity' }, edit),
+    group(ui('zakat_ncl_title'), z.non_current_liabilities.rows, z.non_current_liabilities.total, { 'data-zakat-group': 'non_current_liabilities' }, edit),
+    group(ui('zakat_cl_title'), z.current_liabilities.rows, z.current_liabilities.total, { 'data-zakat-group': 'current_liabilities' }, edit),
+    group(ui('zakat_fa_title'), z.non_current_assets.rows.filter((r) => r.deducted), z.non_current_assets.deducted, { 'data-zakat-group': 'deducted_assets' }, edit),
+    group(ui('zakat_ca_title'), z.current_assets.rows, z.current_assets.total, { 'data-zakat-group': 'current_assets' }, edit));
 
   // The base, the minimum, the maximum and the zakat.
   const b = z.base;
@@ -142,7 +143,95 @@ export async function render(ctx) {
   });
   wrap.append(form);
 
-  wrap.append(...calculation(z));
+  wrap.append(adoption(ctx, z));
+  const edit = editor(ctx, z);
+  wrap.append(edit.panel, ...calculation(z, edit), edit.bar);
   wrap.append(charges(ctx, z), nav);
   return wrap;
+}
+
+/**
+ * Which amount the statements carry, for the zakat and for the income tax: the system's calculation, what the trial balance books,
+ * or the accountant's own. The statements carry it (the difference from the books posted Dr expense, Cr provision); «auto» keeps
+ * the rule (the calculation where nothing books it).
+ */
+function adoption(ctx, z) {
+  const status = el('div');
+  const card = (charge) => {
+    const c = z.candidates[charge];
+    const chosen = z.adopt[charge];
+    const name = `adopt-${charge}`;
+    const manual = el('input', { class: 'num', inputmode: 'decimal', 'data-zakat-manual': charge, value: c.manual === null ? '' : String(c.manual), placeholder: '0' });
+    const option = (value, label, amount, extra = null) => el('label', { class: `zakat-option${chosen === value ? ' on' : ''}`, 'data-zakat-option': `${charge}.${value}` },
+      el('input', { type: 'radio', name, value, checked: chosen === value }), el('span', { class: 'opt-label' }, label),
+      amount !== null ? el('b', { class: 'num' }, exact(amount)) : null, extra);
+    const pick = () => (wrap.querySelector(`input[name=${name}]:checked`) || {}).value || null;
+    const wrap = el('div', { class: 'zakat-adopt', 'data-zakat-adopt': charge },
+      el('h4', {}, ui(`zakat_charge_${charge}`), ' ', el('span', { class: 'note' }, ui('zakat_adopt_now', { amount: exact(z.in_statements[charge]) }))),
+      el('div', { class: 'zakat-options' },
+        option('calculated', ui('zakat_adopt_calculated'), c.calculated),
+        option('booked', ui('zakat_adopt_booked'), c.booked),
+        option('manual', ui('zakat_adopt_manual'), null, manual)),
+      el('div', { class: 'toolbar' },
+        el('button', { class: 'btn small', type: 'button', [`data-zakat-adopt-save`]: charge, onclick: async () => {
+          const choice = pick();
+          const amount = numberOf(manual);
+          if (choice === 'manual' && (amount === null || Number.isNaN(amount) || amount < 0)) { manual.classList.add('invalid'); status.replaceChildren(box('bad', ui('zakat_manual_required'))); return; }
+          await send({ adopt: { [charge]: choice }, manual: { [charge]: choice === 'manual' ? amount : (c.manual ?? null) } });
+        } }, ui('zakat_adopt_save')),
+        chosen !== 'auto' ? el('button', { class: 'btn ghost small', type: 'button', [`data-zakat-adopt-reset`]: charge, onclick: () => send({ adopt: { [charge]: null } }) }, ui('zakat_adopt_reset')) : null,
+        el('span', { class: 'note' }, ui(chosen === 'auto' ? 'zakat_adopt_auto' : `zakat_adopt_is_${chosen}`))));
+    wrap.addEventListener('change', (e) => { if (e.target.name === name) wrap.querySelectorAll('.zakat-option').forEach((o) => o.classList.toggle('on', o.querySelector('input').checked)); });
+    manual.addEventListener('focus', () => { wrap.querySelector(`input[value=manual]`).checked = true; wrap.dispatchEvent(new Event('change')); });
+    return wrap;
+  };
+  const send = async (body) => {
+    try {
+      await ctx.save('PUT', '/zakat-tax', body);
+      ctx.flash = ui('saved');
+      ctx.redraw();
+    } catch (err) { status.replaceChildren(box('bad', err.all ? err.all().join(' ') : err.message)); }
+  };
+  return el('div', { class: 'panel', 'data-zakat-adoption': '' }, el('h3', {}, ui('zakat_adopt_title')), el('p', { class: 'note' }, ui('zakat_adopt_hint')),
+    card('zakat'), card('income_tax'), status);
+}
+
+/**
+ * The calculation's lines as the accountant's to correct: each amount an input (the statements' figure kept and shown when it
+ * differs), the profit before zakat too; one save sends every correction, a line set back to its figure drops its correction.
+ */
+function editor(ctx, z) {
+  const inputs = {};
+  const status = el('div');
+  const input = (line, amount, computed) => {
+    const i = el('input', { class: 'num', inputmode: 'decimal', 'data-zakat-edit': line, value: String(amount), style: 'width:140px' });
+    inputs[line] = { input: i, computed };
+    return i;
+  };
+  const profit = el('input', { class: 'num', inputmode: 'decimal', 'data-zakat-edit': 'is.profit_before_zakat', value: z.profit.before_charges === null ? '' : String(z.profit.before_charges), style: 'width:160px' });
+  inputs['is.profit_before_zakat'] = { input: profit, computed: z.profit.before_charges_computed };
+  const save = el('button', { class: 'btn', type: 'button', 'data-zakat-edit-save': '', onclick: async () => {
+    const overrides = {};
+    for (const [line, { input: i, computed }] of Object.entries(inputs)) {
+      const v = numberOf(i);
+      if (Number.isNaN(v)) { i.classList.add('invalid'); status.replaceChildren(box('bad', ui('numbers_invalid'))); return; }
+      if (v !== null && (computed === null || Math.abs(v - computed) >= 0.005)) overrides[line] = v;
+    }
+    try {
+      await ctx.save('PUT', '/zakat-tax', { inputs: { overrides } });
+      ctx.flash = ui('saved');
+      ctx.redraw();
+    } catch (err) { status.replaceChildren(box('bad', err.all ? err.all().join(' ') : err.message)); }
+  } }, ui('zakat_edit_save'));
+  const edited = Object.keys(z.inputs.overrides ?? {}).length;
+  const reset = edited ? el('button', { class: 'btn ghost', type: 'button', 'data-zakat-edit-reset': '', onclick: async () => {
+    await ctx.save('PUT', '/zakat-tax', { inputs: { overrides: null } });
+    ctx.flash = ui('saved');
+    ctx.redraw();
+  } }, ui('zakat_edit_reset')) : null;
+  const panel = el('div', { class: 'panel', 'data-zakat-editor': '' }, el('h3', {}, ui('zakat_edit_title')), el('p', { class: 'note' }, ui('zakat_edit_hint')),
+    edited ? box('warn', ui('zakat_edit_count', { count: edited })) : null,
+    field(ui('zakat_profit_before'), profit, z.profit.before_charges_edited ? ui('zakat_computed_was', { amount: exact(z.profit.before_charges_computed) }) : ui('zakat_profit_before_hint')));
+  const bar = el('div', { class: 'toolbar', 'data-zakat-edit-bar': '' }, save, reset, status);
+  return { input, panel, bar, save };
 }

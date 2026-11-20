@@ -6,6 +6,7 @@ use App\Models\ClassificationRun;
 use App\Models\ClientFile;
 use App\Models\Company;
 use App\Models\PreparedPaper;
+use App\Services\Audit\TrialBalanceBook;
 use App\Services\Portal\DocumentReviewer;
 use App\Services\Portal\Workspace;
 use App\Services\Statements\PriorPdf\Llm;
@@ -102,6 +103,13 @@ final class PaperMaker
             }
             $paper->update(['progress_done' => $i + 1]);
         }
+        // The books' figure the paper is compared with: the trial balance's own (its accounts by their classification), the AI's copy only
+        // where the paper has no such accounts.
+        if (($fromBooks = self::booksTotal($company, $paper->year, "{$paper->kind}.{$paper->key}")) !== null) {
+            $tbTotal = $fromBooks;
+        } elseif ($tbTotal !== null) {
+            $notes[] = __('portal.maker.tb_from_ai');
+        }
         $capacity = $spec['capacity'];
         if (count($rows) > $capacity) {
             $notes[] = __('portal.maker.rows_over', ['kept' => $capacity, 'found' => count($rows)]);
@@ -115,6 +123,16 @@ final class PaperMaker
         $analysis = $paper->kind === 'recalc' ? (new Recalculations())->analyse($paper->key, $full) : WorkingPaperReader::analyse($full);
 
         $paper->update(['status' => PreparedPaper::DONE, 'path' => $stored, 'analysis' => $analysis, 'notes' => $notes ?: null, 'prepared_at' => now(), 'error' => null]);
+    }
+
+    /** The trial balance's figure a paper is compared with (config/tb_matching.php `papers`), on its natural side; null without one. */
+    public static function booksTotal(Company $company, int $year, string $paper): ?float
+    {
+        $spec = ((array) config('tb_matching.papers'))[$paper] ?? null;   // not a dot path: the keys have dots
+        $book = $spec ? TrialBalanceBook::for($company, $year) : null;
+        $accounts = $book?->in($spec['classes'], (bool) ($spec['sub_only'] ?? false)) ?? [];
+
+        return $accounts === [] ? null : TrialBalanceBook::total($accounts, $spec['side']);
     }
 
     /**

@@ -13,6 +13,7 @@
     if (!headers.has('Accept-Language')) headers.set('Accept-Language', document.documentElement.lang);   // messages in the page's language
     const res = await send(input, { ...init, headers, credentials: 'same-origin' });
     if (res.status === 401) location.href = '/login';
+    if (res.status === 402 && res.headers.get('X-AI-Limit')) location.href = '/ai-limit';   // the monthly AI limit is used up
     return res;
   };
 })();

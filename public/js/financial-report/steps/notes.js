@@ -94,7 +94,7 @@ export async function render(ctx) {
     wrap.append(el('details', { class: 'panel', 'data-ppe-prior': '' }, el('summary', {}, ui('ppe_prior_title')), el('p', { class: 'note' }, ui('ppe_prior_hint')),
       el('table', {}, el('tr', {}, el('th', {}, ui('ppe_category')), el('th', { class: 'num' }, ui('ppe_rate')), el('th', { class: 'num' }, ui('ppe_life')), el('th', {}, ui('ppe_opening_check'))),
         pp.categories.map((c) => el('tr', { 'data-ppe-category': c.key }, el('td', {}, c.label), el('td', { class: 'num' }, c.rate ?? '—'), el('td', { class: 'num' }, c.life ?? '—'),
-          el('td', {}, c.opening_check.map((x) => el('span', { class: `badge ${x.kind === 'equal' ? 'b-ok' : x.kind === 'rounding' ? 'b-warn' : 'b-bad'}`, style: 'margin-inline-end:6px' },
+          el('td', {}, c.opening_check.map((x) => el('span', { class: `badge ${x.kind === 'equal' ? 'b-ok' : x.kind === 'rounding' ? 'b-ok' : 'b-bad'}`, style: 'margin-inline-end:6px' },
             `${sides[x.side]()}: ${kinds[x.kind]()}${x.kind === 'equal' ? '' : ` (${money(x.difference)})`}`)))))),
       el('h3', {}, ui('ppe_accounts')),
       el('table', {}, pp.accounts.map((a) => {

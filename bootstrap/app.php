@@ -27,7 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // The pages call the API with their session (Sanctum's first-party cookies, CSRF checked); other clients use an API key.
         $middleware->statefulApi();
         $middleware->web(append: [\App\Http\Middleware\SetPageLocale::class, \App\Http\Middleware\RememberClient::class]);
-        $middleware->alias(['active' => \App\Http\Middleware\EnsureUserIsActive::class]);
+        $middleware->validateCsrfTokens(except: ['mail/inbound']);   // the mail service's webhook: no session, its secret is the way in
+        $middleware->alias(['active' => \App\Http\Middleware\EnsureUserIsActive::class, 'ai.payer' => \App\Http\Middleware\SetAiPayer::class, 'ai.budget' => \App\Http\Middleware\EnsureAiBudget::class]);
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo('/');
         // Behind a forwarding tunnel (VS Code ports, dev tunnels) or a reverse proxy: take the visitor's https host from X-Forwarded-*.

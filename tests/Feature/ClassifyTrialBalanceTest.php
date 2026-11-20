@@ -336,7 +336,7 @@ class ClassifyTrialBalanceTest extends TestCase
         $this->classifyOne(['610101', 'إيجار المستودع', 0, 0, 1200, 0, 1200, 0], $this->account(2, 'إيجارات', 92))
             ->assertOk()
             ->assertJsonPath('data.0.financial_statement', 'قائمة الدخل')
-            ->assertJsonPath('data.0.main_class', 'إيجارات')
+            ->assertJsonPath('data.0.main_class', 'المصروفات الإدارية والعمومية')
             ->assertJsonPath('data.0.needs_review', false);
     }
 

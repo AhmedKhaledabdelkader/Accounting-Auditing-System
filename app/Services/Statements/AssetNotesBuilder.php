@@ -20,6 +20,10 @@ use App\Support\Phrase;
  *   left to check 15 (the note's total vs the statement line).
  * - Revaluation (PPE, the revaluation model): the year's revaluation surplus (OCI) is a row of its own, non-cash, and
  *   is not suggested as an addition. One category takes it whole; with several, the user splits it (check 19).
+ * - PPE: the year's depreciation is the trial balance's depreciation expense, per category where every expense account is
+ *   placed on one (by its name against the category's asset accounts, else its sub class), else in the total only; the
+ *   depreciation on disposals follows (opening + charge − closing). With last year's statements, the opening accumulated
+ *   depreciation of a category is last year's closing as printed there (the accountant's rule).
  * Amounts are positive; disposals are subtracted.
  */
 final class AssetNotesBuilder
@@ -46,6 +50,7 @@ final class AssetNotesBuilder
         $from       = $cfg['transfers_from'] ?? null;
         $cwip       = $from !== null && isset($sides['cost'][$from]) ? $ctx->sum($sides['cost'][$from], 'debit') : null;
         $expense    = isset($cfg['charge']) ? $this->expense($ctx, $cfg['charge']['main_classes']) : null;
+        $charges    = $key === 'ppe' && isset($cfg['charge']) ? $this->chargesByCategory($ctx, $cfg, $sides) : null;
         $reval      = ($cfg['revaluation'] ?? false) && $ctx->revaluation !== null && ! $ctx->revaluation->isMissing() && abs($ctx->revaluation->amount) > 0.005
             ? $ctx->revaluation : null;
         $costCategories = array_values(array_filter(array_keys($sides['cost']), fn ($c) => $c !== ''));
@@ -72,7 +77,9 @@ final class AssetNotesBuilder
                     'label_ar' => $this->label($key, $r, $column)];
                 $revalCell = $side !== 'cost' || $reval === null ? null
                     : ($column === 'total' || count($costCategories) === 1 ? $reval : $s->entered("{$key}.revaluation.{$column}"));
-                foreach ($this->side($key, $side, $normal, $column, $categoryRows, $ctx, $s, $where, $line, $from, $cwip, $expense, $revalCell) as $r => $figure) {
+                $charge = $side !== 'accumulated' || $charges === null ? null : ($column === 'total' ? $charges['total'] : ($charges['by'][$column] ?? null));
+                $priorAcc = $side === 'accumulated' && $key === 'ppe' ? $this->priorAccumulated($ctx, $column, $categories) : null;
+                foreach ($this->side($key, $side, $normal, $column, $categoryRows, $ctx, $s, $where, $line, $from, $cwip, $expense, $revalCell, $charge, $priorAcc) as $r => $figure) {
                     $cells[$r][$column] = $figure;
                 }
             }
@@ -98,7 +105,7 @@ final class AssetNotesBuilder
 
     /** One column of one side: [row key => Figure]. */
     private function side(string $key, string $side, string $normal, string $column, array $rows, ScheduleContext $ctx, MovementSuggester $s,
-        callable $where, string $line, ?string $from, ?array $cwip, ?Figure $expense, ?Figure $reval = null): array
+        callable $where, string $line, ?string $from, ?array $cwip, ?Figure $expense, ?Figure $reval = null, ?Figure $charge = null, ?Figure $priorAcc = null): array
     {
         [$open, $up, $down, $close] = $side === 'cost' ? ['cost_opening', 'additions', 'disposals', 'cost_closing'] : ['acc_opening', 'depreciation', 'acc_disposals', 'acc_closing'];
         $sum      = $ctx->sum($rows, $normal);
@@ -108,10 +115,17 @@ final class AssetNotesBuilder
         $out      = [];
 
         $out[$open] = $sum['opening'] !== null ? new Figure($sum['opening'], 'trial_balance_opening', 'ok', $refs) : ($rows === [] ? new Figure(0.0, 'derived') : $s->entered($cellKey($open)));
+        if ($priorAcc !== null && $rows !== []) {
+            $out[$open] = $priorAcc;   // last year's closing accumulated depreciation, as its statements print it
+        }
         $out[$close] = self::plus(new Figure($sum['closing'], 'trial_balance', 'ok', $refs), [...$postings['increase'], ...array_map([self::class, 'neg'], $postings['decrease'])]);
 
         $isCwip = $side === 'cost' && $column === $from;
-        if ($rows === []) {
+        if ($side === 'accumulated' && $charge !== null && $rows !== []) {
+            // The year's charge: the trial balance's depreciation expense; the depreciation on disposals follows.
+            $out[$up] = $s->fact($cellKey($up), $charge);
+            $out[$down] = Figure::sum([$out[$open], $out[$up], self::neg($out[$close])]);
+        } elseif ($rows === []) {
             $out[$up] = $out[$down] = new Figure(0.0, 'derived');
         } elseif ($ctx->movements()) {
             // The revaluation increment is debited to cost too: not an addition.
@@ -128,8 +142,11 @@ final class AssetNotesBuilder
             $out[$up] = $s->entered($cellKey($up));
             $out[$down] = $s->entered($cellKey($down));
         }
-        $out[$up]   = self::plus($out[$up], $postings['increase']);
-        $out[$down] = self::plus($out[$down], $postings['decrease']);
+        // The expense already carries the report's entries on it, and the closing those on the accumulated account: added once.
+        if (! ($side === 'accumulated' && $charge !== null && $rows !== [])) {
+            $out[$up]   = self::plus($out[$up], $postings['increase']);
+            $out[$down] = self::plus($out[$down], $postings['decrease']);
+        }
 
         if ($reval !== null) {
             $out['revaluation'] = $reval;
@@ -145,6 +162,77 @@ final class AssetNotesBuilder
         }
 
         return $out;
+    }
+
+    /** Words that say nothing of a category («مصاريف إهلاك …», «مجمع …»). */
+    private const GENERIC = ['مصاريف', 'مصروف', 'مصروفات', 'اهلاك', 'إهلاك', 'الاهلاك', 'الإهلاك', 'استهلاك', 'الاستهلاك', 'اهتلاك', 'الاهتلاك', 'مجمع', 'تكلفة', 'حساب'];
+
+    /**
+     * The year's depreciation expense per category of the note: each expense account placed on the category whose asset accounts
+     * share the most words with its name («مصاريف اهتلاك اجهزة كهربائية» → the category holding «اجهزة كهربائية»), else by its sub
+     * class (config charge.categories). Per category only when every account is placed; the total always.
+     *
+     * @return array{by: ?array<string, Figure>, total: Figure}
+     */
+    private function chargesByCategory(ScheduleContext $ctx, array $cfg, array $sides): ?array
+    {
+        $rows = $ctx->rowsOf([], $cfg['charge']['main_classes']);
+        if ($rows === []) {
+            return null;
+        }
+        $words = function (string $name): array {
+            $generic = array_map(fn ($w) => StatementSynonyms::wording($w), self::GENERIC);
+
+            return array_values(array_filter(explode(' ', StatementSynonyms::wording($name)), fn ($w) => mb_strlen($w) > 2 && ! in_array($w, $generic, true)));
+        };
+        $categoryWords = [];
+        foreach (['cost', 'accumulated'] as $side) {
+            foreach ($sides[$side] as $category => $assetRows) {
+                if ($category === '') {
+                    continue;
+                }
+                foreach (array_keys($assetRows) as $n) {
+                    $categoryWords[$category] = array_merge($categoryWords[$category] ?? [], $words((string) ($ctx->rows[$n]['account_name'] ?? '')));
+                }
+            }
+        }
+        $bySub = (array) ($cfg['charge']['categories'] ?? []);
+        $placed = [];
+        foreach ($rows as $n => $share) {
+            $name = $words((string) ($ctx->rows[$n]['account_name'] ?? ''));
+            $scores = array_map(fn ($w) => count(array_intersect($name, array_unique($w))), $categoryWords);
+            arsort($scores);
+            $best = array_key_first($scores);
+            $category = $best !== null && $scores[$best] > 0 && count(array_keys($scores, $scores[$best], true)) === 1 ? $best : null;
+            $category ??= $bySub[$ctx->rows[$n]['sub_class'] ?? ''] ?? null;
+            if ($category === null || ! isset($sides['cost'][$category]) && ! isset($sides['accumulated'][$category])) {
+                return ['by' => null, 'total' => $this->expense($ctx, $cfg['charge']['main_classes'])];
+            }
+            $placed[$category][$n] = $share;
+        }
+        $by = [];
+        foreach ($placed as $category => $categoryRows) {
+            $sum = $ctx->sum($categoryRows, 'debit');
+            $postings = $ctx->postingsOn($categoryRows, 'debit');
+            $by[$category] = self::plus(new Figure($sum['closing'], 'trial_balance', 'ok', $sum['refs']), [...$postings['increase'], ...array_map([self::class, 'neg'], $postings['decrease'])]);
+        }
+
+        return ['by' => $by, 'total' => $this->expense($ctx, $cfg['charge']['main_classes'])];
+    }
+
+    /** Last year's closing accumulated depreciation of a category of the note (or of them all), from its statements; null without them. */
+    private function priorAccumulated(ScheduleContext $ctx, string $column, array $categories): ?Figure
+    {
+        if ($ctx->priorPpe === []) {
+            return null;
+        }
+        if ($column !== 'total') {
+            return isset($ctx->priorPpe[$column]['acc_closing']) ? new Figure((float) $ctx->priorPpe[$column]['acc_closing'], 'prior_year_statements') : null;
+        }
+        $known = array_filter($categories, fn ($c) => isset($ctx->priorPpe[$c]['acc_closing']));
+
+        return $known !== [] && count($known) === count($categories)
+            ? new Figure(round(array_sum(array_map(fn ($c) => (float) $ctx->priorPpe[$c]['acc_closing'], $known)), 2), 'prior_year_statements') : null;
     }
 
     /** The year's depreciation expense: the expense classes' accounts, with the report's entries on them. */

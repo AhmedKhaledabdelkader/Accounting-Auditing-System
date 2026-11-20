@@ -29,7 +29,14 @@ final class EquityBlock
     ];
 
     /** A column's words for the total: never taken. */
-    public const TOTAL = '/^(ال)?(مجموع|اجمالي|الاجمالي)/u';
+    /** Other names of an equity column, as statements print them. */
+    private const ALSO = [
+        'retained_earnings' => ['خسائر متراكمة', 'الخسائر المتراكمة', 'ارباح متراكمة', 'ارباح مرحلة', 'خسائر مرحلة', 'عجز متراكم', 'ارباح خسائر مبقاة', 'ارباح مبقاه خسائر متراكمه'],
+        'statutory_reserve' => ['احتياطي قانوني', 'الاحتياطي القانوني'],
+        'partners_current' => ['جاري الشركاء', 'جاري الشريك', 'حساب جاري الشريك'],
+    ];
+
+    public const TOTAL = '/^(ال)?(مجموع|اجمالي|الاجمالي)|^(ال)?عجز في حقوق|^صافي حقوق|^حقوق (ال)?ملكيه$/u';   // «العجز في حقوق الملكية»: the total of a deficit
 
     /**
      * @param array $doc PriorPdfReader::process()
@@ -129,7 +136,7 @@ final class EquityBlock
         $out = [];
         $unplaced = [];
         foreach ($printed as $i => $c) {
-            $header = trim(explode(' / ', $c['header'])[0]);
+            $header = Tables::columnName($c['header']);   // a name printed over two lines is one («العجز في / حقوق الملكية»)
             $words = array_filter(explode(' ', ImportNormalizer::text($header)));
             if ($i === $total || preg_match(self::TOTAL, implode(' ', $words)) === 1 || $words === []) {
                 continue;
@@ -137,10 +144,13 @@ final class EquityBlock
             $best = null;
             $score = 0.0;
             foreach ($known as $key => $col) {
-                $want = array_filter(explode(' ', ImportNormalizer::text($col['label_ar'])));
-                $s = $want === [] ? 0.0 : count(array_intersect($want, $words)) / count($want);
-                if ($s > $score) {
-                    [$best, $score] = [$key, $s];
+                // The column's own name, and the other names statements print it under («خسائر متراكمة» is the retained earnings' column).
+                foreach ([$col['label_ar'], ...(self::ALSO[$key] ?? [])] as $name) {
+                    $want = array_filter(explode(' ', ImportNormalizer::text($name)));
+                    $s = $want === [] ? 0.0 : count(array_intersect($want, $words)) / count($want);
+                    if ($s > $score) {
+                        [$best, $score] = [$key, $s];
+                    }
                 }
             }
             if ($best !== null && $score > 0.5 && ! isset($out[$best])) {

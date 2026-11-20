@@ -56,7 +56,7 @@ class StatementAndUsageTest extends TestCase
     public function test_statement_different_from_the_file_classification_is_a_high_priority_flag_shown_first(): void
     {
         $this->fake(self::WITH_FILE_CLASS, [$this->account(2, 'مخصص نهاية الخدمة', 80, 'مخصص')],
-            [['existing_id' => 1, 'main_classes' => ['اجور و رواتب و مافي حكمها', 'إيجارات']]]);
+            [['existing_id' => 1, 'main_classes' => ['المصروفات الإدارية والعمومية']]]);
 
         $response = $this->postJson(self::URL, ['file' => $this->xlsxUpload([self::HEADER,
             ['323008', 'مكافأة نهاية خدمة', 'المصروفات العمومية والإدارية', 15874, 0],
@@ -99,7 +99,7 @@ class StatementAndUsageTest extends TestCase
     public function test_both_checks_on_one_row_give_one_flag(): void
     {
         $this->fake(self::WITH_FILE_CLASS, [$this->account(2, 'مخصص نهاية الخدمة')],
-            [['existing_id' => 1, 'main_classes' => ['اجور و رواتب و مافي حكمها']]]);
+            [['existing_id' => 1, 'main_classes' => ['المصروفات الإدارية والعمومية']]]);
 
         $flags = $this->postJson(self::URL, ['file' => $this->xlsxUpload([self::HEADER,
             ['323008', 'مصروف مكافأة نهاية خدمة', 'المصروفات العمومية والإدارية', 0, 50],

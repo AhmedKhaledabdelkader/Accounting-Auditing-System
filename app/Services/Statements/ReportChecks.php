@@ -26,6 +26,15 @@ final class ReportChecks
      * @param list<array>           $entries    the report's adjusting entries
      * @return list<array>
      */
+    /**
+     * The most a difference may be and still be rounding (`financial_statements.difference_tolerance`, below 2 riyals): the
+     * checks flag a difference strictly above it, so 1.99 passes and 2.00 is an error.
+     */
+    public static function tolerance(): float
+    {
+        return max((float) config('financial_statements.difference_tolerance', 2) - 0.005, (float) config('classification.balance_tolerance', 0.01));
+    }
+
     public function run(array $rows, LayoutProfile $profile, array $mapping, array $aggregated, array $figures, array $entries = [], ?float $zakatCharge = null): array
     {
         $tolerance   = (float) config('classification.balance_tolerance', 0.01);
@@ -114,7 +123,7 @@ final class ReportChecks
 
         // 7. Assets = equity + liabilities.
         [$assets, $equityLiabilities] = [$figures['sofp.total_assets'], $figures['sofp.total_equity_and_liabilities']];
-        if (! $assets->isMissing() && ! $equityLiabilities->isMissing() && abs($diff = round($assets->amount - $equityLiabilities->amount, 2)) > $tolerance) {
+        if (! $assets->isMissing() && ! $equityLiabilities->isMissing() && abs($diff = round($assets->amount - $equityLiabilities->amount, 2)) > self::tolerance()) {
             $checks[] = $this->check('sofp_unbalanced', 'error', $equityLiabilities->amount, $assets->amount, $diff,
                 self::msg('sofp_unbalanced', ['diff' => self::money($diff)]), ['line_key' => 'sofp.total_assets']);
         }
@@ -138,7 +147,7 @@ final class ReportChecks
                 }
             }
             $sum = round($sum - ($zakatCharge ?? 0.0), 2);
-            if (abs($diff = round($net->amount - $sum, 2)) > $tolerance) {
+            if (abs($diff = round($net->amount - $sum, 2)) > self::tolerance()) {
                 $checks[] = $this->check('net_income_mismatch', 'error', $sum, $net->amount, $diff,
                     self::msg('net_income_mismatch', ['net' => self::money($net->amount), 'sum' => self::money($sum)]), ['line_key' => 'is.net_profit']);
             }
@@ -167,7 +176,8 @@ final class ReportChecks
      */
     public function inputs(array $fields, array $figures, array $unmappedEntries): array
     {
-        $tolerance = (float) config('classification.balance_tolerance', 0.01);
+        $tolerance = self::tolerance();
+        $nil       = (float) config('classification.balance_tolerance', 0.01);   // what counts as nothing (an amount, not a difference)
         $checks    = [];
         foreach ($fields as $f) {
             if (! $f['required'] || $f['value'] !== null) {
@@ -176,7 +186,7 @@ final class ReportChecks
             if ($f['check'] === 'zakat_charge_missing') {
                 // Profit and no charge anywhere: the charge from the zakat return, or zero with a reason.
                 $zakat = $figures['is.zakat'];
-                if (! $zakat->isMissing() && abs($zakat->amount) <= $tolerance) {
+                if (! $zakat->isMissing() && abs($zakat->amount) <= $nil) {
                     $checks[] = $this->check('zakat_charge_missing', 'error', null, 0, null,
                         self::msg('zakat_charge_missing'), ['line_key' => 'is.zakat', 'input_key' => $f['key']]);
                 }
@@ -234,7 +244,8 @@ final class ReportChecks
      */
     public function comparative(array $comparative, ?array $opening, string $source, bool $restated): array
     {
-        $tolerance = (float) config('classification.balance_tolerance', 0.01);
+        $tolerance = self::tolerance();
+        $nil       = (float) config('classification.balance_tolerance', 0.01);   // what counts as nothing (an amount, not a difference)
         $checks    = [];
         [$assets, $equityLiabilities] = [$comparative['sofp.total_assets'] ?? null, $comparative['sofp.total_equity_and_liabilities'] ?? null];
         if ($assets && $equityLiabilities && ! $assets->isMissing() && ! $equityLiabilities->isMissing()
@@ -246,11 +257,10 @@ final class ReportChecks
             foreach ($opening as $line => $open) {
                 $prior = $comparative[$line] ?? null;
                 if ($prior === null || $prior->isMissing() || $open->isMissing() || abs($diff = round($open->amount - $prior->amount, 2)) <= $tolerance
-                    || ($source === 'statements' && OpeningCheck::kind($open->amount, $prior->amount) === 'equal')) {
-                    continue;   // the same in whole riyals, as last year's statements print them
+                    || in_array(OpeningCheck::kind($open->amount, $prior->amount), ['equal', 'rounding'], true)) {
+                    continue;   // the same in whole riyals, or less than the tolerance apart (3 riyals): accepted
                 }
-                // A riyal either way is probably rounding: still shown, as a warning (never hidden).
-                $rounding = abs($diff) <= OpeningCheck::ROUNDING;
+                $rounding = false;
                 $checks[] = $this->check('opening_vs_prior_closing', $restated || $rounding ? 'warning' : 'error', $prior->amount, $open->amount, $diff,
                     self::msg($restated ? 'opening_vs_prior_closing_restated' : ($rounding ? 'opening_vs_prior_closing_rounding' : 'opening_vs_prior_closing'),
                         ['opening' => self::money($open->amount), 'prior' => self::money($prior->amount)]),
@@ -292,7 +302,7 @@ final class ReportChecks
             }
             [$file, $ours] = $expensesPositive && str_starts_with($t['key'], 'is.') ? [abs($t['amount']), abs($f->amount)] : [$t['amount'], $f->amount];
             $diff = round($ours - $file);
-            if (abs($diff) >= 1) {
+            if (abs($ours - $file) > self::tolerance()) {   // under 2 riyals: rounding
                 $checks[] = $this->check('prior_file_total', 'error', $file, $ours, $diff,
                     self::msg('prior_file_total', ['label' => $labels[$t['key']] ?? '', 'file' => self::money($file), 'ours' => self::money($ours),
                         'row' => $t['ref']['row'], 'sheet' => $t['ref']['sheet']]),
@@ -354,7 +364,8 @@ final class ReportChecks
      */
     public function schedules(array $schedules, LayoutProfile $profile, array $inputs, array $figures, Figure $disposalResult, ?Figure $disposalPending = null): array
     {
-        $tolerance = (float) config('classification.balance_tolerance', 0.01);
+        $tolerance = self::tolerance();
+        $nil       = (float) config('classification.balance_tolerance', 0.01);   // what counts as nothing (an amount, not a difference)
         $split     = $profile->layout === 'OC';
         $checks    = [];
         $results   = [];
@@ -400,7 +411,7 @@ final class ReportChecks
                         ['line_key' => $s['line_key'], 'schedule' => $s['key']]);
                 }
                 $disposals = $cell($s, 'disposals', 'total');
-                if (! $disposals->isMissing() && $disposals->amount > $tolerance) {
+                if (! $disposals->isMissing() && $disposals->amount > $nil) {
                     $proceeds = $inputs["{$s['key']}.disposal_proceeds"] ?? null;
                     if ($proceeds === null) {
                         $checks[] = $this->check('disposal_without_proceeds', 'error', null, $disposals->amount, null,
@@ -426,32 +437,33 @@ final class ReportChecks
                     $credit = $profile->has('period') ? $f['credit'] : ($up->isMissing() ? 0.0 : $up->amount);
                     $debit  = $profile->has('period') ? $f['debit'] : ($down->isMissing() ? 0.0 : $down->amount);
                     $ends   = array_map(fn ($c) => $c->isMissing() ? 0.0 : $c->amount, [$o, $close]);
-                    if (max(array_map('abs', [...$ends, $credit, $debit])) > $tolerance) {
+                    if (max(array_map('abs', [...$ends, $credit, $debit])) > $nil) {
                         $checks[] = $this->check('zakat_zero_movements', 'info', null, $ends[1], null,
                             self::msg('zakat_zero_movements', ['opening' => self::money($ends[0]), 'credit' => self::money($credit), 'debit' => self::money($debit), 'closing' => self::money($ends[1])]),
                             ['line_key' => 'sofp.zakat_provision', 'schedule' => 'zakat']);
                     }
                     continue;
                 }
-                if ($profile->has('period') && $f['counterpart_expected'] && $f['credit'] > $tolerance) {
+                if ($profile->has('period') && $f['counterpart_expected'] && $f['credit'] > $nil) {
                     if ($f['counterpart'] === null) {
                         $checks[] = $this->check('provision_without_pl_counterpart', 'warning', null, $f['credit'], null,
                             self::msg('provision_no_counterpart', ['title' => $title, 'amount' => self::money($f['credit'])]),
                             ['line_key' => $s['line_key'], 'schedule' => $s['key']]);
-                    } elseif (abs($d = round($f['credit'] - $f['counterpart'], 2)) > $tolerance) {
+                    } elseif (($d = round($f['credit'] - $f['counterpart'], 2)) !== 0.0
+                        && (abs($f['counterpart']) <= $nil || abs($d) > $tolerance)) {   // no expense at all is not rounding
                         $checks[] = $this->check('provision_without_pl_counterpart', 'warning', $f['counterpart'], $f['credit'], $d,
                             self::msg('provision_counterpart_mismatch', ['title' => $title, 'credit' => self::money($f['credit']), 'counterpart' => self::money($f['counterpart'])]),
                             ['line_key' => $s['line_key'], 'schedule' => $s['key']]);
                     }
                 }
-                if ($f['matched'] > $tolerance) {
+                if ($f['matched'] > $nil) {
                     $checks[] = $this->check('reversal_as_payment', 'info', null, $f['matched'], null,
                         self::msg('reversal_as_payment', ['title' => $title, 'amount' => self::money($f['matched'])]),
                         ['line_key' => $s['line_key'], 'schedule' => $s['key']]);
                 }
-                if ($s['key'] === 'zakat' && ($figures['is.zakat'] ?? null)?->amount !== null && abs($figures['is.zakat']->amount) <= $tolerance) {
+                if ($s['key'] === 'zakat' && ($figures['is.zakat'] ?? null)?->amount !== null && abs($figures['is.zakat']->amount) <= $nil) {
                     $used = $profile->has('period') ? $f['debit'] : ($down->isMissing() ? null : $down->amount);
-                    if ($used !== null && $used > $tolerance) {
+                    if ($used !== null && $used > $nil) {
                         $checks[] = $this->check('zakat_used_no_charge', 'warning', null, $used, null,
                             self::msg('zakat_used_no_charge', ['amount' => self::money($used)]),
                             ['line_key' => 'sofp.zakat_provision', 'schedule' => 'zakat']);
@@ -460,7 +472,7 @@ final class ReportChecks
                 continue;
             }
 
-            if ($s['kind'] === 'loans' && ($nc = $cell($s, 'non_current', 'current')) && ! $nc->isMissing() && $nc->amount < -$tolerance) {
+            if ($s['kind'] === 'loans' && ($nc = $cell($s, 'non_current', 'current')) && ! $nc->isMissing() && $nc->amount < -$nil) {
                 $checks[] = $this->check('split_total_mismatch', 'error', 0, $nc->amount, $nc->amount,
                     self::msg('loans_current_portion', ['amount' => self::money(-$nc->amount)]),
                     ['line_key' => 'sofp.murabaha_loans_non_current', 'schedule' => 'loans', 'input_key' => 'loans.current_portion']);
@@ -468,9 +480,9 @@ final class ReportChecks
         }
 
         $rowsOf   = fn (Figure $f) => array_column(array_filter($f->refs, fn ($r) => ($r['type'] ?? null) === 'row'), 'row');
-        $disposed = array_filter($schedules, fn ($s) => $s['kind'] === 'asset' && ($c = $cell($s, 'disposals', 'total')) !== null && ! $c->isMissing() && abs($c->amount) > $tolerance);
+        $disposed = array_filter($schedules, fn ($s) => $s['kind'] === 'asset' && ($c = $cell($s, 'disposals', 'total')) !== null && ! $c->isMissing() && abs($c->amount) > $nil);
         $proceeds = array_filter($schedules, fn ($s) => $s['kind'] === 'asset' && ($inputs["{$s['key']}.disposal_proceeds"] ?? null) !== null);
-        if (! $disposalResult->isMissing() && abs($disposalResult->amount) > $tolerance && $disposed === [] && $proceeds === []) {
+        if (! $disposalResult->isMissing() && abs($disposalResult->amount) > $nil && $disposed === [] && $proceeds === []) {
             $checks[] = $this->check('disposal_unmatched', 'warning', null, $disposalResult->amount, null,
                 self::msg($disposalResult->amount > 0 ? 'disposal_unmatched_gain' : 'disposal_unmatched_loss', ['amount' => self::money(abs($disposalResult->amount))]),
                 ['rows' => $rowsOf($disposalResult), 'amount' => $disposalResult->amount]);
@@ -506,7 +518,8 @@ final class ReportChecks
      */
     public function equityAndCash(ScheduleContext $ctx, array $equity, array $cf, array $sofp, ?array $opening, ?array $priorClose, bool $restated): array
     {
-        $tolerance = (float) config('classification.balance_tolerance', 0.01);
+        $tolerance = self::tolerance();
+        $nil       = (float) config('classification.balance_tolerance', 0.01);   // what counts as nothing (an amount, not a difference)
         $checks    = [];
         $closing   = collect($equity['rows'])->firstWhere('key', 'closing')['cells'];
         foreach ($equity['columns'] as $col) {
@@ -543,8 +556,8 @@ final class ReportChecks
         if ($ctx->movements()) {
             $re       = $ctx->sum($ctx->rowsOn('sofp.retained_earnings'), 'credit');
             $partners = $ctx->sum($ctx->rowsOn('sofp.partners_current_liability') + $ctx->rowsOn('sofp.partners_current_equity'), 'credit');
-            $settled  = fn (Figure $f) => $f->status === 'ok' && ! $f->isMissing() && $f->amount > $tolerance;
-            if ($re['decrease'] > $tolerance && $partners['increase'] >= $re['decrease'] - $tolerance
+            $settled  = fn (Figure $f) => $f->status === 'ok' && ! $f->isMissing() && $f->amount > $nil;
+            if ($re['decrease'] > $nil && $partners['increase'] >= $re['decrease'] - $nil
                 && ! $settled($equity['movements']['dividends']) && ! $settled($equity['movements']['transfer_to_partners_current'])) {
                 $checks[] = $this->check('re_cleared_no_dividend', 'warning', null, $re['decrease'], null,
                     self::msg('re_cleared_no_dividend', ['amount' => self::money($re['decrease']), 'partners' => self::money($partners['increase'])]), ['line_key' => 'sofp.retained_earnings', 'rows' => array_column($re['refs'], 'row')]);
@@ -563,7 +576,8 @@ final class ReportChecks
      */
     public function comparativeEquityAndCash(array $equity, array $cf, array $cmpSofp, bool $overdraftInCash): array
     {
-        $tolerance = (float) config('classification.balance_tolerance', 0.01);
+        $tolerance = self::tolerance();
+        $nil       = (float) config('classification.balance_tolerance', 0.01);   // what counts as nothing (an amount, not a difference)
         $checks    = [];
         $closing   = $equity['comparative'] ? collect($equity['comparative'])->firstWhere('key', 'closing')['cells'] : [];
         foreach ($equity['columns'] as $col) {

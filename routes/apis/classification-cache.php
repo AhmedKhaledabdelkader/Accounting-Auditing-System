@@ -15,7 +15,7 @@ Route::delete('/entries/{id}', [ClassificationCacheController::class, 'destroy']
 
 // Importing accountant-labelled trial balances: upload (queued: read + map), review the mappings, then apply the approved ones.
 Route::get('/imports', [ClassificationImportController::class, 'index'])->middleware('can:cache.view')->name('classification-cache.imports');
-Route::post('/import', [ClassificationImportController::class, 'store'])->middleware('can:cache.import')->name('classification-cache.import');
+Route::post('/import', [ClassificationImportController::class, 'store'])->middleware('can:cache.import')->middleware('ai.budget')->name('classification-cache.import');
 Route::get('/imports/{id}', [ClassificationImportController::class, 'show'])->whereNumber('id')->middleware('can:cache.view')->name('classification-cache.imports.show');
 Route::get('/imports/{id}/mappings', [ClassificationImportController::class, 'mappings'])->whereNumber('id')->middleware('can:cache.view')->name('classification-cache.imports.mappings');
 Route::patch('/imports/mappings/{mappingId}', [ClassificationImportController::class, 'review'])->whereNumber('mappingId')->middleware('can:cache.review')->name('classification-cache.imports.review');

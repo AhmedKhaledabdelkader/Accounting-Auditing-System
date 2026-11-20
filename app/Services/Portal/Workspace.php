@@ -125,7 +125,7 @@ class Workspace
     }
 
     /** @param  UploadedFile[]  $files */
-    public function upload(DocumentRequest $request, array $files, User $by): int
+    public function upload(DocumentRequest $request, array $files, User $by, bool $sync = false): int
     {
         $client = $by->isClient();
         $reviews = [];
@@ -145,7 +145,8 @@ class Workspace
             $request->update(['status' => DocumentRequest::UPLOADED]);   // back in the accountant's tray, even if it had been accepted or returned
             // The AI reviews what came (queued; the accountant is the fallback), after the request is in the tray: it may accept it.
             foreach (config('portal.ai_review') === 'off' ? [] : $reviews as $id) {
-                \App\Jobs\ReviewClientFile::dispatch($id);
+                // $sync: nobody is waiting on a page (the mailbox reader), so the review runs now instead of waiting for a queue worker.
+                $sync ? \App\Jobs\ReviewClientFile::dispatchSync($id) : \App\Jobs\ReviewClientFile::dispatch($id);
             }
         }
 

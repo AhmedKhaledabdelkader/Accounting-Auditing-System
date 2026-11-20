@@ -263,3 +263,12 @@ html.busy-on{overflow:hidden}
 .busy-line::after{content:'';position:absolute;inset-block:0;width:38%;border-radius:99px;background:linear-gradient(90deg,var(--brand,#0f766e),var(--brand2,#2dd4bf));animation:busy-slide 1.3s ease-in-out infinite}
 @keyframes busy-slide{from{inset-inline-start:-40%}to{inset-inline-start:100%}}
 @media (prefers-reduced-motion:reduce){.busy,.busy-line::after{animation:none}.busy-ring .v,.busy-bar i{transition:none}}
+
+/* The sidebar's AI balance (a user with a monthly limit): green, amber from 80%, red when used up */
+.sidebar .ai-meter{display:block;margin:10px 8px 0;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);color:var(--side-muted);text-decoration:none;font-size:12.5px}
+.sidebar .ai-meter b{color:#fff;font-variant-numeric:tabular-nums}
+.sidebar .ai-meter .bar{display:block;height:5px;margin-top:7px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.sidebar .ai-meter .bar i{display:block;height:100%;border-radius:99px;background:#7fd3b6}
+.sidebar .ai-meter.low .bar i{background:#f2c46b} .sidebar .ai-meter.out .bar i{background:#f08a78}
+.sidebar .ai-meter:hover{background:rgba(255,255,255,.1)}
+.shell.folded .sidebar .ai-meter .label{display:none}

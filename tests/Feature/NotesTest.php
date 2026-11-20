@@ -388,9 +388,9 @@ class NotesTest extends TestCase
 
         // A roll that doesn't reach the closing: checked.
         $state = $this->putJson(self::URL."/{$id}/prior-year", ['source' => 'manual', 'figures' => ['sofp.cash' => 100, 'sofp.share_capital' => 100],
-            'schedules' => ['employee_benefits.opening' => 4, 'employee_benefits.charge' => 5]])->assertOk()->json();
+            'schedules' => ['employee_benefits.opening' => 4, 'employee_benefits.charge' => 3]])->assertOk()->json();
         $roll = array_values(array_filter($this->checks($state, 'provision_rollforward'), fn ($c) => $c['scope'] === 'comparative'));
-        $this->assertSame([[10, 9, -1]], array_map(fn ($c) => [$c['expected'], $c['actual'], $c['difference']], $roll));
+        $this->assertSame([[10, 7, -3]], array_map(fn ($c) => [$c['expected'], $c['actual'], $c['difference']], $roll));
         $this->putJson(self::URL."/{$id}/prior-year", ['source' => 'manual', 'figures' => ['sofp.cash' => 100], 'schedules' => ['employee_benefits.closing' => 1]])
             ->assertStatus(422)->assertJsonValidationErrors('schedules.employee_benefits.closing');
     }
@@ -413,7 +413,7 @@ class NotesTest extends TestCase
         $this->assertTrue($state['narrative']['blocks']['cost_periodic_inventory']);
         $this->assertSame([' | 2025م |  | 2024م', 'مخزون أول المدة | 40 |  | [ناقص]', 'المشتريات | 300 |  | [ناقص]', 'مصاريف الشراء والاستيراد | 20 |  | [ناقص]',
             'يخصم: مخزون آخر المدة | -60 |  | [ناقص]', 'تكلفة البضاعة المباعة | 300 |  | [ناقص]',
-            ' | 2025م |  | 2024م', 'تكلفة البضاعة المباعة | 300 |  | [ناقص]', 'اجور و رواتب و مافي حكمها | 300 |  | [ناقص]', 'الإجمالي | 600 |  | [ناقص]'],
+            ' | 2025م |  | 2024م', 'تكلفة البضاعة المباعة | 300 |  | [ناقص]', 'أجور ورواتب | 300 |  | [ناقص]', 'الإجمالي | 600 |  | [ناقص]'],
             $this->tables($state, 'cost_of_revenue'));
         $this->assertSame([], $this->checks($state, 'note_total_mismatch'));
     }

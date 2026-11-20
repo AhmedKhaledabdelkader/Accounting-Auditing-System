@@ -8,6 +8,6 @@ Route::get('/', [CompanyController::class, 'index'])->middleware('can:companies.
 Route::post('/', [CompanyController::class, 'store'])->middleware('can:companies.manage')->name('companies.store');
 Route::get('/{id}', [CompanyController::class, 'show'])->middleware('can:companies.view')->name('companies.show');
 Route::patch('/{id}', [CompanyController::class, 'update'])->middleware('can:companies.manage')->name('companies.update');
-Route::post('/{id}/registration', [CompanyController::class, 'uploadRegistration'])->middleware('can:companies.manage')->name('companies.registration.upload');
-Route::post('/{id}/articles', [CompanyController::class, 'uploadArticles'])->middleware('can:companies.manage')->name('companies.articles.upload');
+Route::post('/{id}/registration', [CompanyController::class, 'uploadRegistration'])->middleware('can:companies.manage')->middleware('ai.budget')->name('companies.registration.upload');
+Route::post('/{id}/articles', [CompanyController::class, 'uploadArticles'])->middleware('can:companies.manage')->middleware('ai.budget')->name('companies.articles.upload');
 Route::delete('/{id}/articles', [CompanyController::class, 'deleteArticles'])->middleware('can:companies.manage')->name('companies.articles.delete');

@@ -76,7 +76,7 @@ export async function render(ctx) {
       el('th', { class: 'num' }, ui('approved_opening_difference')), el('th')),
     totals.map((t) => el('tr', { 'data-opening-total': t.part }, el('td', {}, PARTS[t.part]()), el('td', { class: 'num' }, money(t.tb_opening)),
       el('td', { class: 'num' }, money(t.approved)), el('td', { class: 'num' }, money(t.difference)),
-      el('td', {}, badge(Math.abs(t.difference) < 0.5 ? 'equal' : Math.abs(t.difference) <= 1 ? 'rounding' : 'difference'))))),
+      el('td', {}, badge(Math.abs(t.difference) < 0.5 ? 'equal' : Math.abs(Math.round(t.difference)) < (window.PageConfig?.opening_tolerance ?? 3) ? 'rounding' : 'difference'))))),
     relations(a)));
 
   // Each line: show only what differs, or every line.

@@ -1,0 +1,22 @@
+{
+    "input": {
+        "owner_name": null,
+        "company_name": "Loulwa Medicine Company",
+        "registration_number": null,
+        "city": null,
+        "activity": null,
+        "issue_date_hijri": null,
+        "is_commercial_registration": true,
+        "unified_number": "7002965197",
+        "readable": true,
+        "issue_date": "2009-04-15",
+        "expiry_date": null,
+        "legal_form": "Company Limited liability company (One person)"
+    },
+    "usage": {
+        "input": 1202,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 815
+    }
+}

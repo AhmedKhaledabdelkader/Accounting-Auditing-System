@@ -29,7 +29,7 @@ class ReadPriorStatementsPdf implements ShouldQueue
 {
     use Queueable;
 
-    public int $timeout = 600;
+    public int $timeout = 1800;   // a long scanned file read page by page, with its re-reads (the queue's retry_after, 1900, stays above it)
     public int $tries = 1;   // the provider calls retry by themselves; a whole step is never run twice
 
     public function __construct(public string $reportId, public string $uploadId, public string $step) {}

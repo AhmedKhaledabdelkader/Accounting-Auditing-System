@@ -217,6 +217,7 @@ class ClientController extends Controller
             'years' => array_values(array_unique(array_merge($years, [$year]))), 'year' => $year,
             'sections' => $requests->groupBy('section'), 'progress' => Workspace::progress($requests),
             'unread' => $this->workspace->unread($company->id, false), 'canManage' => $request->user()->can('clients.manage'),
+            'emails' => \App\Models\ClientEmail::where('company_id', $company->id)->where('year', $year)->latest('id')->limit(15)->get(),
             'checklistSize' => collect(config('audit_requirements'))->flatten(1)->count(),
             'archives' => \App\Models\ClientArchive::where('company_id', $company->id)->orderByDesc('id')->limit(6)->get(),
         ]);

@@ -144,3 +144,15 @@ details.panel.tx-form{padding:14px 22px;margin:0 0 20px}
   .steps{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
   .steps a{white-space:normal;font-size:13px}
 }
+
+/* The zakat step: the amount the statements carry, chosen among the calculated, the books' and the accountant's own */
+.zakat-adopt{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0;background:var(--panel2)}
+.zakat-adopt h4{margin:0 0 10px}
+.zakat-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.zakat-option{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.zakat-option.on{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.zakat-option input[type=radio]{accent-color:var(--brand)}
+.zakat-option b{font-size:18px;font-variant-numeric:tabular-nums}
+.zakat-option .opt-label{font-weight:600}
+tr.edited td{background:var(--warn-soft)}
+@media (max-width:760px){.zakat-options{grid-template-columns:1fr}}

@@ -46,6 +46,19 @@ final class FakeAi
                 ['name' => 'جون سميث', 'nationality' => 'بريطاني', 'shares' => 40, 'share_value' => 1000, 'percentage' => null]],
                 'capital' => 100000, 'shares_total' => 100, 'share_value' => 1000])];
         }
+        // The follow-up email: a subject, an intro, no special reason, one question.
+        if (FakeWire::toolName($request) === 'submit_follow_up') {
+            return [200, FakeWire::answer($provider, 'submit_follow_up', ['subject' => 'المستندات المطلوبة لمراجعة القوائم المالية', 'intro' => 'نرجو التكرم بإرسال المستندات الآتية.',
+                'items' => [], 'questions' => ['هل لدى الشركة قروض قائمة؟']])];
+        }
+        // A client's reply: the client will send the documents later.
+        if (FakeWire::toolName($request) === 'submit_reply_reading') {
+            return [200, FakeWire::answer($provider, 'submit_reply_reading', ['summary' => 'سيرسل العميل المستندات لاحقًا.', 'answers' => [], 'files' => [], 'needs_accountant' => false])];
+        }
+        // A working paper's rows: none found in the document.
+        if (FakeWire::toolName($request) === 'submit_paper_rows') {
+            return [200, FakeWire::answer($provider, 'submit_paper_rows', ['rows' => [], 'trial_balance_total' => null, 'notes' => ['لا توجد صفوف في المستند.']])];
+        }
         if (FakeWire::toolName($request) === 'submit_page') {
             $row = fn ($label, $amount) => ['label' => $label, 'note' => null, 'cells' => [$amount]];
 

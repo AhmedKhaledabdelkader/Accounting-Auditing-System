@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\MailAccountController;
+use App\Http\Controllers\Portal\FollowUpController;
 use App\Http\Controllers\Admin\OfficeController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
@@ -18,6 +20,9 @@ use App\Http\Controllers\TaxonomyController;
 use App\Support\Access\Navigation;
 
 // Sign-in and sign-up; the language can be chosen before signing in.
+// The mail service posts a client's reply here (no session; the secret in X-Inbound-Secret is the way in): FollowUp::receive.
+Route::post('/mail/inbound', [FollowUpController::class, 'inbound'])->middleware('throttle:60,1');
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:20,1');
@@ -27,10 +32,18 @@ Route::middleware('guest')->group(function () {
 Route::post('/locale', [AccountController::class, 'locale'])->name('locale');
 
 // Every other page needs an active account and the page's permission (config/permissions.php).
-Route::middleware(['auth', 'active'])->group(function () {
+Route::middleware(['auth', 'active', 'ai.payer'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/', fn () => redirect(Navigation::home(request()->user())))->name('home');
     Route::get('/account', [AccountController::class, 'show'])->name('account');
+    // Where a user whose monthly AI limit is used up is sent (EnsureAiBudget): every signed-in user may see their own.
+    Route::get('/ai-limit', [\App\Http\Controllers\AiLimitController::class, 'show'])->name('ai-limit');
+    // The accountant's own mailbox (SMTP + app password) for emailing clients.
+    Route::get('/account/mail', [MailAccountController::class, 'show'])->middleware('can:clients.manage')->name('account.mail');
+    Route::post('/account/mail', [MailAccountController::class, 'save'])->middleware('can:clients.manage')->name('account.mail.save');
+    Route::post('/account/mail/test', [MailAccountController::class, 'test'])->middleware('can:clients.manage')->name('account.mail.test');
+    Route::post('/account/mail/check', [MailAccountController::class, 'check'])->middleware('can:clients.manage')->name('account.mail.check');
+    Route::delete('/account/mail', [MailAccountController::class, 'destroy'])->middleware('can:clients.manage')->name('account.mail.destroy');
     Route::put('/account/password', [AccountController::class, 'password'])->name('account.password');
     Route::put('/account/preferences', [AccountController::class, 'preference'])->name('account.preferences');
     Route::delete('/account/preferences/columns', [AccountController::class, 'resetColumns'])->name('account.columns.reset');
@@ -41,6 +54,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');
         Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::put('/admin/users/{user}/password', [UserController::class, 'password'])->name('admin.users.password');
+        Route::put('/admin/users/{user}/ai-limit', [UserController::class, 'aiLimit'])->name('admin.users.ai-limit');
     });
     Route::middleware('can:roles.manage')->group(function () {
         Route::get('/admin/roles', [RoleController::class, 'index'])->name('admin.roles');
@@ -65,8 +79,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     // The offices' clients (البوابة الرئيسية): the accountant's side. Another office's company is a 404 (Company is scoped to the office).
     Route::get('/clients', [ClientController::class, 'index'])->middleware('can:clients.view')->name('clients.index');
     Route::get('/clients/new', [ClientController::class, 'create'])->middleware('can:clients.manage')->name('clients.create');
-    Route::post('/clients', [ClientController::class, 'store'])->middleware('can:clients.manage')->name('clients.store');
-    Route::post('/clients/{company}/archive', [ClientController::class, 'archive'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.archive');
+    Route::post('/clients', [ClientController::class, 'store'])->middleware('can:clients.manage')->middleware('ai.budget')->name('clients.store');
+    Route::post('/clients/{company}/archive', [ClientController::class, 'archive'])->whereUuid('company')->middleware('can:clients.manage')->middleware('ai.budget')->name('clients.archive');
     // The work on a client (4 to 7 of the main side menu): about the client opened last, or the one chosen.
     Route::get('/work/trial-balance', [WorkController::class, 'trialBalance'])->middleware('can:clients.view')->name('work.trial-balance');
     Route::get('/work/prior-statements', [WorkController::class, 'prior'])->middleware('can:clients.view')->name('work.prior');
@@ -75,26 +89,33 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/work/requirements', [WorkController::class, 'requirements'])->middleware('can:clients.view')->name('work.requirements');
     Route::get('/work/working-papers', [WorkController::class, 'papers'])->middleware('can:clients.view')->name('work.papers');
     Route::get('/work/recalculation', [WorkController::class, 'recalculation'])->middleware('can:clients.view')->name('work.recalc');
+    Route::get('/work/findings', [WorkController::class, 'findings'])->middleware('can:clients.view')->name('work.findings');
     // A client's file, step by step (the side menu of ClientSteps): the registration, the articles, the trial balance, last year's statements, the statements, zakat.
     Route::get('/clients/{company}/registration', [ClientFileController::class, 'registration'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.registration');
-    Route::post('/clients/{company}/registration', [ClientFileController::class, 'updateRegistration'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.file.registration.update');
+    Route::post('/clients/{company}/registration', [ClientFileController::class, 'updateRegistration'])->whereUuid('company')->middleware('can:clients.manage')->middleware('ai.budget')->name('clients.file.registration.update');
     Route::get('/clients/{company}/articles', [ClientFileController::class, 'articles'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.articles');
-    Route::post('/clients/{company}/articles', [ClientFileController::class, 'updateArticles'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.file.articles.update');
+    Route::post('/clients/{company}/articles', [ClientFileController::class, 'updateArticles'])->whereUuid('company')->middleware('can:clients.manage')->middleware('ai.budget')->name('clients.file.articles.update');
     Route::get('/clients/{company}/trial-balance', [ClientFileController::class, 'trialBalance'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.trial-balance');
     Route::get('/clients/{company}/prior-statements', [ClientFileController::class, 'prior'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.prior');
     Route::get('/clients/{company}/statements', [ClientFileController::class, 'statements'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.statements');
     Route::get('/clients/{company}/zakat', [ClientFileController::class, 'zakat'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.zakat');
     Route::get('/clients/{company}/working-papers', [ClientFileController::class, 'papers'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.papers');
     Route::get('/clients/{company}/recalculation', [ClientFileController::class, 'recalculation'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.recalculation');
-    Route::post('/clients/{company}/prepared-papers', [ClientFileController::class, 'prepare'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.papers.prepare');
+    Route::get('/clients/{company}/findings', [\App\Http\Controllers\Portal\FindingsController::class, 'show'])->whereUuid('company')->middleware('can:clients.view')->name('clients.file.findings');
+    Route::post('/clients/{company}/findings', [\App\Http\Controllers\Portal\FindingsController::class, 'decide'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.findings.decide');
+    Route::get('/clients/{company}/findings/export', [\App\Http\Controllers\Portal\FindingsController::class, 'export'])->whereUuid('company')->middleware('can:clients.view')->name('clients.findings.export');
+    Route::post('/clients/{company}/prepared-papers', [ClientFileController::class, 'prepare'])->whereUuid('company')->middleware('can:clients.manage')->middleware('ai.budget')->name('clients.papers.prepare');
     Route::get('/clients/{company}/prepared-papers/status', [ClientFileController::class, 'preparedStatus'])->whereUuid('company')->middleware('can:clients.view')->name('clients.papers.status');
     Route::get('/clients/{company}/prepared-papers/{paper}', [ClientFileController::class, 'downloadPaper'])->whereUuid('company')->whereNumber('paper')->middleware('can:clients.view')->name('clients.papers.download');
     Route::get('/clients/{company}/edit', [ClientController::class, 'edit'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.edit');
     Route::delete('/clients/{company}', [ClientController::class, 'destroy'])->whereUuid('company')->middleware('can:clients.delete')->name('clients.destroy');
-    Route::put('/clients/{company}', [ClientController::class, 'update'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.update');
+    Route::put('/clients/{company}', [ClientController::class, 'update'])->whereUuid('company')->middleware('can:clients.manage')->middleware('ai.budget')->name('clients.update');
     Route::get('/clients/{company}/documents/{kind}', [ClientController::class, 'document'])->whereUuid('company')->middleware('can:clients.view')->name('clients.documents');
     Route::get('/clients/{company}', [ClientController::class, 'show'])->whereUuid('company')->middleware('can:clients.view')->name('clients.show');
     Route::put('/clients/{company}/access', [ClientController::class, 'access'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.access');
+    Route::post('/clients/{company}/follow-up/draft', [FollowUpController::class, 'draft'])->whereUuid('company')->middleware('can:clients.manage')->middleware('ai.budget')->name('clients.follow-up.draft');
+    Route::post('/clients/{company}/follow-up/send', [FollowUpController::class, 'send'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.follow-up.send');
+    Route::post('/clients/{company}/follow-up/reply', [FollowUpController::class, 'reply'])->whereUuid('company')->middleware('can:clients.manage')->middleware('ai.budget')->name('clients.follow-up.reply');
     Route::post('/clients/{company}/checklist', [ClientController::class, 'checklist'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.checklist');
     Route::post('/clients/{company}/requests', [ClientController::class, 'storeRequest'])->whereUuid('company')->middleware('can:clients.manage')->name('clients.requests.store');
     Route::put('/clients/{company}/requests/{documentRequest}', [ClientController::class, 'review'])->whereUuid('company')->whereNumber('documentRequest')->middleware('can:clients.manage')->name('clients.requests.review');

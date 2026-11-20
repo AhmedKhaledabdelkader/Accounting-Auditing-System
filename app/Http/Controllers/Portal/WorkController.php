@@ -16,7 +16,7 @@ class WorkController extends Controller
 {
     /** Step key → the name of its route. */
     public const ROUTES = ['trial_balance' => 'work.trial-balance', 'prior' => 'work.prior', 'statements' => 'work.statements', 'zakat' => 'work.zakat',
-        'requirements' => 'work.requirements', 'papers' => 'work.papers', 'recalc' => 'work.recalc'];
+        'requirements' => 'work.requirements', 'papers' => 'work.papers', 'recalc' => 'work.recalc', 'findings' => 'work.findings'];
 
     public function __construct(private readonly ClientFileController $files) {}
 
@@ -53,6 +53,11 @@ class WorkController extends Controller
     public function recalculation(Request $request): View
     {
         return $this->step($request, 'recalc', fn (Company $c) => $this->files->recalculation($request, $c));
+    }
+
+    public function findings(Request $request): View
+    {
+        return $this->step($request, 'findings', fn (Company $c) => app(FindingsController::class)->show($request, $c));
     }
 
     private function step(Request $request, string $step, \Closure $page): View

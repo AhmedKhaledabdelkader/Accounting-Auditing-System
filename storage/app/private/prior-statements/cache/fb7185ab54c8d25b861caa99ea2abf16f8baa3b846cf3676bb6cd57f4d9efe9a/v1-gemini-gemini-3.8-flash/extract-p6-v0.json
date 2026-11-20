@@ -1,0 +1,136 @@
+{
+    "input": {
+        "blocks": [
+            {
+                "columns": [],
+                "type": "heading",
+                "rows": [],
+                "text": "مؤسسة لؤلؤة الطب للتجارة",
+                "number": null
+            },
+            {
+                "columns": [],
+                "number": null,
+                "rows": [],
+                "text": "( مؤسسة فردية - سعودية)",
+                "type": "heading"
+            },
+            {
+                "number": null,
+                "type": "heading",
+                "columns": [],
+                "text": "قائمة الربح او الخسارة للفترة المالية المنتهية في ۲۰۲۲\/۱۲\/۳۱م",
+                "rows": []
+            },
+            {
+                "text": null,
+                "rows": [
+                    {
+                        "cells": [
+                            "٣,٥٨٥,٠٩٥"
+                        ],
+                        "note": null,
+                        "label": "الإيرادات"
+                    },
+                    {
+                        "label": "تكلفة الإيرادات",
+                        "cells": [
+                            "( ٢,٢٩٦,٩٨٥)"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "label": "مجمل الربح",
+                        "note": null,
+                        "cells": [
+                            "١,٢٨٨,١١٠"
+                        ]
+                    },
+                    {
+                        "note": "۱۲",
+                        "cells": [
+                            "( ١,٠٧١,٤٢٣)"
+                        ],
+                        "label": "المصروفات الإدارية والعمومية"
+                    },
+                    {
+                        "cells": [
+                            "( ٣٢,٤٥٣)"
+                        ],
+                        "label": "إستهلاك ممتلكات وآلات ومعدات",
+                        "note": "٥"
+                    },
+                    {
+                        "label": "مجموع المصروفات",
+                        "note": null,
+                        "cells": [
+                            "( ١,١٠٣,٨٧٥)"
+                        ]
+                    },
+                    {
+                        "cells": [
+                            null
+                        ],
+                        "note": null,
+                        "label": "يضاف :"
+                    },
+                    {
+                        "cells": [
+                            "١٨٤,٢٣٤"
+                        ],
+                        "note": null,
+                        "label": "صافي الدخل قبل الزكاة"
+                    },
+                    {
+                        "label": "يخصم :",
+                        "note": null,
+                        "cells": [
+                            null
+                        ]
+                    },
+                    {
+                        "note": "۱۱",
+                        "label": "مصروف الزكاة",
+                        "cells": [
+                            "( ٣١,٢٦٨)"
+                        ]
+                    },
+                    {
+                        "note": null,
+                        "label": "صافي ربح ( خسارة ) السنة",
+                        "cells": [
+                            "١٥٢,٩٦٦"
+                        ]
+                    }
+                ],
+                "type": "table",
+                "number": null,
+                "columns": [
+                    {
+                        "header": "31 ديسمبر ۲۰۲۲م \/ ريال سعودي"
+                    }
+                ]
+            },
+            {
+                "rows": [],
+                "text": "تشكل الإيضاحات المرفقة من رقم (۱) إلى رقم (۱۷) جزءاً لا يتجزأ من هذه القوائم المالية",
+                "type": "paragraph",
+                "number": null,
+                "columns": []
+            },
+            {
+                "columns": [],
+                "rows": [],
+                "text": "۲",
+                "number": null,
+                "type": "paragraph"
+            }
+        ]
+    },
+    "usage": {
+        "input": 1317,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 1975
+    }
+}

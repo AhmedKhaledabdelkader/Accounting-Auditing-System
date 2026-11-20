@@ -29,6 +29,6 @@ return [
         'bands' => ['current' => ['غير مستحقة', 0.005], 'd90' => ['حتى 90 يوماً', 0.02], 'd180' => ['91 – 180 يوماً', 0.10], 'd365' => ['181 – 365 يوماً', 0.25], 'over' => ['أكثر من 365 يوماً', 0.50]],
     ],
 
-    // Differences below this are rounding.
-    'tolerance' => 1.0,
+    // Differences below 2 riyals are rounding (the accountant's rule): a difference above this is one.
+    'tolerance' => 1.995,
 ];

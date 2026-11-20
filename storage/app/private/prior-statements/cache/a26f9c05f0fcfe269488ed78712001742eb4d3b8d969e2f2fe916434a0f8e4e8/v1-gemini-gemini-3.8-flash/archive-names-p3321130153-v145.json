@@ -1,0 +1,212 @@
+{
+    "input": {
+        "assignments": [
+            {
+                "confident": false,
+                "index": 40,
+                "request_id": null
+            },
+            {
+                "index": 41,
+                "confident": false,
+                "request_id": null
+            },
+            {
+                "index": 42,
+                "request_id": null,
+                "confident": false
+            },
+            {
+                "request_id": 394,
+                "index": 43,
+                "confident": true
+            },
+            {
+                "request_id": null,
+                "confident": false,
+                "index": 44
+            },
+            {
+                "request_id": null,
+                "confident": false,
+                "index": 45
+            },
+            {
+                "index": 46,
+                "confident": true,
+                "request_id": 451
+            },
+            {
+                "index": 47,
+                "request_id": 451,
+                "confident": true
+            },
+            {
+                "confident": true,
+                "index": 48,
+                "request_id": 451
+            },
+            {
+                "request_id": null,
+                "index": 49,
+                "confident": false
+            },
+            {
+                "confident": true,
+                "index": 50,
+                "request_id": 451
+            },
+            {
+                "index": 51,
+                "confident": false,
+                "request_id": 451
+            },
+            {
+                "index": 52,
+                "confident": false,
+                "request_id": 451
+            },
+            {
+                "confident": false,
+                "request_id": 451,
+                "index": 53
+            },
+            {
+                "confident": false,
+                "request_id": 451,
+                "index": 54
+            },
+            {
+                "confident": false,
+                "request_id": 451,
+                "index": 55
+            },
+            {
+                "confident": false,
+                "request_id": 451,
+                "index": 56
+            },
+            {
+                "index": 57,
+                "request_id": 451,
+                "confident": false
+            },
+            {
+                "request_id": 451,
+                "index": 58,
+                "confident": false
+            },
+            {
+                "request_id": 451,
+                "confident": true,
+                "index": 59
+            },
+            {
+                "request_id": null,
+                "index": 60,
+                "confident": false
+            },
+            {
+                "confident": false,
+                "request_id": null,
+                "index": 61
+            },
+            {
+                "request_id": 456,
+                "confident": true,
+                "index": 62
+            },
+            {
+                "index": 63,
+                "request_id": null,
+                "confident": false
+            },
+            {
+                "confident": true,
+                "index": 64,
+                "request_id": 409
+            },
+            {
+                "request_id": 409,
+                "index": 65,
+                "confident": true
+            },
+            {
+                "request_id": 409,
+                "confident": true,
+                "index": 66
+            },
+            {
+                "confident": true,
+                "request_id": 409,
+                "index": 67
+            },
+            {
+                "index": 68,
+                "confident": true,
+                "request_id": 406
+            },
+            {
+                "request_id": 406,
+                "index": 69,
+                "confident": true
+            },
+            {
+                "confident": true,
+                "index": 70,
+                "request_id": 450
+            },
+            {
+                "index": 71,
+                "request_id": null,
+                "confident": false
+            },
+            {
+                "confident": true,
+                "index": 72,
+                "request_id": 387
+            },
+            {
+                "index": 73,
+                "request_id": 387,
+                "confident": true
+            },
+            {
+                "request_id": 448,
+                "index": 74,
+                "confident": true
+            },
+            {
+                "request_id": 448,
+                "index": 75,
+                "confident": true
+            },
+            {
+                "index": 76,
+                "request_id": 448,
+                "confident": true
+            },
+            {
+                "index": 77,
+                "request_id": 448,
+                "confident": true
+            },
+            {
+                "request_id": 448,
+                "index": 78,
+                "confident": true
+            },
+            {
+                "confident": true,
+                "request_id": 448,
+                "index": 79
+            }
+        ]
+    },
+    "usage": {
+        "input": 4877,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 9554
+    }
+}

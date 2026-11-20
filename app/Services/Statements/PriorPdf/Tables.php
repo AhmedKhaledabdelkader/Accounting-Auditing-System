@@ -19,7 +19,27 @@ use App\Services\AmountParser;
  */
 final class Tables
 {
-    public const TOLERANCE = 1.0;   // a printed total may differ from its rows' sum by rounding
+    public const TOLERANCE = 1.995;   // a printed total may differ from its rows' sum by rounding: under 2 riyals (the accountant's rule)
+
+    /**
+     * A column's name without its year, its date or its currency: the header's lines (joined with « / ») that say something else,
+     * joined. Statements print the year above the category («٢٠٢٤م / ادوات طبية») or below it («مباني / ريال سعودي»), and a long
+     * name over two lines («العجز في / حقوق الملكية»): the name is the same either way.
+     */
+    public static function columnName(string $header): string
+    {
+        $parts = array_filter(array_map('trim', explode(' / ', $header)), function (string $p) {
+            $plain = trim((string) preg_replace('/\s+/u', ' ', $p));
+            if ($plain === '') {
+                return false;
+            }
+            $words = trim((string) preg_replace('/[0-9٠-٩۰-۹\/\-.,()]+|ريال(ات)?|سعودي(ه|ة)?|بالريال|م\b|هـ|ديسمبر|يناير|كما|في|للسنة|المنتهية|السنة|العام/u', ' ', AmountParser::asciiDigits($plain)));
+
+            return $words !== '' && ! (self::years($plain) !== [] && mb_strlen($words) <= 2);
+        });
+
+        return trim(implode(' ', $parts) ?: explode(' / ', $header)[0]);
+    }
 
     /** The 4-digit Gregorian years in a text (Arabic-Indic digits too). */
     public static function years(string $text): array

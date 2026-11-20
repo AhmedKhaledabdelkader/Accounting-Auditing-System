@@ -296,3 +296,11 @@ on a copy of the database first (`DB_DATABASE=<copy> php artisan …`).
 No production deployment is configured. For one: set `APP_ENV=production`, `APP_DEBUG=false`, run `php artisan config:cache route:cache view:cache`, serve `public/` via nginx/Apache + PHP-FPM, set PHP `max_execution_time` ≥ 300 and upload limits ≥ 20 MB (`upload_max_filesize`, `post_max_size`; a PDF of last year's statements may be 20 MB), and set `APP_URL` to the public URL.
 
 **qpdf on the server** (last year's statements as a PDF): install it where the queue workers run (Debian/Ubuntu `sudo apt-get install -y qpdf`, Alpine `apk add qpdf`, RHEL/Fedora `dnf install qpdf`), check `qpdf --version`, and set `QPDF_BINARY` to its full path if the workers' `PATH` doesn't have it (`which qpdf`). The PDFs are kept under `storage/app/private/prior-statements/<report>/`: give that the same backups as the database. Restart the workers after deploying (`php artisan queue:restart`).
+
+## Shared hosting (no qpdf, no long-running worker)
+
+- **qpdf:** set `QPDF_BINARY=none` (or leave it unset where it is not installed: it is detected). The page count is then read in PHP (`App\Support\Pdf\PdfPages`, compressed object streams included) and each page call sends the **whole** PDF, telling the AI which page to read and how it is turned (`PageExtractor::whole`). Same results; more input tokens per call (the whole file each time, cached implicitly by Gemini). The AI-answer cache keeps the two modes apart.
+- **Queue:** no Supervisor: a cron every minute `php artisan queue:work --stop-when-empty --max-time=55 --tries=1`.
+- **Scheduler:** a cron every minute `php artisan schedule:run` (reads the clients' replies every two minutes, reminders, cleanup).
+- **Archives:** `.zip` works with PHP's own zip extension; `.rar` / `.7z` need 7-Zip (not available on shared hosting).
+- Outbound ports 587/465 (SMTP) and 993 (IMAP) must be open for the clients' emails and replies.

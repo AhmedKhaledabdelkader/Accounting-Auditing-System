@@ -1,0 +1,34 @@
+{
+    "input": {
+        "document_type": "محضر جرد الصندوق",
+        "expiry_date": null,
+        "amounts": [
+            {
+                "value": 1255,
+                "label": "إجمالي النقدية الموجودة بالخزينة (الصندوق الرئيسي)"
+            },
+            {
+                "value": 23362,
+                "label": "إجمالي النقدية الموجودة بالخزينة (صندوق الدمام)"
+            }
+        ],
+        "company_name": "شركة تأهيل المسكن للأجهزة الإلكترونية",
+        "has_signature_or_stamp": true,
+        "summary": "محاضر جرد الصندوق الرئيسي وصندوق الدمام كما في 31 ديسمبر 2025م معتمدة وموقعة من لجنة الجرد وأمين الصندوق.",
+        "registration_number": "5850123637",
+        "readable": true,
+        "matching_request_ids": [
+            184
+        ],
+        "document_date": "2025-12-31",
+        "issuer": "شركة تأهيل المسكن للأجهزة الإلكترونية",
+        "period_year": 2025,
+        "pages_unclear": false
+    },
+    "usage": {
+        "input": 5434,
+        "cache_write": 0,
+        "cached": 0,
+        "output": 994
+    }
+}

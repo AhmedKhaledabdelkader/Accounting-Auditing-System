@@ -30,14 +30,17 @@ final class PriorPdfReader
         $usages = array_column($pages, 'usage');
         $doc = self::process($pages);
         [$pages, $doc] = $this->align($path, $read, $pages, $doc, $usages);
-        for ($attempt = 1; $attempt <= self::RETRIES && ($failing = self::failingPages($doc)) !== []; $attempt++) {
-            $again = $this->extractor->extract($path, array_map(fn ($p) => ['attempt' => $attempt, 'hint' => Checks::hint($doc, $p['page'])] + $p,
+        // A page the AI gave nothing for (a dense notes page cut off, a slip) is read again too, as a page whose checks fail.
+        $empty = fn (array $pages) => array_keys(array_filter($pages, fn ($p) => ($p['blocks'] ?? []) === []));
+        for ($attempt = 1; $attempt <= self::RETRIES && ($failing = array_values(array_unique([...self::failingPages($doc), ...$empty($pages)]))) !== []; $attempt++) {
+            $again = $this->extractor->extract($path, array_map(fn ($p) => ['attempt' => $attempt, 'hint' => ($pages[$p['page']]['blocks'] ?? []) === []
+                ? 'the earlier copy of this page came back empty: copy everything on it (its headings, paragraphs and tables).' : Checks::hint($doc, $p['page'])] + $p,
                 array_values(array_filter($read, fn ($p) => in_array($p['page'], $failing, true)))));
             $usages = [...$usages, ...array_column($again, 'usage')];
             // A page read again is kept when its checks fail less than before.
             foreach ($again as $n => $page) {
                 $try = self::process(array_replace($pages, [$n => $page]));
-                if (self::badness($try, $n) < self::badness($doc, $n)) {
+                if (self::badness($try, $n) < self::badness($doc, $n) || (($pages[$n]['blocks'] ?? []) === [] && $page['blocks'] !== [])) {
                     $pages[$n] = $page;
                     $doc = $try;
                 }

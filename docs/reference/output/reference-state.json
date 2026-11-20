@@ -1,23 +1,25 @@
 {
-    "id": "01a1ccc5-bc79-7278-9996-d9df6196afc3",
+    "id": "01a1f3fb-b323-7193-943c-e7ab15206212",
     "status": "draft",
-    "company_id": "01a1ccc5-bed8-70d2-8a20-1eb355c1da0e",
-    "classification_run_id": "3fa33fd3-bfdf-4220-a237-63d43ae191e2",
+    "company_id": "01a1f3fb-b61c-72fc-bca3-2073e157b92d",
+    "classification_run_id": "10944b69-778f-4830-9c1d-b0400a579e29",
     "template_version": "sa-ifrs-smes-3",
     "period_start": "2025-01-01",
     "period_end": "2025-12-31",
     "comparative_start": "2024-01-01",
     "comparative_end": "2024-12-31",
-    "last_computed_at": "2026-11-11T22:41:13+00:00",
+    "last_computed_at": "2026-11-19T13:25:22+00:00",
     "finalized_at": null,
-    "created_at": "2026-11-11T22:41:13+00:00",
-    "updated_at": "2026-11-11T22:41:13+00:00",
-    "status_url": "\/api\/v1\/financial-reports\/01a1ccc5-bc79-7278-9996-d9df6196afc3",
+    "created_at": "2026-11-19T13:25:21+00:00",
+    "updated_at": "2026-11-19T13:25:22+00:00",
+    "status_url": "\/api\/v1\/financial-reports\/01a1f3fb-b323-7193-943c-e7ab15206212",
     "company": {
-        "id": "01a1ccc5-bed8-70d2-8a20-1eb355c1da0e",
+        "id": "01a1f3fb-b61c-72fc-bca3-2073e157b92d",
         "name_ar": "مصنع شركة تاج العوازل الدولية",
         "name_en": null,
         "legal_form": "llc",
+        "legal_form_known": true,
+        "articles_required": true,
         "country": "SA",
         "framework": "ifrs_for_smes",
         "cr_number": "2050078341",
@@ -33,10 +35,12 @@
         "period_start": null,
         "period_end": null,
         "currency": "SAR",
-        "profile": [],
+        "profile": {
+            "legal_form_source": "user"
+        },
         "articles": null,
-        "created_at": "2026-11-11T22:41:13+00:00",
-        "updated_at": "2026-11-11T22:41:13+00:00"
+        "created_at": "2026-11-19T13:25:22+00:00",
+        "updated_at": "2026-11-19T13:25:22+00:00"
     },
     "layout": {
         "groups": [
@@ -1267,7 +1271,6 @@
                 },
                 "note": null,
                 "check_codes": [
-                    "soce_opening_mismatch",
                     "retained_unexplained"
                 ],
                 "label_ar": "خسائر متراكمة",
@@ -4879,7 +4882,7 @@
                 "current": {
                     "amount": 228175,
                     "origin": "derived",
-                    "status": "pending_confirmation",
+                    "status": "ok",
                     "refs": []
                 },
                 "check_codes": [],
@@ -6565,9 +6568,7 @@
                         }
                     ]
                 },
-                "check_codes": [
-                    "cash_flow_opening_mismatch"
-                ],
+                "check_codes": [],
                 "type": "line",
                 "key": "cf.opening_cash",
                 "label_ar": "رصيد النقدية في أول السنة",
@@ -7886,82 +7887,33 @@
                     "cells": {
                         "buildings": {
                             "amount": 2434609,
-                            "origin": "trial_balance_opening",
+                            "origin": "prior_year_statements",
                             "status": "ok",
-                            "refs": [
-                                {
-                                    "type": "row",
-                                    "row": 3
-                                }
-                            ]
+                            "refs": []
                         },
                         "machinery": {
                             "amount": 6428832,
-                            "origin": "trial_balance_opening",
+                            "origin": "prior_year_statements",
                             "status": "ok",
-                            "refs": [
-                                {
-                                    "type": "row",
-                                    "row": 4
-                                },
-                                {
-                                    "type": "row",
-                                    "row": 8
-                                },
-                                {
-                                    "type": "row",
-                                    "row": 10
-                                },
-                                {
-                                    "type": "row",
-                                    "row": 11
-                                },
-                                {
-                                    "type": "row",
-                                    "row": 1000007
-                                }
-                            ]
+                            "refs": []
                         },
                         "furniture": {
                             "amount": 460863,
-                            "origin": "trial_balance_opening",
+                            "origin": "prior_year_statements",
                             "status": "ok",
-                            "refs": [
-                                {
-                                    "type": "row",
-                                    "row": 6
-                                },
-                                {
-                                    "type": "row",
-                                    "row": 1000002
-                                }
-                            ]
+                            "refs": []
                         },
                         "computers": {
                             "amount": 175152,
-                            "origin": "trial_balance_opening",
+                            "origin": "prior_year_statements",
                             "status": "ok",
-                            "refs": [
-                                {
-                                    "type": "row",
-                                    "row": 7
-                                }
-                            ]
+                            "refs": []
                         },
                         "vehicles": {
                             "amount": 1070990,
-                            "origin": "trial_balance_opening",
+                            "origin": "prior_year_statements",
                             "status": "ok",
-                            "refs": [
-                                {
-                                    "type": "row",
-                                    "row": 9
-                                },
-                                {
-                                    "type": "row",
-                                    "row": 1000005
-                                }
-                            ]
+                            "refs": []
                         },
                         "total": {
                             "amount": 10570446,
@@ -7977,12 +7929,12 @@
                     "cells": {
                         "buildings": {
                             "amount": 228175,
-                            "origin": "suggested_from_movement",
-                            "status": "pending_confirmation",
+                            "origin": "trial_balance",
+                            "status": "ok",
                             "refs": [
                                 {
                                     "type": "row",
-                                    "row": 3
+                                    "row": 92
                                 }
                             ]
                         },
@@ -8057,7 +8009,7 @@
                         "total": {
                             "amount": 228175,
                             "origin": "derived",
-                            "status": "pending_confirmation",
+                            "status": "ok",
                             "refs": []
                         }
                     },
@@ -8068,14 +8020,9 @@
                     "cells": {
                         "buildings": {
                             "amount": 0,
-                            "origin": "derived_from_movement",
+                            "origin": "derived",
                             "status": "ok",
-                            "refs": [
-                                {
-                                    "type": "row",
-                                    "row": 3
-                                }
-                            ]
+                            "refs": []
                         },
                         "machinery": {
                             "amount": 0,
@@ -8512,21 +8459,6 @@
             "status": "pending",
             "value": null,
             "basis": "Debit movement on the cost accounts: additions in «1010040000 — .  .  .  . اجهزة كمبيوتر وبرامج», «Difference from last year's approved statements»."
-        },
-        {
-            "schedule": "ppe",
-            "row": "depreciation",
-            "column": "buildings",
-            "label_ar": "الممتلكات والآلات والمعدات — إهلاك السنة — مباني",
-            "key": "ppe.depreciation.buildings",
-            "amount": 228175,
-            "basis_ar": "الحركة الدائنة لمجمع الإهلاك: إهلاك السنة في «2026100000 — .  .  .  . مجمع اهلاك مبانى وانشاءات».",
-            "rows": [
-                3
-            ],
-            "status": "pending",
-            "value": null,
-            "basis": "Credit movement on accumulated depreciation: depreciation for the year in «2026100000 — .  .  .  . مجمع اهلاك مبانى وانشاءات»."
         },
         {
             "schedule": "zakat",
@@ -10554,44 +10486,25 @@
                                 {
                                     "amount": {
                                         "amount": 2434609,
-                                        "origin": "trial_balance_opening",
+                                        "origin": "prior_year_statements",
                                         "status": "ok",
-                                        "refs": [
-                                            {
-                                                "type": "row",
-                                                "row": 3
-                                            }
-                                        ]
+                                        "refs": []
                                     }
                                 },
                                 {
                                     "amount": {
                                         "amount": 460863,
-                                        "origin": "trial_balance_opening",
+                                        "origin": "prior_year_statements",
                                         "status": "ok",
-                                        "refs": [
-                                            {
-                                                "type": "row",
-                                                "row": 6
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 1000002
-                                            }
-                                        ]
+                                        "refs": []
                                     }
                                 },
                                 {
                                     "amount": {
                                         "amount": 175152,
-                                        "origin": "trial_balance_opening",
+                                        "origin": "prior_year_statements",
                                         "status": "ok",
-                                        "refs": [
-                                            {
-                                                "type": "row",
-                                                "row": 7
-                                            }
-                                        ]
+                                        "refs": []
                                     }
                                 },
                                 {
@@ -10613,18 +10526,9 @@
                                 {
                                     "amount": {
                                         "amount": 1070990,
-                                        "origin": "trial_balance_opening",
+                                        "origin": "prior_year_statements",
                                         "status": "ok",
-                                        "refs": [
-                                            {
-                                                "type": "row",
-                                                "row": 9
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 1000005
-                                            }
-                                        ]
+                                        "refs": []
                                     }
                                 },
                                 {
@@ -10661,12 +10565,12 @@
                                 {
                                     "amount": {
                                         "amount": 228175,
-                                        "origin": "suggested_from_movement",
-                                        "status": "pending_confirmation",
+                                        "origin": "trial_balance",
+                                        "status": "ok",
                                         "refs": [
                                             {
                                                 "type": "row",
-                                                "row": 3
+                                                "row": 92
                                             }
                                         ]
                                     }
@@ -10754,7 +10658,7 @@
                                     "amount": {
                                         "amount": 228175,
                                         "origin": "derived",
-                                        "status": "pending_confirmation",
+                                        "status": "ok",
                                         "refs": []
                                     }
                                 }
@@ -14418,6 +14322,7 @@
                 "life": 20,
                 "rate_range": null,
                 "life_range": null,
+                "rate_source": "printed",
                 "method": "straight_line",
                 "last": {
                     "cost_opening": 4563494,
@@ -14469,6 +14374,7 @@
                 "life": 5,
                 "rate_range": null,
                 "life_range": null,
+                "rate_source": "printed",
                 "method": "straight_line",
                 "last": {
                     "cost_opening": 460864,
@@ -14508,7 +14414,7 @@
                         "opening": 460861,
                         "prior": 460863,
                         "difference": -2,
-                        "kind": "difference"
+                        "kind": "rounding"
                     }
                 ],
                 "own": "furniture"
@@ -14520,6 +14426,7 @@
                 "life": 4,
                 "rate_range": null,
                 "life_range": null,
+                "rate_source": "printed",
                 "method": "straight_line",
                 "last": {
                     "cost_opening": 175153,
@@ -14571,6 +14478,7 @@
                 "life": 6.67,
                 "rate_range": null,
                 "life_range": null,
+                "rate_source": "printed",
                 "method": "straight_line",
                 "last": {
                     "cost_opening": 699521,
@@ -14622,6 +14530,7 @@
                 "life": 10,
                 "rate_range": null,
                 "life_range": null,
+                "rate_source": "printed",
                 "method": "straight_line",
                 "last": {
                     "cost_opening": 53500,
@@ -14673,6 +14582,7 @@
                 "life": 5,
                 "rate_range": null,
                 "life_range": null,
+                "rate_source": "printed",
                 "method": "straight_line",
                 "last": {
                     "cost_opening": 1070990,
@@ -14724,6 +14634,7 @@
                 "life": 20,
                 "rate_range": null,
                 "life_range": null,
+                "rate_source": "printed",
                 "method": "straight_line",
                 "last": {
                     "cost_opening": 3822177,
@@ -14775,6 +14686,7 @@
                 "life": 10,
                 "rate_range": null,
                 "life_range": null,
+                "rate_source": "printed",
                 "method": "straight_line",
                 "last": {
                     "cost_opening": 1853638,
@@ -16613,14 +16525,9 @@
             },
             "ppe_cy_acc_dep_opening_buildings": {
                 "amount": 2434609,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 3
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_buildings": {
                 "amount": 2206434,
@@ -16635,12 +16542,12 @@
             },
             "ppe_cy_depreciation_buildings": {
                 "amount": 228175,
-                "origin": "suggested_from_movement",
-                "status": "pending_confirmation",
+                "origin": "trial_balance",
+                "status": "ok",
                 "refs": [
                     {
                         "type": "row",
-                        "row": 3
+                        "row": 92
                     }
                 ]
             },
@@ -16657,14 +16564,9 @@
             },
             "ppe_cy_acc_dep_disposals_buildings": {
                 "amount": 0,
-                "origin": "derived_from_movement",
+                "origin": "derived",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 3
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_disposals_buildings": {
                 "amount": 0,
@@ -16690,14 +16592,9 @@
             },
             "ppe_py_acc_dep_closing_buildings": {
                 "amount": 2434609,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 3
-                    }
-                ]
+                "refs": []
             },
             "ppe_cy_nbv_closing_buildings": {
                 "amount": 1900710,
@@ -16937,30 +16834,9 @@
             },
             "ppe_cy_acc_dep_opening_machinery": {
                 "amount": 6428832,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 4
-                    },
-                    {
-                        "type": "row",
-                        "row": 8
-                    },
-                    {
-                        "type": "row",
-                        "row": 10
-                    },
-                    {
-                        "type": "row",
-                        "row": 11
-                    },
-                    {
-                        "type": "row",
-                        "row": 1000007
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_machinery": {
                 "amount": 6326884,
@@ -17078,30 +16954,9 @@
             },
             "ppe_py_acc_dep_closing_machinery": {
                 "amount": 6428832,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 4
-                    },
-                    {
-                        "type": "row",
-                        "row": 8
-                    },
-                    {
-                        "type": "row",
-                        "row": 10
-                    },
-                    {
-                        "type": "row",
-                        "row": 11
-                    },
-                    {
-                        "type": "row",
-                        "row": 1000007
-                    }
-                ]
+                "refs": []
             },
             "ppe_cy_nbv_closing_machinery": {
                 "amount": 4,
@@ -17261,18 +17116,9 @@
             },
             "ppe_cy_acc_dep_opening_furniture": {
                 "amount": 460863,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 6
-                    },
-                    {
-                        "type": "row",
-                        "row": 1000002
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_furniture": {
                 "amount": 434230,
@@ -17354,18 +17200,9 @@
             },
             "ppe_py_acc_dep_closing_furniture": {
                 "amount": 460863,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 6
-                    },
-                    {
-                        "type": "row",
-                        "row": 1000002
-                    }
-                ]
+                "refs": []
             },
             "ppe_cy_nbv_closing_furniture": {
                 "amount": 3701,
@@ -17525,14 +17362,9 @@
             },
             "ppe_cy_acc_dep_opening_computers": {
                 "amount": 175152,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 7
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_computers": {
                 "amount": 175152,
@@ -17602,14 +17434,9 @@
             },
             "ppe_py_acc_dep_closing_computers": {
                 "amount": 175152,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 7
-                    }
-                ]
+                "refs": []
             },
             "ppe_cy_nbv_closing_computers": {
                 "amount": 6212,
@@ -17749,18 +17576,9 @@
             },
             "ppe_cy_acc_dep_opening_vehicles": {
                 "amount": 1070990,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 9
-                    },
-                    {
-                        "type": "row",
-                        "row": 1000005
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_vehicles": {
                 "amount": 1070990,
@@ -17842,18 +17660,9 @@
             },
             "ppe_py_acc_dep_closing_vehicles": {
                 "amount": 1070990,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 9
-                    },
-                    {
-                        "type": "row",
-                        "row": 1000005
-                    }
-                ]
+                "refs": []
             },
             "ppe_cy_nbv_closing_vehicles": {
                 "amount": 0,
@@ -18110,7 +17919,7 @@
             "ppe_cy_depreciation_total": {
                 "amount": 228175,
                 "origin": "derived",
-                "status": "pending_confirmation",
+                "status": "ok",
                 "refs": []
             },
             "ppe_py_depreciation_total": {
@@ -18782,14 +18591,9 @@
             },
             "ppe_cy_acc_dep_opening_c__1": {
                 "amount": 2434609,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 3
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_c__1": {
                 "amount": 2206434,
@@ -18799,12 +18603,12 @@
             },
             "ppe_cy_depreciation_c__1": {
                 "amount": 228175,
-                "origin": "suggested_from_movement",
-                "status": "pending_confirmation",
+                "origin": "trial_balance",
+                "status": "ok",
                 "refs": [
                     {
                         "type": "row",
-                        "row": 3
+                        "row": 92
                     }
                 ]
             },
@@ -18816,14 +18620,9 @@
             },
             "ppe_cy_acc_dep_disposals_c__1": {
                 "amount": 0,
-                "origin": "derived_from_movement",
+                "origin": "derived",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 3
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_disposals_c__1": {
                 "amount": 0,
@@ -18983,18 +18782,9 @@
             },
             "ppe_cy_acc_dep_opening_c__2": {
                 "amount": 460863,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 6
-                    },
-                    {
-                        "type": "row",
-                        "row": 1000002
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_c__2": {
                 "amount": 434230,
@@ -19200,14 +18990,9 @@
             },
             "ppe_cy_acc_dep_opening_c__3": {
                 "amount": 175152,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 7
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_c__3": {
                 "amount": 175152,
@@ -19675,18 +19460,9 @@
             },
             "ppe_cy_acc_dep_opening_c__6": {
                 "amount": 1070990,
-                "origin": "trial_balance_opening",
+                "origin": "prior_year_statements",
                 "status": "ok",
-                "refs": [
-                    {
-                        "type": "row",
-                        "row": 9
-                    },
-                    {
-                        "type": "row",
-                        "row": 1000005
-                    }
-                ]
+                "refs": []
             },
             "ppe_py_acc_dep_opening_c__6": {
                 "amount": 1070990,
@@ -22297,14 +22073,9 @@
                     },
                     "ppe_cy_acc_dep_opening_c": {
                         "amount": 2434609,
-                        "origin": "trial_balance_opening",
+                        "origin": "prior_year_statements",
                         "status": "ok",
-                        "refs": [
-                            {
-                                "type": "row",
-                                "row": 3
-                            }
-                        ]
+                        "refs": []
                     },
                     "ppe_py_acc_dep_opening_c": {
                         "amount": 2206434,
@@ -22314,12 +22085,12 @@
                     },
                     "ppe_cy_depreciation_c": {
                         "amount": 228175,
-                        "origin": "suggested_from_movement",
-                        "status": "pending_confirmation",
+                        "origin": "trial_balance",
+                        "status": "ok",
                         "refs": [
                             {
                                 "type": "row",
-                                "row": 3
+                                "row": 92
                             }
                         ]
                     },
@@ -22331,14 +22102,9 @@
                     },
                     "ppe_cy_acc_dep_disposals_c": {
                         "amount": 0,
-                        "origin": "derived_from_movement",
+                        "origin": "derived",
                         "status": "ok",
-                        "refs": [
-                            {
-                                "type": "row",
-                                "row": 3
-                            }
-                        ]
+                        "refs": []
                     },
                     "ppe_py_acc_dep_disposals_c": {
                         "amount": 0,
@@ -22500,18 +22266,9 @@
                     },
                     "ppe_cy_acc_dep_opening_c": {
                         "amount": 460863,
-                        "origin": "trial_balance_opening",
+                        "origin": "prior_year_statements",
                         "status": "ok",
-                        "refs": [
-                            {
-                                "type": "row",
-                                "row": 6
-                            },
-                            {
-                                "type": "row",
-                                "row": 1000002
-                            }
-                        ]
+                        "refs": []
                     },
                     "ppe_py_acc_dep_opening_c": {
                         "amount": 434230,
@@ -22719,14 +22476,9 @@
                     },
                     "ppe_cy_acc_dep_opening_c": {
                         "amount": 175152,
-                        "origin": "trial_balance_opening",
+                        "origin": "prior_year_statements",
                         "status": "ok",
-                        "refs": [
-                            {
-                                "type": "row",
-                                "row": 7
-                            }
-                        ]
+                        "refs": []
                     },
                     "ppe_py_acc_dep_opening_c": {
                         "amount": 175152,
@@ -23200,18 +22952,9 @@
                     },
                     "ppe_cy_acc_dep_opening_c": {
                         "amount": 1070990,
-                        "origin": "trial_balance_opening",
+                        "origin": "prior_year_statements",
                         "status": "ok",
-                        "refs": [
-                            {
-                                "type": "row",
-                                "row": 9
-                            },
-                            {
-                                "type": "row",
-                                "row": 1000005
-                            }
-                        ]
+                        "refs": []
                     },
                     "ppe_py_acc_dep_opening_c": {
                         "amount": 1070990,
@@ -23790,7 +23533,8 @@
                 "sofp.intangible_assets",
                 "sofp.associates",
                 "sofp.fvoci_investments"
-            ]
+            ],
+            "overrides": []
         },
         "defaults": {
             "saudi_share": 100,
@@ -23808,7 +23552,8 @@
                 "sofp.intangible_assets",
                 "sofp.associates",
                 "sofp.fvoci_investments"
-            ]
+            ],
+            "overrides": []
         },
         "period": {
             "start": "2025-01-01",
@@ -23823,27 +23568,35 @@
                     "label": "رأس المال",
                     "amount": 16000000,
                     "reported": 16000000,
-                    "before_charge": false
+                    "before_charge": false,
+                    "edited": false,
+                    "computed": 16000000
                 },
                 {
                     "line": "sofp.retained_earnings",
                     "label": "خسائر متراكمة",
                     "amount": -9954355.09,
                     "reported": -9954355.09,
-                    "before_charge": false
+                    "before_charge": false,
+                    "edited": false,
+                    "computed": -9954355.09
                 },
                 {
                     "line": "sofp.zakat_provision",
                     "label": "مخصص الزكاة",
                     "amount": -28781.04,
                     "reported": -28781.04,
-                    "before_charge": false
+                    "before_charge": false,
+                    "edited": false,
+                    "computed": -28781.04
                 },
                 {
                     "line": "sofp.due_to_related_parties",
                     "label": "مستحق لأطراف ذات علاقة",
                     "amount": 1100605,
-                    "related": true
+                    "related": true,
+                    "edited": false,
+                    "computed": 1100605
                 }
             ],
             "total": 7117468.87
@@ -23857,12 +23610,16 @@
                 {
                     "line": "sofp.trade_payables",
                     "label": "ذمم تجارية دائنة",
-                    "amount": 1301390.3
+                    "amount": 1301390.3,
+                    "edited": false,
+                    "computed": 1301390.3
                 },
                 {
                     "line": "sofp.accruals_other_payables",
                     "label": "مصاريف مستحقة وأرصدة دائنة أخرى",
-                    "amount": 2870311.96
+                    "amount": 2870311.96,
+                    "edited": false,
+                    "computed": 2870311.96
                 }
             ],
             "total": 4171702.26
@@ -23873,13 +23630,17 @@
                     "line": "sofp.ppe",
                     "label": "الممتلكات والآلات والمعدات",
                     "amount": 1910627,
-                    "deducted": true
+                    "deducted": true,
+                    "edited": false,
+                    "computed": 1910627
                 },
                 {
                     "line": "sofp.other_assets",
                     "label": "أصول أخرى",
                     "amount": 1,
-                    "deducted": false
+                    "deducted": false,
+                    "edited": false,
+                    "computed": 1
                 }
             ],
             "deducted": 1910627,
@@ -23890,22 +23651,30 @@
                 {
                     "line": "sofp.inventory",
                     "label": "المخزون",
-                    "amount": 2090686
+                    "amount": 2090686,
+                    "edited": false,
+                    "computed": 2090686
                 },
                 {
                     "line": "sofp.trade_receivables",
                     "label": "الذمم التجارية المدينة",
-                    "amount": 3977196
+                    "amount": 3977196,
+                    "edited": false,
+                    "computed": 3977196
                 },
                 {
                     "line": "sofp.prepayments_other_receivables",
                     "label": "مصاريف مقدمة وأرصدة مدينة أخرى",
-                    "amount": 22718.96
+                    "amount": 22718.96,
+                    "edited": false,
+                    "computed": 22718.96
                 },
                 {
                     "line": "sofp.cash",
                     "label": "النقد ومعادلات النقد",
-                    "amount": 3287942.17
+                    "amount": 3287942.17,
+                    "edited": false,
+                    "computed": 3287942.17
                 }
             ],
             "total": 9378543.13
@@ -23918,6 +23687,8 @@
         },
         "profit": {
             "before_charges": 6007566.91,
+            "before_charges_edited": false,
+            "before_charges_computed": 6007566.91,
             "difference": 0,
             "adjusted": 6007566.91
         },
@@ -23973,6 +23744,26 @@
             "income_tax": false
         },
         "warnings": [],
+        "adopt": {
+            "zakat": "auto",
+            "income_tax": "auto"
+        },
+        "candidates": {
+            "zakat": {
+                "calculated": 154856.07,
+                "booked": 0,
+                "manual": null
+            },
+            "income_tax": {
+                "calculated": 0,
+                "booked": 0,
+                "manual": null
+            }
+        },
+        "in_statements": {
+            "zakat": 0,
+            "income_tax": 0
+        },
         "saudi_share_from": "default"
     },
     "comparative": {
@@ -23996,7 +23787,7 @@
                     "tb_opening": 2128893.36,
                     "approved": 2128891,
                     "difference": 2.36,
-                    "kind": "difference",
+                    "kind": "rounding",
                     "tb_closing": 1910629.36,
                     "presented": 1910627,
                     "remainder": null,
@@ -24285,7 +24076,7 @@
                     "tb_opening": 460861,
                     "approved": 460863,
                     "difference": -2,
-                    "kind": "difference"
+                    "kind": "rounding"
                 },
                 {
                     "category": "c3",
@@ -24490,7 +24281,7 @@
         "schedules": [],
         "upload": {
             "name": "قوائم تاج العوازل 2024 المعتمدة.pdf",
-            "uploaded_at": "2026-11-11T22:41:13+00:00",
+            "uploaded_at": "2026-11-19T13:25:21+00:00",
             "year": 2024,
             "in_use": true,
             "expenses_shown_positive": null,
@@ -25884,7 +25675,7 @@
                     "opening": 2128893.36,
                     "prior": 2128891,
                     "difference": 2.36,
-                    "kind": "difference",
+                    "kind": "rounding",
                     "pages": [
                         5
                     ]
@@ -26057,102 +25848,7 @@
                         ]
                     }
                 ],
-                "strays": [
-                    {
-                        "from": "sofp.trade_payables",
-                        "from_label": "ذمم تجارية دائنة",
-                        "kept": 4258873,
-                        "accounts": [
-                            {
-                                "row": 71,
-                                "name": ".  .  .  .  .  . عبد العزيز السليمان",
-                                "amount": 1317485.69
-                            },
-                            {
-                                "row": 77,
-                                "name": ".  .  .  .  .  . تميم السليمان",
-                                "amount": 1159806.93
-                            },
-                            {
-                                "row": 84,
-                                "name": ".  .  .  .  . تسهيلات موردين",
-                                "amount": 387950.14
-                            },
-                            {
-                                "row": 68,
-                                "name": ".  .  .  .  .  . مكتب سلطان العيسى للمحاماة",
-                                "amount": 180000
-                            },
-                            {
-                                "row": 66,
-                                "name": ".  .  .  .  .  . سواتر الحماية للحراسات الامنية",
-                                "amount": 158800
-                            },
-                            {
-                                "row": 73,
-                                "name": ".  .  .  .  .  . شركة الفرسان للسفر و السياحة",
-                                "amount": 72684
-                            },
-                            {
-                                "row": 86,
-                                "name": ".  .  .  .  .  . سعودى قار لخلطات البتومين",
-                                "amount": 62463.97
-                            },
-                            {
-                                "row": 67,
-                                "name": ".  .  .  .  .  . مكتب خالد باهمام محاسبون ومراجعون قانونيون",
-                                "amount": 16500
-                            },
-                            {
-                                "row": 78,
-                                "name": ".  .  .  .  .  . عبد الرحمن سعود ال شوية",
-                                "amount": 15000
-                            },
-                            {
-                                "row": 80,
-                                "name": ".  .  .  .  .  . فندق زارا الخبر zara",
-                                "amount": 9105
-                            },
-                            {
-                                "row": 76,
-                                "name": ".  .  .  .  .  . فندق المنزل",
-                                "amount": 6578
-                            },
-                            {
-                                "row": 70,
-                                "name": ".  .  .  .  .  . مؤسسة التاج اللامع للتجارة",
-                                "amount": 5114.14
-                            },
-                            {
-                                "row": 65,
-                                "name": ".  .  .  .  .  . مؤسسة عبد الله العجمى للمقاولات ( نقل بضائع)",
-                                "amount": 4400
-                            },
-                            {
-                                "row": 79,
-                                "name": ".  .  .  .  .  . البريد السريع smsa express",
-                                "amount": 1893
-                            },
-                            {
-                                "row": 75,
-                                "name": ".  .  .  .  .  . التعاونية للتأمين",
-                                "amount": 5
-                            }
-                        ],
-                        "targets": [
-                            {
-                                "line": "sofp.accruals_other_payables",
-                                "label": "مصاريف مستحقة وأرصدة دائنة أخرى",
-                                "short": 2775181.66
-                            },
-                            {
-                                "line": "sofp.due_to_related_parties",
-                                "label": "مستحق لأطراف ذات علاقة",
-                                "short": 1077767.53
-                            }
-                        ]
-                    }
-                ]
+                "strays": []
             },
             "status": "ready",
             "pages_total": 16,
@@ -27092,7 +26788,7 @@
         {
             "reason": "pending_suggestions",
             "label_ar": "حركات مقترحة تنتظر التأكيد",
-            "count": 7,
+            "count": 6,
             "label": "Suggested movements awaiting confirmation"
         }
     ],
@@ -27101,7 +26797,7 @@
         "latest": {
             "version": 1,
             "kind": "draft",
-            "created_at": "2026-11-11T22:41:15+00:00"
+            "created_at": "2026-11-19T13:25:23+00:00"
         },
         "final": null
     },

@@ -28,7 +28,9 @@ class OpenAiDriverTest extends TestCase
     {
         $this->useOpenAi();
 
-        $this->assertInstanceOf(OpenAiDriver::class, app(ClassifierDriver::class));
+        $driver = app(ClassifierDriver::class);
+        $this->assertInstanceOf(\App\Support\Llm\MeteredDriver::class, $driver);   // every provider is metered
+        $this->assertInstanceOf(OpenAiDriver::class, (fn () => $this->inner)->call($driver));
     }
 
     public function test_request_forces_the_function_stores_nothing_and_the_answer_is_read(): void
