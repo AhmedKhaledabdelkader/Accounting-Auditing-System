@@ -2,6 +2,9 @@
 
 // English field and value names for validation messages; Laravel's built-in English messages apply.
 return [
+    'spreadsheet_type' => 'The file must be a spreadsheet: :types.',
+    'spreadsheet_unreadable' => "The file couldn't be read as a spreadsheet. Open it in Excel, save it as «Excel Workbook (xlsx)» and upload it again.",
+
     'custom' => [
         'username' => ['regex' => 'The username must be 3 to 30 Latin letters, digits, dots, dashes or underscores.', 'unique' => 'This username is already taken.'],
     ],

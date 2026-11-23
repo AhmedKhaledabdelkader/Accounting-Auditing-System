@@ -1867,6 +1867,8 @@ paths:
                 texts: { type: object, additionalProperties: { type: [string, 'null'], maxLength: 5000 } }
                 items: { type: object, description: 'Last year''s note lines (R12): note → account (row number, or `adjustments`) → the key of one of `note_items.<note>.items`, `new` (a new item, «-» last year), or null (back to the line proposed).', additionalProperties: { type: object, additionalProperties: { type: [string, 'null'], maxLength: 300 } } }
                 ppe: { type: object, description: 'Last year''s PPE categories (R13): account row → the key of one of `ppe_prior.categories`, `none`, or null (back to the proposal).', additionalProperties: { type: [string, 'null'], maxLength: 20 } }
+                order: { type: [array, 'null'], maxItems: 100, items: { type: string }, description: 'The notes'' order (the freedom to arrange them): note keys in the order wanted; the shown notes are numbered in it, a note left out keeps its place after the one before it in the template. [] back to the template''s order.' }
+                moves: { type: object, description: 'An account moved to any note (the freedom to choose its note): account row → {note, line?, item?} (a note with an item table, one of its lines, default its first; one of last year''s lines of it), or null (back where the classification puts it). Its statement line becomes the note''s line (an account override).', additionalProperties: { type: [object, 'null'], required: [note], properties: { note: { type: string }, line: { type: [string, 'null'] }, item: { type: [string, 'null'] } } } }
             example: { visibility: { investment_property: on, policy_subsidiaries: off }, texts: { incorporation.2: 'يتمثل نشاط الشركة في تجارة الجملة والتجزئة.' } }
       responses:
         '200':
@@ -2339,6 +2341,28 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Message' }
+  /api/v1/clients/{id}/engagement:
+    get:
+      tags: [Engagement file]
+      operationId: clientEngagementStatus
+      summary: The engagement file's status of a client's year
+      description: |
+        The engagement file of a client's year (config/engagement.php): six phases (acceptance, data_intake, planning, fieldwork,
+        completion, reporting) and their steps in the office's order. Each step has its status (not_started, in_progress,
+        waiting_client, ready_for_review, approved), its sign-offs (prepared, reviewed, approved, eqr — void when the step's content
+        changed since), whether it is locked (a step it requires is not done) and its link. The blockers say what stops a step
+        (code, the message in Arabic and English, the link; `soft` ones are said, not enforced). Decided by the server only.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer, minimum: 2000, maximum: 2100 }, description: 'Default: the year of the client''s period.' }
+      responses:
+        '200':
+          description: The engagement's status.
+          content: { application/json: { schema: { $ref: '#/components/schemas/EngagementStatus' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: An invalid year.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
   /api/v1/clients/{id}/findings:
     get:
       tags: [Audit findings]
@@ -2511,6 +2535,29 @@ paths:
         '404':
           description: No mailbox set up.
           content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+
+  /api/v1/engagements/{id}/status:
+    get:
+      tags: [Engagement file]
+      operationId: engagementStatus
+      summary: The engagement's status (the same as /clients/{id}/engagement)
+      description: |
+        The engagement file of a client's year (config/engagement.php): six phases (acceptance, data_intake, planning, fieldwork,
+        completion, reporting) and their steps in the office's order. Each step has its status (not_started, in_progress,
+        waiting_client, ready_for_review, approved), its sign-offs (prepared, reviewed, approved, eqr — void when the step's content
+        changed since), whether it is locked (a step it requires is not done) and its link. The blockers say what stops a step
+        (code, the message in Arabic and English, the link; `soft` ones are said, not enforced). Decided by the server only.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer, minimum: 2000, maximum: 2100 }, description: 'Default: the year of the client''s period.' }
+      responses:
+        '200':
+          description: The engagement's status.
+          content: { application/json: { schema: { $ref: '#/components/schemas/EngagementStatus' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: An invalid year.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
 
 components:
   securitySchemes:
@@ -2689,6 +2736,43 @@ components:
           example: { status: error, message: 'SQLSTATE[HY000] ...' }
 
   schemas:
+    EngagementStatus:
+      type: object
+      properties:
+        engagement_id: { type: string, description: 'company id:year' }
+        company_id: { type: string, format: uuid }
+        year: { type: integer }
+        current_phase: { type: [string, 'null'], enum: [null, acceptance, data_intake, planning, fieldwork, completion, reporting] }
+        next_step: { type: [string, 'null'] }
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              n: { type: integer }
+              phase: { type: string }
+              step_key: { type: string }
+              status: { type: string, enum: [not_started, in_progress, waiting_client, ready_for_review, approved] }
+              complete: { type: boolean }
+              prepared_by: { type: [string, 'null'] }
+              reviewed_by: { type: [string, 'null'] }
+              approved_by: { type: [string, 'null'] }
+              signoffs: { type: object, additionalProperties: true }
+              open_notes: { type: integer }
+              locked: { type: boolean }
+              link: { type: string }
+        blockers:
+          type: array
+          items:
+            type: object
+            properties:
+              code: { type: string, example: MATERIALITY_NOT_APPROVED }
+              step_key: { type: string }
+              soft: { type: boolean }
+              message_ar: { type: string }
+              message_en: { type: string }
+              link: { type: string }
+        facts: { type: object, additionalProperties: true }
     AuditFindings:
       type: object
       required: [year, period_end, trial_balance, findings, counts]
@@ -3034,6 +3118,21 @@ components:
                 texts: { type: object, additionalProperties: { type: object, required: [text, base], properties: { text: { type: string }, base: { type: string, description: 'The template''s wording it replaced.' } } } }
                 items: { type: object, additionalProperties: { type: object, additionalProperties: { type: string } }, description: 'Note → account → line key or `new`. Absent from a version saved before it was added.' }
                 ppe: { type: object, additionalProperties: { type: string }, description: 'Account row → last year''s PPE category key or `none`. Absent from a version saved before it was added.' }
+                order: { type: array, items: { type: string }, description: 'The notes'' order chosen ([] the template''s). Absent from a version saved before it was added.' }
+                moves: { type: object, additionalProperties: { type: object, properties: { note: { type: string }, line: { type: string } } }, description: 'Accounts moved to another note: row → {note, line}. Absent from a version saved before it was added.' }
+            note_targets:
+              type: array
+              description: 'Where an account can be moved (`PATCH …/notes` `moves`): each note with an item table, its `number` now (null when hidden), `title`, statement `lines`, last year''s `items` of it (with a PDF), and the trial balance''s `accounts` on it now (row, number, name, line, amount). Absent from a version saved before it was added.'
+              items:
+                type: object
+                required: [note, number, title, lines, items, accounts]
+                properties:
+                  note: { type: string }
+                  number: { type: [integer, 'null'] }
+                  title: { type: string }
+                  lines: { type: array, items: { type: object, properties: { key: { type: string }, label: { type: string } } } }
+                  items: { type: array, items: { type: object, properties: { key: { type: string }, label: { type: string } } } }
+                  accounts: { type: array, items: { type: object, properties: { row: { type: integer }, number: { type: [string, 'null'] }, name: { type: string }, line: { type: string }, amount: { type: number } } } }
             ppe_prior:
               type: [object, 'null']
               description: 'With last year''s statements confirmed from a PDF: the PPE note by last year''s categories (R13). `categories`: each `key`, `label` as printed (corrections applied), `rate` (%) and `life` (100 / rate, only when last year''s file says depreciation is straight-line; else null and a warning `useful_life_not_derived`) read from last year''s file, never typed: the policies note''s rates, or its table of useful lives in years (rate = 100 / years), or else implied by last year''s movement (the year''s depreciation over the cost, matched to one usual rate); `rate_source` (`printed`, `movement`, or null) says which, `method` (`straight_line`, `other`, or null: the depreciation method last year''s file states), `last` (last year''s cells by row: cost_opening, additions, disposals, cost_closing, acc_opening, depreciation, acc_disposals, acc_closing, nbv_closing, nbv_opening), `current` (this year''s, from the accounts placed on it; movements null without movement columns), `accounts` (how many), `own` (the note''s own category its accounts are in, or null), `opening_check` (per side: this year''s opening against last year''s closing; `kind` equal, rounding, difference). `accounts`: each PPE account''s `row`, `name`, `side` (cost, accumulated), `category` (key or null), `label`, `by` (choice, name, amount, words, none). `comparative`: last year''s cells by the note''s own categories (cell key → amount), the note''s comparative where nothing is typed. Null otherwise; absent from a version saved before it was added.'
@@ -3048,7 +3147,7 @@ components:
                   title: { type: string }
                   page: { type: integer }
                   items: { type: array, items: { type: object, required: [key, label, prior, page], properties: { key: { type: string }, label: { type: string }, prior: { type: number }, page: { type: integer } } } }
-                  accounts: { type: array, items: { type: object, required: [ref, label, class, current, opening, item, by], properties: { ref: { type: string }, label: { type: string }, class: { type: string }, current: { type: number }, opening: { type: [number, 'null'] }, item: { type: string }, by: { type: string, enum: [choice, name, amount, words, new] } } } }
+                  accounts: { type: array, items: { type: object, required: [ref, label, class, current, opening, item, by], properties: { ref: { type: string }, label: { type: string }, class: { type: string }, current: { type: number }, opening: { type: [number, 'null'] }, item: { type: string }, by: { type: string, enum: [choice, name, amount, words, family, misc, new] } } } }
             narrative: { $ref: '#/components/schemas/Narrative' }
             going_concern:
               type: array
@@ -3096,6 +3195,13 @@ components:
                   properties:
                     zakat: { type: number }
                     income_tax: { type: number }
+                entry:
+                  type: object
+                  description: 'The entry after the zakat (القيد بعد الزكاة): `lines` per charge (`kind` zakat or income_tax; `carried` what the statements carry, `booked` what the books carry, `adjustment` the difference; `debit` / `credit` the accounts of the adjusting entry and its `amount`, `full` the year''s whole entry; each account: `line`, `line_label`, `row` (null: no account, the statement line), `number`, `name`), `profit` (`before`, `zakat`, `income_tax`, `after`), `provision` (the zakat provision''s `opening`, `charge`, `paid`, `prior_year_adjustments`, `closing`, or null).'
+                  properties:
+                    lines: { type: array, items: { type: object } }
+                    profit: { type: object }
+                    provision: { type: [object, 'null'] }
             zakat_base:
               type: [object, 'null']
               description: 'With last year''s statements confirmed from a PDF: the zakat base as last year''s zakat note computed it (R11), its `note`, `title`, `page` and `rows` in order: `n`, `label` as printed (corrections applied), `kind` (line, total), last year''s `prior` amount, this year''s `current` figure and where it comes from (`from`: statements, schedules, input: the question `zakat.base.<n>`, total). Null otherwise; absent from a version saved before it was added.'
@@ -3103,7 +3209,7 @@ components:
                 note: { type: [string, 'null'] }
                 title: { type: string }
                 page: { type: integer }
-                rows: { type: array, items: { type: object, required: [n, label, kind, prior, current, from], properties: { n: { type: integer }, label: { type: string }, kind: { type: string, enum: [line, total] }, prior: { type: number }, current: { $ref: '#/components/schemas/Figure' }, from: { type: string, enum: [statements, schedules, input, derived, total] }, components: { type: array, items: { type: string }, description: 'A `derived` line: the components that explained last year''s figure, taken with this year''s.' }, label_by_sign: { type: boolean, description: 'Profit or loss in the label by the signs (last year''s words said otherwise).' } } } }
+                rows: { type: array, items: { type: object, required: [n, label, kind, prior, current, from], properties: { n: { type: integer }, label: { type: string }, kind: { type: string, enum: [line, total] }, prior: { type: number }, current: { $ref: '#/components/schemas/Figure' }, from: { type: string, enum: [statements, schedules, input, derived, calculation, total] }, components: { type: array, items: { type: string }, description: 'A `derived` line: the components that explained last year''s figure, taken with this year''s.' }, label_by_sign: { type: boolean, description: 'Profit or loss in the label by the signs (last year''s words said otherwise).' } } } }
             run_changed: { type: boolean, description: "The run's result changed (a row corrected) after the report last took it in; check `run_changed` until acknowledged." }
             acknowledgements: { type: array, items: { $ref: '#/components/schemas/Acknowledgement' }, description: 'The warnings the user acknowledged (PR 12). One whose warning changed or went stays stored but matches nothing.' }
             can_finalize: { type: boolean, description: 'True when `blocking` is empty: a final version can be made (Q20).' }

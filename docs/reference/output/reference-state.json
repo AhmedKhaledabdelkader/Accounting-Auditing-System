@@ -1,20 +1,20 @@
 {
-    "id": "01a1f3fb-b323-7193-943c-e7ab15206212",
+    "id": "01a208ed-ddb6-7082-acb5-0b16da82fd3d",
     "status": "draft",
-    "company_id": "01a1f3fb-b61c-72fc-bca3-2073e157b92d",
-    "classification_run_id": "10944b69-778f-4830-9c1d-b0400a579e29",
+    "company_id": "01a208ed-dffc-7297-a61e-fefb993bbda1",
+    "classification_run_id": "410cd24f-d169-486c-b8ab-c95fc50f8c1a",
     "template_version": "sa-ifrs-smes-3",
     "period_start": "2025-01-01",
     "period_end": "2025-12-31",
     "comparative_start": "2024-01-01",
     "comparative_end": "2024-12-31",
-    "last_computed_at": "2026-11-19T13:25:22+00:00",
+    "last_computed_at": "2026-11-23T15:02:16+00:00",
     "finalized_at": null,
-    "created_at": "2026-11-19T13:25:21+00:00",
-    "updated_at": "2026-11-19T13:25:22+00:00",
-    "status_url": "\/api\/v1\/financial-reports\/01a1f3fb-b323-7193-943c-e7ab15206212",
+    "created_at": "2026-11-23T15:02:16+00:00",
+    "updated_at": "2026-11-23T15:02:16+00:00",
+    "status_url": "\/api\/v1\/financial-reports\/01a208ed-ddb6-7082-acb5-0b16da82fd3d",
     "company": {
-        "id": "01a1f3fb-b61c-72fc-bca3-2073e157b92d",
+        "id": "01a208ed-dffc-7297-a61e-fefb993bbda1",
         "name_ar": "مصنع شركة تاج العوازل الدولية",
         "name_en": null,
         "legal_form": "llc",
@@ -39,8 +39,8 @@
             "legal_form_source": "user"
         },
         "articles": null,
-        "created_at": "2026-11-19T13:25:22+00:00",
-        "updated_at": "2026-11-19T13:25:22+00:00"
+        "created_at": "2026-11-23T15:02:16+00:00",
+        "updated_at": "2026-11-23T15:02:16+00:00"
     },
     "layout": {
         "groups": [
@@ -1261,7 +1261,7 @@
                         },
                         {
                             "type": "row",
-                            "row": 1000029
+                            "row": 1000028
                         },
                         {
                             "type": "line",
@@ -1294,7 +1294,7 @@
                 "rows": [
                     60,
                     1000020,
-                    1000029
+                    1000028
                 ],
                 "shown": {
                     "current": -9954355,
@@ -1940,10 +1940,6 @@
                         {
                             "type": "row",
                             "row": 1000026
-                        },
-                        {
-                            "type": "row",
-                            "row": 1000027
                         }
                     ]
                 },
@@ -1989,8 +1985,7 @@
                     1000023,
                     1000024,
                     1000025,
-                    1000026,
-                    1000027
+                    1000026
                 ],
                 "shown": {
                     "current": 2870312,
@@ -2009,7 +2004,7 @@
                         },
                         {
                             "type": "row",
-                            "row": 1000028
+                            "row": 1000027
                         }
                     ]
                 },
@@ -2033,7 +2028,7 @@
                 },
                 "rows": [
                     34,
-                    1000028
+                    1000027
                 ],
                 "shown": {
                     "current": 1100605,
@@ -3566,7 +3561,7 @@
                                 },
                                 {
                                     "type": "row",
-                                    "row": 1000029
+                                    "row": 1000028
                                 }
                             ]
                         },
@@ -4031,7 +4026,7 @@
                                 },
                                 {
                                     "type": "row",
-                                    "row": 1000029
+                                    "row": 1000028
                                 }
                             ]
                         },
@@ -5176,7 +5171,7 @@
                         },
                         {
                             "type": "row",
-                            "row": 1000029
+                            "row": 1000028
                         }
                     ]
                 },
@@ -6764,7 +6759,7 @@
             "acknowledged": false
         },
         {
-            "key": "retained_unexplained:093b827d1882d501",
+            "key": "retained_unexplained:8910344fb1fd862c",
             "code": "retained_unexplained",
             "title_ar": "حركة غير مفسرة في الأرباح المبقاة",
             "severity": "warning",
@@ -6773,7 +6768,7 @@
             "rows": [
                 60,
                 1000020,
-                1000029
+                1000028
             ],
             "expected": null,
             "actual": 144792.53,
@@ -7098,23 +7093,6 @@
             "acknowledged": false
         },
         {
-            "key": "zakat_base_derived:1595e10a230d7978",
-            "code": "zakat_base_derived",
-            "title_ar": "سطر في وعاء الزكاة مقترح من مكونات السنة السابقة",
-            "severity": "warning",
-            "scope": "current",
-            "line_key": null,
-            "rows": [],
-            "expected": null,
-            "actual": -17727757,
-            "difference": null,
-            "message_ar": "«إجمالي الحسميات من الوعاء» في وعاء الزكاة مقترح بنفس مكونات السنة السابقة: الخسائر المتراكمة أول السنة + الممتلكات والآلات والمعدات + أصول أخرى. راجعه أو اكتب رقمه.",
-            "note": "zakat",
-            "title": "A zakat base line proposed from last year's components",
-            "message": "«إجمالي الحسميات من الوعاء» in the zakat base is proposed from last year's components: الخسائر المتراكمة أول السنة + الممتلكات والآلات والمعدات + أصول أخرى. Check it or enter its figure.",
-            "acknowledged": false
-        },
-        {
             "key": "ppe_additions_depreciation:91050a12e7005275",
             "code": "ppe_additions_depreciation",
             "title_ar": "إضافات أصول ثابتة بدون إهلاك",
@@ -7367,11 +7345,6 @@
         },
         {
             "key": "notes.related_parties",
-            "reason": "note_incomplete",
-            "input_key": null
-        },
-        {
-            "key": "notes.zakat",
             "reason": "note_incomplete",
             "input_key": null
         },
@@ -8501,7 +8474,7 @@
             "rows": [
                 60,
                 1000020,
-                1000029
+                1000028
             ],
             "status": "pending",
             "value": null,
@@ -11559,6 +11532,30 @@
                                             },
                                             {
                                                 "type": "row",
+                                                "row": 74
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 74
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 85
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 85
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 1000014
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 1000014
+                                            },
+                                            {
+                                                "type": "row",
                                                 "row": 1000019
                                             },
                                             {
@@ -11599,11 +11596,11 @@
                                         "refs": [
                                             {
                                                 "type": "row",
-                                                "row": 1000014
+                                                "row": 1000015
                                             },
                                             {
                                                 "type": "row",
-                                                "row": 1000014
+                                                "row": 1000015
                                             }
                                         ]
                                     }
@@ -11647,11 +11644,11 @@
                                             },
                                             {
                                                 "type": "row",
-                                                "row": 1000015
+                                                "row": 1000016
                                             },
                                             {
                                                 "type": "row",
-                                                "row": 1000015
+                                                "row": 1000016
                                             }
                                         ]
                                     }
@@ -12581,10 +12578,146 @@
                                 },
                                 {
                                     "amount": {
-                                        "amount": 91747,
+                                        "amount": 67583,
                                         "origin": "trial_balance",
                                         "status": "ok",
                                         "refs": [
+                                            {
+                                                "type": "row",
+                                                "row": 26
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 26
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 28
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 28
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 29
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 29
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 30
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 30
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 32
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 32
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 37
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 37
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 38
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 38
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 39
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 39
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 40
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 40
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 41
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 41
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 43
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 43
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 44
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 44
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 45
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 45
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 46
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 46
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 48
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 48
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 49
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 49
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 50
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 50
+                                            },
                                             {
                                                 "type": "row",
                                                 "row": 1000025
@@ -12697,177 +12830,6 @@
                         {
                             "cells": [
                                 {
-                                    "text_ar": "عُهد وسُلف دائنة"
-                                },
-                                {
-                                    "amount": {
-                                        "amount": -24164,
-                                        "origin": "trial_balance",
-                                        "status": "ok",
-                                        "refs": [
-                                            {
-                                                "type": "row",
-                                                "row": 26
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 26
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 28
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 28
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 29
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 29
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 30
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 30
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 32
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 32
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 37
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 37
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 38
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 38
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 39
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 39
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 40
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 40
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 41
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 41
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 43
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 43
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 44
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 44
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 45
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 45
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 46
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 46
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 48
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 48
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 49
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 49
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 50
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 50
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 1000027
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 1000027
-                                            }
-                                        ]
-                                    }
-                                },
-                                {
-                                    "text_ar": ""
-                                },
-                                {
-                                    "amount": {
-                                        "amount": 0,
-                                        "origin": "prior_year_statements",
-                                        "status": "ok",
-                                        "refs": []
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "cells": [
-                                {
                                     "text_ar": ""
                                 },
                                 {
@@ -12913,6 +12875,16 @@
                     "number": null,
                     "text_ar": "تمثل الأطراف ذات العلاقة في الشركاء وكبار موظفي الإدارة والشركات المملوكة أو المدارة من قبل هذه الأطراف، بالإضافة إلى الشركات التي تمارس سيطرة أو سيطرة مشتركة أو تأثيراً هاماً على هذه الأطراف. وتتم المعاملات مع الأطراف ذات العلاقة وفق شروط متفق عليها بين الطرفين ويتم اعتمادها من قبل الإدارة خلال الدورة الاعتيادية للأعمال، وفيما يلي بيان بصافي أرصدة المعاملات مع الأطراف ذات العلاقة في 31 ديسمبر 2025م:",
                     "template_ar": "تمثل الأطراف ذات العلاقة في الشركاء وكبار موظفي الإدارة والشركات المملوكة أو المدارة من قبل هذه الأطراف، بالإضافة إلى الشركات التي تمارس سيطرة أو سيطرة مشتركة أو تأثيراً هاماً على هذه الأطراف. وتتم المعاملات مع الأطراف ذات العلاقة وفق شروط متفق عليها بين الطرفين ويتم اعتمادها من قبل الإدارة خلال الدورة الاعتيادية للأعمال، وفيما يلي بيان بصافي أرصدة المعاملات مع الأطراف ذات العلاقة في 31 ديسمبر 2025م:",
+                    "edited": false,
+                    "outdated": false
+                },
+                {
+                    "type": "text",
+                    "key": "related_parties.3",
+                    "style": "text",
+                    "number": null,
+                    "text_ar": "14\/ب مستحق لأطراف ذات علاقة",
+                    "template_ar": "14\/ب مستحق لأطراف ذات علاقة",
                     "edited": false,
                     "outdated": false
                 },
@@ -13053,16 +13025,6 @@
                         }
                     ],
                     "type": "table"
-                },
-                {
-                    "type": "text",
-                    "key": "related_parties.3",
-                    "style": "text",
-                    "number": null,
-                    "text_ar": "14\/ب مستحق لأطراف ذات علاقة",
-                    "template_ar": "14\/ب مستحق لأطراف ذات علاقة",
-                    "edited": false,
-                    "outdated": false
                 }
             ],
             "key": "related_parties",
@@ -13192,10 +13154,14 @@
                                 },
                                 {
                                     "amount": {
-                                        "amount": null,
-                                        "origin": "missing",
-                                        "status": "missing",
-                                        "refs": []
+                                        "amount": 7117468.87,
+                                        "origin": "derived",
+                                        "status": "ok",
+                                        "refs": [
+                                            {
+                                                "type": "zakat_calculation"
+                                            }
+                                        ]
                                     }
                                 },
                                 {
@@ -13218,10 +13184,14 @@
                                 },
                                 {
                                     "amount": {
-                                        "amount": -17727757,
+                                        "amount": -1910627,
                                         "origin": "derived",
-                                        "status": "pending_confirmation",
-                                        "refs": []
+                                        "status": "ok",
+                                        "refs": [
+                                            {
+                                                "type": "zakat_calculation"
+                                            }
+                                        ]
                                     }
                                 },
                                 {
@@ -13244,9 +13214,9 @@
                                 },
                                 {
                                     "amount": {
-                                        "amount": null,
-                                        "origin": "missing",
-                                        "status": "missing",
+                                        "amount": 5206841.87,
+                                        "origin": "derived",
+                                        "status": "ok",
                                         "refs": []
                                     }
                                 },
@@ -13310,7 +13280,12 @@
                                         "amount": 0,
                                         "origin": "prior_year_manual",
                                         "status": "ok",
-                                        "refs": []
+                                        "refs": [
+                                            {
+                                                "type": "input",
+                                                "key": "prior.schedules.zakat.opening"
+                                            }
+                                        ]
                                     }
                                 }
                             ]
@@ -13341,7 +13316,12 @@
                                         "amount": 0,
                                         "origin": "prior_year_manual",
                                         "status": "ok",
-                                        "refs": []
+                                        "refs": [
+                                            {
+                                                "type": "input",
+                                                "key": "prior.schedules.zakat.charge"
+                                            }
+                                        ]
                                     }
                                 }
                             ]
@@ -13372,7 +13352,12 @@
                                         "amount": 0,
                                         "origin": "prior_year_manual",
                                         "status": "ok",
-                                        "refs": []
+                                        "refs": [
+                                            {
+                                                "type": "input",
+                                                "key": "prior.schedules.zakat.paid"
+                                            }
+                                        ]
                                     }
                                 }
                             ]
@@ -13579,7 +13564,7 @@
                                 },
                                 {
                                     "amount": {
-                                        "amount": 4296,
+                                        "amount": 61136,
                                         "origin": "trial_balance",
                                         "status": "ok",
                                         "refs": [
@@ -13590,6 +13575,14 @@
                                             {
                                                 "type": "row",
                                                 "row": 93
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 98
+                                            },
+                                            {
+                                                "type": "row",
+                                                "row": 98
                                             }
                                         ]
                                     }
@@ -13753,41 +13746,6 @@
                                             {
                                                 "type": "row",
                                                 "row": 97
-                                            }
-                                        ]
-                                    }
-                                },
-                                {
-                                    "text_ar": ""
-                                },
-                                {
-                                    "amount": {
-                                        "amount": 0,
-                                        "origin": "prior_year_statements",
-                                        "status": "ok",
-                                        "refs": []
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "cells": [
-                                {
-                                    "text_ar": "مصروف مكافأة نهاية الخدمة"
-                                },
-                                {
-                                    "amount": {
-                                        "amount": 56840,
-                                        "origin": "trial_balance",
-                                        "status": "ok",
-                                        "refs": [
-                                            {
-                                                "type": "row",
-                                                "row": 98
-                                            },
-                                            {
-                                                "type": "row",
-                                                "row": 98
                                             }
                                         ]
                                     }
@@ -14311,8 +14269,937 @@
         "visibility": [],
         "texts": [],
         "items": [],
-        "ppe": []
+        "ppe": [],
+        "order": [],
+        "moves": []
     },
+    "note_targets": [
+        {
+            "note": "other_assets",
+            "number": 6,
+            "title": "أصول أخرى:",
+            "lines": [
+                {
+                    "key": "sofp.other_assets",
+                    "label": "أصول أخرى"
+                }
+            ],
+            "items": [],
+            "accounts": [
+                {
+                    "row": 5,
+                    "number": "2026900000",
+                    "name": ".  .  .  . مجمع اطفاء مصاريف ما قبل التشغييل",
+                    "line": "sofp.other_assets",
+                    "amount": -238167
+                },
+                {
+                    "row": 58,
+                    "number": "1011050000",
+                    "name": ".  .  . مالتأسيس(مصروفات ما قبل التشغيل)",
+                    "line": "sofp.other_assets",
+                    "amount": 238167.6
+                },
+                {
+                    "row": 1000008,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.other_assets",
+                    "amount": 0.4
+                }
+            ]
+        },
+        {
+            "note": "inventory",
+            "number": 7,
+            "title": "المخزون",
+            "lines": [
+                {
+                    "key": "sofp.inventory",
+                    "label": "المخزون"
+                }
+            ],
+            "items": [
+                {
+                    "key": "مخزون انتاج تام",
+                    "label": "مخزون انتاج تام"
+                },
+                {
+                    "key": "مخزن قطع الغيار",
+                    "label": "مخزن قطع الغيار"
+                },
+                {
+                    "key": "مخزون تحت التشغيل",
+                    "label": "مخزون تحت التشغيل"
+                },
+                {
+                    "key": "مخزون خامات",
+                    "label": "مخزون خامات"
+                }
+            ],
+            "accounts": [
+                {
+                    "row": 20,
+                    "number": "1023100000",
+                    "name": ".  .  .  . مخزون انتاج تام",
+                    "line": "sofp.inventory",
+                    "amount": 402825.92
+                },
+                {
+                    "row": 21,
+                    "number": "1023400000",
+                    "name": ".  .  .  . مخزن قطع الغيار",
+                    "line": "sofp.inventory",
+                    "amount": 10579.5
+                },
+                {
+                    "row": 22,
+                    "number": "1023200000",
+                    "name": ".  .  .  .  . مخزون خامات",
+                    "line": "sofp.inventory",
+                    "amount": 1405499.88
+                },
+                {
+                    "row": 23,
+                    "number": "1023300000",
+                    "name": ".  .  .  .  . مخزون تحت التشغيل",
+                    "line": "sofp.inventory",
+                    "amount": 271779.86
+                },
+                {
+                    "row": 1000009,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.inventory",
+                    "amount": 0.08
+                },
+                {
+                    "row": 1000010,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.inventory",
+                    "amount": 0.5
+                },
+                {
+                    "row": 1000011,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.inventory",
+                    "amount": 0.14
+                },
+                {
+                    "row": 1000012,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.inventory",
+                    "amount": 0.12
+                }
+            ]
+        },
+        {
+            "note": "trade_receivables",
+            "number": 8,
+            "title": "الذمم المدينة التجارية:",
+            "lines": [
+                {
+                    "key": "sofp.trade_receivables",
+                    "label": "الذمم التجارية المدينة"
+                }
+            ],
+            "items": [],
+            "accounts": [
+                {
+                    "row": 52,
+                    "number": "1021100000",
+                    "name": ".  .  .  .  . عملاء محليين",
+                    "line": "sofp.trade_receivables",
+                    "amount": 3977196.42
+                },
+                {
+                    "row": 1000013,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.trade_receivables",
+                    "amount": -0.42
+                }
+            ]
+        },
+        {
+            "note": "other_receivables",
+            "number": 9,
+            "title": "المدينون والأرصدة المدينة الأخرى:",
+            "lines": [
+                {
+                    "key": "sofp.prepayments_other_receivables",
+                    "label": "مصاريف مقدمة وأرصدة مدينة أخرى"
+                }
+            ],
+            "items": [
+                {
+                    "key": "مصروفات مدفوعات مقدمة",
+                    "label": "مصروفات مدفوعات مقدمة"
+                },
+                {
+                    "key": "مدينون متنوعون",
+                    "label": "مدينون متنوعون"
+                },
+                {
+                    "key": "الزكاة",
+                    "label": "الزكاة"
+                },
+                {
+                    "key": "ارصدة مدينة اخري",
+                    "label": "ارصدة مدينة اخري"
+                }
+            ],
+            "accounts": [
+                {
+                    "row": 24,
+                    "number": "",
+                    "name": ".  .  .  .  .  . جمال يشلوش",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 9123
+                },
+                {
+                    "row": 25,
+                    "number": "1024030069",
+                    "name": ".  .  .  .  .  . محمد يوسف مصطفي",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 500
+                },
+                {
+                    "row": 27,
+                    "number": "1024030072",
+                    "name": ".  .  .  .  .  . فايز",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 1000
+                },
+                {
+                    "row": 31,
+                    "number": "1024030055",
+                    "name": ".  .  .  .  .  . عمر محمد احمد بافقيه العمودي",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 3308
+                },
+                {
+                    "row": 33,
+                    "number": "1024030004",
+                    "name": ".  .  .  .  .  . تامر احمد محمد",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 200
+                },
+                {
+                    "row": 36,
+                    "number": "1024030041",
+                    "name": ".  .  .  .  .  . عبد الباسيث محمد",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 7200
+                },
+                {
+                    "row": 42,
+                    "number": "1024030025",
+                    "name": ".  .  .  .  .  . فرج مبروك ابو ابو القمصان",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 20175.31
+                },
+                {
+                    "row": 47,
+                    "number": "1024030056",
+                    "name": ".  .  .  .  .  . محمد مرزيق جمعه ابو بكره",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 464.58
+                },
+                {
+                    "row": 51,
+                    "number": "1024080000",
+                    "name": ".  .  .  .  .  . مصاريف مدفوعة مقدما",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 18750
+                },
+                {
+                    "row": 57,
+                    "number": "1024070000",
+                    "name": ".  .  .  . مصروفات مدفوعات مقدمة",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 3250
+                },
+                {
+                    "row": 72,
+                    "number": "2022070000",
+                    "name": ".  .  .  .  .  . جارى مصلحة التامينات الاجتماعية",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 18452.5
+                },
+                {
+                    "row": 74,
+                    "number": "2022209655",
+                    "name": ".  .  .  .  .  . شركة المطابع العصرية",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 244
+                },
+                {
+                    "row": 85,
+                    "number": "2024020000",
+                    "name": ".  .  .  .  .  . المها للنقليات",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 3085
+                },
+                {
+                    "row": 87,
+                    "number": "2025040000",
+                    "name": ".  .  .  . مرتبات والاجور  مستحقة",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 718.03
+                },
+                {
+                    "row": 1000014,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": -3329
+                },
+                {
+                    "row": 1000015,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": -0.04
+                },
+                {
+                    "row": 1000016,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": -0.03
+                },
+                {
+                    "row": 1000017,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": -41970.89
+                },
+                {
+                    "row": 1000018,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": -18452.5
+                },
+                {
+                    "row": 1000019,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.prepayments_other_receivables",
+                    "amount": 1
+                }
+            ]
+        },
+        {
+            "note": "cash",
+            "number": 10,
+            "title": "النقد ومعادلات النقد:",
+            "lines": [
+                {
+                    "key": "sofp.cash",
+                    "label": "النقد ومعادلات النقد"
+                }
+            ],
+            "items": [
+                {
+                    "key": "نقدية لدى الصندوق",
+                    "label": "نقدية لدى الصندوق"
+                },
+                {
+                    "key": "النقد بالبنوك",
+                    "label": "النقد بالبنوك"
+                }
+            ],
+            "accounts": [
+                {
+                    "row": 53,
+                    "number": "12030102",
+                    "name": ".  .  .  .  . خزينة الرياض",
+                    "line": "sofp.cash",
+                    "amount": 0
+                },
+                {
+                    "row": 54,
+                    "number": "1022211000",
+                    "name": ".  .  .  .  .  . البنك الاهلى ح رقم 7862201000103",
+                    "line": "sofp.cash",
+                    "amount": 0
+                },
+                {
+                    "row": 55,
+                    "number": "10222222102",
+                    "name": ".  .  .  .  .  . بنك الراجحي -578608010046698",
+                    "line": "sofp.cash",
+                    "amount": 3287942.17
+                },
+                {
+                    "row": 56,
+                    "number": "1022241000",
+                    "name": ".  .  .  .  .  . بنك الانماء",
+                    "line": "sofp.cash",
+                    "amount": 0
+                }
+            ]
+        },
+        {
+            "note": "trade_payables",
+            "number": 12,
+            "title": "الذمم التجارية الدائنة:",
+            "lines": [
+                {
+                    "key": "sofp.trade_payables",
+                    "label": "ذمم تجارية دائنة"
+                }
+            ],
+            "items": [],
+            "accounts": [
+                {
+                    "row": 61,
+                    "number": "2021110015",
+                    "name": ".  .  .  .  .  . شركة عبداللطيف جميل المتحدة للتاجير المحدودة",
+                    "line": "sofp.trade_payables",
+                    "amount": 2003.04
+                },
+                {
+                    "row": 63,
+                    "number": "2021122000",
+                    "name": ".  .  .  .  .  . موردين خارج المملكة",
+                    "line": "sofp.trade_payables",
+                    "amount": 516427.19
+                },
+                {
+                    "row": 64,
+                    "number": "2021121000",
+                    "name": ".  .  .  .  .  . موردين محليين",
+                    "line": "sofp.trade_payables",
+                    "amount": 3376678.82
+                },
+                {
+                    "row": 65,
+                    "number": "2022209654",
+                    "name": ".  .  .  .  .  . مؤسسة عبد الله العجمى للمقاولات ( نقل بضائع)",
+                    "line": "sofp.trade_payables",
+                    "amount": 4400
+                },
+                {
+                    "row": 66,
+                    "number": "2022209652",
+                    "name": ".  .  .  .  .  . سواتر الحماية للحراسات الامنية",
+                    "line": "sofp.trade_payables",
+                    "amount": 158800
+                },
+                {
+                    "row": 67,
+                    "number": "2022209658",
+                    "name": ".  .  .  .  .  . مكتب خالد باهمام محاسبون ومراجعون قانونيون",
+                    "line": "sofp.trade_payables",
+                    "amount": 16500
+                },
+                {
+                    "row": 68,
+                    "number": "2022209657",
+                    "name": ".  .  .  .  .  . مكتب سلطان العيسى للمحاماة",
+                    "line": "sofp.trade_payables",
+                    "amount": 0
+                },
+                {
+                    "row": 69,
+                    "number": "2022096000",
+                    "name": ".  .  .  .  .  . بوبا للتامين",
+                    "line": "sofp.trade_payables",
+                    "amount": 0.16
+                },
+                {
+                    "row": 70,
+                    "number": "2022209646",
+                    "name": ".  .  .  .  .  . مؤسسة التاج اللامع للتجارة",
+                    "line": "sofp.trade_payables",
+                    "amount": 5114.14
+                },
+                {
+                    "row": 71,
+                    "number": "2022209661",
+                    "name": ".  .  .  .  .  . عبد العزيز السليمان",
+                    "line": "sofp.trade_payables",
+                    "amount": 24625.05
+                },
+                {
+                    "row": 73,
+                    "number": "2022209649",
+                    "name": ".  .  .  .  .  . شركة الفرسان للسفر و السياحة",
+                    "line": "sofp.trade_payables",
+                    "amount": 28933
+                },
+                {
+                    "row": 75,
+                    "number": "2022030000",
+                    "name": ".  .  .  .  .  . التعاونية للتأمين",
+                    "line": "sofp.trade_payables",
+                    "amount": 5
+                },
+                {
+                    "row": 76,
+                    "number": "2022209648",
+                    "name": ".  .  .  .  .  . فندق المنزل",
+                    "line": "sofp.trade_payables",
+                    "amount": 6578
+                },
+                {
+                    "row": 77,
+                    "number": "2022094000",
+                    "name": ".  .  .  .  .  . تميم السليمان",
+                    "line": "sofp.trade_payables",
+                    "amount": 2199.93
+                },
+                {
+                    "row": 78,
+                    "number": "2022209660",
+                    "name": ".  .  .  .  .  . عبد الرحمن سعود ال شوية",
+                    "line": "sofp.trade_payables",
+                    "amount": 15000
+                },
+                {
+                    "row": 79,
+                    "number": "2022090000",
+                    "name": ".  .  .  .  .  . البريد السريع smsa express",
+                    "line": "sofp.trade_payables",
+                    "amount": 1893
+                },
+                {
+                    "row": 80,
+                    "number": "2022093000",
+                    "name": ".  .  .  .  .  . فندق زارا الخبر zara",
+                    "line": "sofp.trade_payables",
+                    "amount": 9105
+                },
+                {
+                    "row": 81,
+                    "number": "2022209662",
+                    "name": "شركة المدققون العرب محاسبون ومراجعون قانونيون",
+                    "line": "sofp.trade_payables",
+                    "amount": 80500
+                },
+                {
+                    "row": 84,
+                    "number": "2023300000",
+                    "name": ".  .  .  .  . تسهيلات موردين",
+                    "line": "sofp.trade_payables",
+                    "amount": 387950.14
+                },
+                {
+                    "row": 86,
+                    "number": "2024010000",
+                    "name": ".  .  .  .  .  . سعودى قار لخلطات البتومين",
+                    "line": "sofp.trade_payables",
+                    "amount": 62463.97
+                },
+                {
+                    "row": 1000021,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.trade_payables",
+                    "amount": -3397786.14
+                }
+            ]
+        },
+        {
+            "note": "other_payables",
+            "number": 13,
+            "title": "دائنون وأرصدة دائنة أخرى:",
+            "lines": [
+                {
+                    "key": "sofp.accruals_other_payables",
+                    "label": "مصاريف مستحقة وأرصدة دائنة أخرى"
+                }
+            ],
+            "items": [
+                {
+                    "key": "دائنو أصول ثابته",
+                    "label": "دائنو أصول ثابته"
+                },
+                {
+                    "key": "دائنون متنوعون",
+                    "label": "دائنون متنوعون"
+                },
+                {
+                    "key": "عهد وسلف موظفين",
+                    "label": "عهد وسلف موظفين"
+                },
+                {
+                    "key": "ايجارات مستحقة",
+                    "label": "ايجارات مستحقة"
+                },
+                {
+                    "key": "ضريبة القيمة المضافة",
+                    "label": "ضريبة القيمة المضافة"
+                }
+            ],
+            "accounts": [
+                {
+                    "row": 26,
+                    "number": "1024030048",
+                    "name": ".  .  .  .  .  . داود سلمان الحرز",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 7845
+                },
+                {
+                    "row": 28,
+                    "number": "1024030043",
+                    "name": ".  .  .  .  .  . محمد شكيل",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 9375
+                },
+                {
+                    "row": 29,
+                    "number": "1024030001",
+                    "name": ".  .  .  .  .  . سعيد القحطانى",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 15215.51
+                },
+                {
+                    "row": 30,
+                    "number": "1024030062",
+                    "name": ".  .  .  .  .  . محمد حبيب هاشمي",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 590
+                },
+                {
+                    "row": 32,
+                    "number": "1024030071",
+                    "name": ".  .  .  .  .  . فيصل نجم",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 825
+                },
+                {
+                    "row": 37,
+                    "number": "1024030009",
+                    "name": ".  .  .  .  .  . ستيفن بويا",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 2133.33
+                },
+                {
+                    "row": 38,
+                    "number": "1024030073",
+                    "name": ".  .  .  .  .  . باسم",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 17000
+                },
+                {
+                    "row": 39,
+                    "number": "1024030053",
+                    "name": ".  .  .  .  .  . الامين محمد",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 0
+                },
+                {
+                    "row": 40,
+                    "number": "1024030035",
+                    "name": ".  .  .  .  .  . عبد العزيز الغامدى",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 4940
+                },
+                {
+                    "row": 41,
+                    "number": "1024030020",
+                    "name": ".  .  .  .  .  . ناصر احمد سعد محمد",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 1010
+                },
+                {
+                    "row": 43,
+                    "number": "1024030074",
+                    "name": ".  .  .  .  .  . معاذ",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 1000
+                },
+                {
+                    "row": 44,
+                    "number": "1024030066",
+                    "name": ".  .  .  .  .  . شكري عميسيب",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 7930
+                },
+                {
+                    "row": 45,
+                    "number": "1024030070",
+                    "name": ".  .  .  .  .  . سمير جمعة",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 0
+                },
+                {
+                    "row": 46,
+                    "number": "1024030059",
+                    "name": ".  .  .  .  .  . فيصل العوض محمد عثمان",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 652.5
+                },
+                {
+                    "row": 48,
+                    "number": "1024030067",
+                    "name": ".  .  .  .  .  . محمد مجاهد",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 8250
+                },
+                {
+                    "row": 49,
+                    "number": "1024030032",
+                    "name": ".  .  .  .  .  . عمرو عبدالرحمن احمد",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 4250
+                },
+                {
+                    "row": 50,
+                    "number": "1024030011",
+                    "name": ".  .  .  .  .  . اول نور الاسلام",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 5700
+                },
+                {
+                    "row": 88,
+                    "number": "2025030000",
+                    "name": ".  .  .  . ايجارات مستحقة",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 10417
+                },
+                {
+                    "row": 1000023,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": -0.04
+                },
+                {
+                    "row": 1000024,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 2747398
+                },
+                {
+                    "row": 1000025,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": -19133.34
+                },
+                {
+                    "row": 1000026,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.accruals_other_payables",
+                    "amount": 44914
+                }
+            ]
+        },
+        {
+            "note": "revenue",
+            "number": null,
+            "title": "الإيرادات",
+            "lines": [
+                {
+                    "key": "is.revenue",
+                    "label": "إيرادات النشاط"
+                },
+                {
+                    "key": "sofp.contract_assets",
+                    "label": "أصول العقود (إيرادات غير مفوترة)"
+                },
+                {
+                    "key": "sofp.contract_liabilities",
+                    "label": "التزامات العقود (إيرادات مؤجلة) - الجزء المتداول"
+                }
+            ],
+            "items": [],
+            "accounts": [
+                {
+                    "row": 83,
+                    "number": "2023400000",
+                    "name": ".  .  .  .  . إيرادات مقدمة",
+                    "line": "sofp.contract_liabilities",
+                    "amount": 44914.49
+                },
+                {
+                    "row": 1000022,
+                    "number": null,
+                    "name": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "line": "sofp.contract_liabilities",
+                    "amount": -44914.49
+                }
+            ]
+        },
+        {
+            "note": "cost_of_revenue",
+            "number": 16,
+            "title": "تكلفة النشاط",
+            "lines": [
+                {
+                    "key": "is.cost_of_revenue",
+                    "label": "تكلفة النشاط"
+                }
+            ],
+            "items": [
+                {
+                    "key": "تكلفة البضاعة المباعة",
+                    "label": "تكلفة البضاعة المباعة"
+                },
+                {
+                    "key": "مصروفات تشغيلية *",
+                    "label": "مصروفات تشغيلية *"
+                }
+            ],
+            "accounts": []
+        },
+        {
+            "note": "selling",
+            "number": null,
+            "title": "مصاريف البيع والتسويق",
+            "lines": [
+                {
+                    "key": "is.selling_marketing",
+                    "label": "مصاريف البيع والتسويق"
+                }
+            ],
+            "items": [],
+            "accounts": []
+        },
+        {
+            "note": "general_admin",
+            "number": 17,
+            "title": "المصروفات العمومية والإدارية:",
+            "lines": [
+                {
+                    "key": "is.general_admin",
+                    "label": "المصروفات العمومية والإدارية"
+                }
+            ],
+            "items": [
+                {
+                    "key": "أجور ورواتب",
+                    "label": "أجور ورواتب"
+                },
+                {
+                    "key": "رسوم حكومية واشتراكات",
+                    "label": "رسوم حكومية واشتراكات"
+                },
+                {
+                    "key": "ايجارات",
+                    "label": "ايجارات"
+                }
+            ],
+            "accounts": [
+                {
+                    "row": 93,
+                    "number": "4010103000",
+                    "name": ".  .  . اجور ومرتبات تشغيل",
+                    "line": "is.general_admin",
+                    "amount": 4296
+                },
+                {
+                    "row": 94,
+                    "number": "4021200000",
+                    "name": ".  .  . ايجار المصنع",
+                    "line": "is.general_admin",
+                    "amount": 162000
+                },
+                {
+                    "row": 95,
+                    "number": "4022200000",
+                    "name": ".  .  . اتعاب مهنية وخدمات واستشارات",
+                    "line": "is.general_admin",
+                    "amount": 396400
+                },
+                {
+                    "row": 97,
+                    "number": "4023800000",
+                    "name": ".  .  . انتقالات",
+                    "line": "is.general_admin",
+                    "amount": 3000
+                },
+                {
+                    "row": 98,
+                    "number": "4021700000",
+                    "name": ".  .  . مكافأة نهاية الخدمة",
+                    "line": "is.general_admin",
+                    "amount": 56840
+                },
+                {
+                    "row": 99,
+                    "number": "4021100000",
+                    "name": ".  .  . ايجارات وبدلات سكن الموظفين",
+                    "line": "is.general_admin",
+                    "amount": 28070
+                },
+                {
+                    "row": 100,
+                    "number": "4021800000",
+                    "name": ".  .  . كهرباء (ادارية وعمومية)",
+                    "line": "is.general_admin",
+                    "amount": 368
+                },
+                {
+                    "row": 101,
+                    "number": "4020400000",
+                    "name": ".  .  . رسوم حكومية واشتراكات",
+                    "line": "is.general_admin",
+                    "amount": 2510
+                }
+            ]
+        },
+        {
+            "note": "other_income",
+            "number": 18,
+            "title": "إيرادات أخرى",
+            "lines": [
+                {
+                    "key": "is.other_income",
+                    "label": "إيرادات أخرى"
+                }
+            ],
+            "items": [],
+            "accounts": [
+                {
+                    "row": 90,
+                    "number": "3020200000",
+                    "name": ".  .  . ارباح \/ خسائر راسمالية",
+                    "line": "is.other_income",
+                    "amount": 8000000
+                },
+                {
+                    "row": 91,
+                    "number": "3020600000",
+                    "name": ".  .  . ايرادات اخرى متنوعة",
+                    "line": "is.other_income",
+                    "amount": 1810.91
+                }
+            ]
+        },
+        {
+            "note": "finance_cost",
+            "number": 19,
+            "title": "تكاليف التمويل",
+            "lines": [
+                {
+                    "key": "is.finance_cost",
+                    "label": "تكاليف التمويل"
+                }
+            ],
+            "items": [],
+            "accounts": [
+                {
+                    "row": 96,
+                    "number": "4023100000",
+                    "name": ".  .  . فوائد تمويلية",
+                    "line": "is.finance_cost",
+                    "amount": 1112585
+                }
+            ]
+        }
+    ],
     "ppe_prior": {
         "categories": [
             {
@@ -15286,8 +16173,8 @@
                     "class": "دفعات مقدمة للموردين",
                     "current": 244,
                     "opening": 244,
-                    "item": "new",
-                    "by": "new",
+                    "item": "مدينون متنوعون",
+                    "by": "misc",
                     "approved_opening": false
                 },
                 {
@@ -15296,8 +16183,8 @@
                     "class": "دفعات مقدمة للموردين",
                     "current": 3085,
                     "opening": 3085,
-                    "item": "new",
-                    "by": "new",
+                    "item": "مدينون متنوعون",
+                    "by": "misc",
                     "approved_opening": false
                 },
                 {
@@ -15313,6 +16200,16 @@
                 {
                     "ref": "1000014",
                     "label": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
+                    "class": "مصروفات مدفوعة مقدماً",
+                    "current": -3329,
+                    "opening": -3329,
+                    "item": "مدينون متنوعون",
+                    "by": "choice",
+                    "approved_opening": true
+                },
+                {
+                    "ref": "1000015",
+                    "label": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
                     "class": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
                     "current": -0.04,
                     "opening": -0.04,
@@ -15321,7 +16218,7 @@
                     "approved_opening": true
                 },
                 {
-                    "ref": "1000015",
+                    "ref": "1000016",
                     "label": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
                     "class": "سلف العاملين",
                     "current": -0.03,
@@ -15331,7 +16228,7 @@
                     "approved_opening": true
                 },
                 {
-                    "ref": "1000016",
+                    "ref": "1000017",
                     "label": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
                     "class": "عُهد وسُلف العاملين",
                     "current": -41970.89,
@@ -15341,21 +16238,11 @@
                     "approved_opening": true
                 },
                 {
-                    "ref": "1000017",
+                    "ref": "1000018",
                     "label": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
                     "class": "حسابات مدينة لدى الجهات الحكومية",
                     "current": -18452.5,
                     "opening": -18452.5,
-                    "item": "new",
-                    "by": "choice",
-                    "approved_opening": true
-                },
-                {
-                    "ref": "1000018",
-                    "label": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
-                    "class": "دفعات مقدمة للموردين",
-                    "current": -3329,
-                    "opening": -3329,
                     "item": "new",
                     "by": "choice",
                     "approved_opening": true
@@ -15476,8 +16363,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 7845,
                     "opening": 7845,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15486,8 +16373,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 9375,
                     "opening": 9375,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15496,8 +16383,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 15215.51,
                     "opening": 15215.51,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15506,8 +16393,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 590,
                     "opening": 590,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15516,8 +16403,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 825,
                     "opening": 825,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15526,8 +16413,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 2133.33,
                     "opening": 2133.33,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15536,8 +16423,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 17000,
                     "opening": 17000,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15546,8 +16433,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 0,
                     "opening": 4164,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15556,8 +16443,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 4940,
                     "opening": 4940,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15566,8 +16453,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 1010,
                     "opening": 1010,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15576,8 +16463,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 1000,
                     "opening": 1000,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15586,8 +16473,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 7930,
                     "opening": 7930,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15596,8 +16483,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 0,
                     "opening": 20000,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15606,8 +16493,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 652.5,
                     "opening": 652.5,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15616,8 +16503,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 8250,
                     "opening": 8250,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15626,8 +16513,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 4250,
                     "opening": 4250,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15636,8 +16523,8 @@
                     "class": "عُهد وسُلف دائنة",
                     "current": 5700,
                     "opening": 5700,
-                    "item": "new",
-                    "by": "new",
+                    "item": "عهد وسلف موظفين",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -15673,9 +16560,9 @@
                 {
                     "ref": "1000025",
                     "label": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
-                    "class": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
-                    "current": 91747,
-                    "opening": 91747,
+                    "class": "عُهد وسُلف دائنة",
+                    "current": -19133.34,
+                    "opening": -19133.34,
                     "item": "عهد وسلف موظفين",
                     "by": "choice",
                     "approved_opening": true
@@ -15687,16 +16574,6 @@
                     "current": 44914,
                     "opening": 44914,
                     "item": "ضريبة القيمة المضافة",
-                    "by": "choice",
-                    "approved_opening": true
-                },
-                {
-                    "ref": "1000027",
-                    "label": "فرق الرصيد الافتتاحي عن القوائم المعتمدة",
-                    "class": "عُهد وسُلف دائنة",
-                    "current": -110880.34,
-                    "opening": -110880.34,
-                    "item": "new",
                     "by": "choice",
                     "approved_opening": true
                 }
@@ -15793,8 +16670,8 @@
                     "class": "مصروف مكافأة نهاية الخدمة",
                     "current": 56840,
                     "opening": 0,
-                    "item": "new",
-                    "by": "new",
+                    "item": "أجور ورواتب",
+                    "by": "family",
                     "approved_opening": false
                 },
                 {
@@ -19922,7 +20799,12 @@
                 "amount": 0,
                 "origin": "prior_year_manual",
                 "status": "ok",
-                "refs": []
+                "refs": [
+                    {
+                        "type": "input",
+                        "key": "prior.schedules.zakat.opening"
+                    }
+                ]
             },
             "zakat_charge_cy": {
                 "amount": 13835,
@@ -19939,7 +20821,12 @@
                 "amount": 0,
                 "origin": "prior_year_manual",
                 "status": "ok",
-                "refs": []
+                "refs": [
+                    {
+                        "type": "input",
+                        "key": "prior.schedules.zakat.charge"
+                    }
+                ]
             },
             "zakat_prior_year_adjustments_cy": {
                 "amount": 0,
@@ -19968,7 +20855,12 @@
                 "amount": 0,
                 "origin": "prior_year_manual",
                 "status": "ok",
-                "refs": []
+                "refs": [
+                    {
+                        "type": "input",
+                        "key": "prior.schedules.zakat.paid"
+                    }
+                ]
             },
             "zakat_reversal_cy": {
                 "amount": 0,
@@ -20618,6 +21510,30 @@
                             },
                             {
                                 "type": "row",
+                                "row": 74
+                            },
+                            {
+                                "type": "row",
+                                "row": 74
+                            },
+                            {
+                                "type": "row",
+                                "row": 85
+                            },
+                            {
+                                "type": "row",
+                                "row": 85
+                            },
+                            {
+                                "type": "row",
+                                "row": 1000014
+                            },
+                            {
+                                "type": "row",
+                                "row": 1000014
+                            },
+                            {
+                                "type": "row",
                                 "row": 1000019
                             },
                             {
@@ -20647,11 +21563,11 @@
                         "refs": [
                             {
                                 "type": "row",
-                                "row": 1000014
+                                "row": 1000015
                             },
                             {
                                 "type": "row",
-                                "row": 1000014
+                                "row": 1000015
                             }
                         ]
                     },
@@ -20684,11 +21600,11 @@
                             },
                             {
                                 "type": "row",
-                                "row": 1000015
+                                "row": 1000016
                             },
                             {
                                 "type": "row",
-                                "row": 1000015
+                                "row": 1000016
                             }
                         ]
                     },
@@ -20785,11 +21701,11 @@
                             },
                             {
                                 "type": "row",
-                                "row": 1000016
+                                "row": 1000017
                             },
                             {
                                 "type": "row",
-                                "row": 1000016
+                                "row": 1000017
                             }
                         ]
                     },
@@ -20814,46 +21730,6 @@
                             {
                                 "type": "row",
                                 "row": 72
-                            },
-                            {
-                                "type": "row",
-                                "row": 1000017
-                            },
-                            {
-                                "type": "row",
-                                "row": 1000017
-                            }
-                        ]
-                    },
-                    "other_receivables_py": {
-                        "amount": 0,
-                        "origin": "prior_year_statements",
-                        "status": "ok",
-                        "refs": []
-                    }
-                },
-                {
-                    "other_receivables_label": "دفعات مقدمة للموردين",
-                    "other_receivables_cy": {
-                        "amount": 0,
-                        "origin": "trial_balance",
-                        "status": "ok",
-                        "refs": [
-                            {
-                                "type": "row",
-                                "row": 74
-                            },
-                            {
-                                "type": "row",
-                                "row": 74
-                            },
-                            {
-                                "type": "row",
-                                "row": 85
-                            },
-                            {
-                                "type": "row",
-                                "row": 85
                             },
                             {
                                 "type": "row",
@@ -21210,10 +22086,146 @@
                 {
                     "other_payables_label": "عهد وسلف موظفين",
                     "other_payables_cy": {
-                        "amount": 91747,
+                        "amount": 67583,
                         "origin": "trial_balance",
                         "status": "ok",
                         "refs": [
+                            {
+                                "type": "row",
+                                "row": 26
+                            },
+                            {
+                                "type": "row",
+                                "row": 26
+                            },
+                            {
+                                "type": "row",
+                                "row": 28
+                            },
+                            {
+                                "type": "row",
+                                "row": 28
+                            },
+                            {
+                                "type": "row",
+                                "row": 29
+                            },
+                            {
+                                "type": "row",
+                                "row": 29
+                            },
+                            {
+                                "type": "row",
+                                "row": 30
+                            },
+                            {
+                                "type": "row",
+                                "row": 30
+                            },
+                            {
+                                "type": "row",
+                                "row": 32
+                            },
+                            {
+                                "type": "row",
+                                "row": 32
+                            },
+                            {
+                                "type": "row",
+                                "row": 37
+                            },
+                            {
+                                "type": "row",
+                                "row": 37
+                            },
+                            {
+                                "type": "row",
+                                "row": 38
+                            },
+                            {
+                                "type": "row",
+                                "row": 38
+                            },
+                            {
+                                "type": "row",
+                                "row": 39
+                            },
+                            {
+                                "type": "row",
+                                "row": 39
+                            },
+                            {
+                                "type": "row",
+                                "row": 40
+                            },
+                            {
+                                "type": "row",
+                                "row": 40
+                            },
+                            {
+                                "type": "row",
+                                "row": 41
+                            },
+                            {
+                                "type": "row",
+                                "row": 41
+                            },
+                            {
+                                "type": "row",
+                                "row": 43
+                            },
+                            {
+                                "type": "row",
+                                "row": 43
+                            },
+                            {
+                                "type": "row",
+                                "row": 44
+                            },
+                            {
+                                "type": "row",
+                                "row": 44
+                            },
+                            {
+                                "type": "row",
+                                "row": 45
+                            },
+                            {
+                                "type": "row",
+                                "row": 45
+                            },
+                            {
+                                "type": "row",
+                                "row": 46
+                            },
+                            {
+                                "type": "row",
+                                "row": 46
+                            },
+                            {
+                                "type": "row",
+                                "row": 48
+                            },
+                            {
+                                "type": "row",
+                                "row": 48
+                            },
+                            {
+                                "type": "row",
+                                "row": 49
+                            },
+                            {
+                                "type": "row",
+                                "row": 49
+                            },
+                            {
+                                "type": "row",
+                                "row": 50
+                            },
+                            {
+                                "type": "row",
+                                "row": 50
+                            },
                             {
                                 "type": "row",
                                 "row": 1000025
@@ -21293,166 +22305,6 @@
                             }
                         ]
                     }
-                },
-                {
-                    "other_payables_label": "عُهد وسُلف دائنة",
-                    "other_payables_cy": {
-                        "amount": -24164,
-                        "origin": "trial_balance",
-                        "status": "ok",
-                        "refs": [
-                            {
-                                "type": "row",
-                                "row": 26
-                            },
-                            {
-                                "type": "row",
-                                "row": 26
-                            },
-                            {
-                                "type": "row",
-                                "row": 28
-                            },
-                            {
-                                "type": "row",
-                                "row": 28
-                            },
-                            {
-                                "type": "row",
-                                "row": 29
-                            },
-                            {
-                                "type": "row",
-                                "row": 29
-                            },
-                            {
-                                "type": "row",
-                                "row": 30
-                            },
-                            {
-                                "type": "row",
-                                "row": 30
-                            },
-                            {
-                                "type": "row",
-                                "row": 32
-                            },
-                            {
-                                "type": "row",
-                                "row": 32
-                            },
-                            {
-                                "type": "row",
-                                "row": 37
-                            },
-                            {
-                                "type": "row",
-                                "row": 37
-                            },
-                            {
-                                "type": "row",
-                                "row": 38
-                            },
-                            {
-                                "type": "row",
-                                "row": 38
-                            },
-                            {
-                                "type": "row",
-                                "row": 39
-                            },
-                            {
-                                "type": "row",
-                                "row": 39
-                            },
-                            {
-                                "type": "row",
-                                "row": 40
-                            },
-                            {
-                                "type": "row",
-                                "row": 40
-                            },
-                            {
-                                "type": "row",
-                                "row": 41
-                            },
-                            {
-                                "type": "row",
-                                "row": 41
-                            },
-                            {
-                                "type": "row",
-                                "row": 43
-                            },
-                            {
-                                "type": "row",
-                                "row": 43
-                            },
-                            {
-                                "type": "row",
-                                "row": 44
-                            },
-                            {
-                                "type": "row",
-                                "row": 44
-                            },
-                            {
-                                "type": "row",
-                                "row": 45
-                            },
-                            {
-                                "type": "row",
-                                "row": 45
-                            },
-                            {
-                                "type": "row",
-                                "row": 46
-                            },
-                            {
-                                "type": "row",
-                                "row": 46
-                            },
-                            {
-                                "type": "row",
-                                "row": 48
-                            },
-                            {
-                                "type": "row",
-                                "row": 48
-                            },
-                            {
-                                "type": "row",
-                                "row": 49
-                            },
-                            {
-                                "type": "row",
-                                "row": 49
-                            },
-                            {
-                                "type": "row",
-                                "row": 50
-                            },
-                            {
-                                "type": "row",
-                                "row": 50
-                            },
-                            {
-                                "type": "row",
-                                "row": 1000027
-                            },
-                            {
-                                "type": "row",
-                                "row": 1000027
-                            }
-                        ]
-                    },
-                    "other_payables_py": {
-                        "amount": 0,
-                        "origin": "prior_year_statements",
-                        "status": "ok",
-                        "refs": []
-                    }
                 }
             ],
             "revenue_label": [],
@@ -21503,7 +22355,7 @@
                 {
                     "general_admin_label": "أجور ورواتب",
                     "general_admin_cy": {
-                        "amount": 4296,
+                        "amount": 61136,
                         "origin": "trial_balance",
                         "status": "ok",
                         "refs": [
@@ -21514,6 +22366,14 @@
                             {
                                 "type": "row",
                                 "row": 93
+                            },
+                            {
+                                "type": "row",
+                                "row": 98
+                            },
+                            {
+                                "type": "row",
+                                "row": 98
                             }
                         ]
                     },
@@ -21633,30 +22493,6 @@
                             {
                                 "type": "row",
                                 "row": 97
-                            }
-                        ]
-                    },
-                    "general_admin_py": {
-                        "amount": 0,
-                        "origin": "prior_year_statements",
-                        "status": "ok",
-                        "refs": []
-                    }
-                },
-                {
-                    "general_admin_label": "مصروف مكافأة نهاية الخدمة",
-                    "general_admin_cy": {
-                        "amount": 56840,
-                        "origin": "trial_balance",
-                        "status": "ok",
-                        "refs": [
-                            {
-                                "type": "row",
-                                "row": 98
-                            },
-                            {
-                                "type": "row",
-                                "row": 98
                             }
                         ]
                     },
@@ -21900,10 +22736,14 @@
                 {
                     "zakat_base_label": "إجمالي الإضافات إلى الوعاء",
                     "zakat_base_cy": {
-                        "amount": null,
-                        "origin": "missing",
-                        "status": "missing",
-                        "refs": []
+                        "amount": 7117468.87,
+                        "origin": "derived",
+                        "status": "ok",
+                        "refs": [
+                            {
+                                "type": "zakat_calculation"
+                            }
+                        ]
                     },
                     "zakat_base_py": {
                         "amount": 16328061,
@@ -21915,10 +22755,14 @@
                 {
                     "zakat_base_label": "إجمالي الحسميات من الوعاء",
                     "zakat_base_cy": {
-                        "amount": -17727757,
+                        "amount": -1910627,
                         "origin": "derived",
-                        "status": "pending_confirmation",
-                        "refs": []
+                        "status": "ok",
+                        "refs": [
+                            {
+                                "type": "zakat_calculation"
+                            }
+                        ]
                     },
                     "zakat_base_py": {
                         "amount": -17171474,
@@ -21930,9 +22774,9 @@
                 {
                     "zakat_base_label": "صافي الوعاء",
                     "zakat_base_cy": {
-                        "amount": null,
-                        "origin": "missing",
-                        "status": "missing",
+                        "amount": 5206841.87,
+                        "origin": "derived",
+                        "status": "ok",
                         "refs": []
                     },
                     "zakat_base_py": {
@@ -23452,42 +24296,45 @@
             },
             {
                 "current": {
-                    "amount": null,
-                    "origin": "missing",
-                    "status": "missing",
-                    "refs": []
+                    "amount": 7117468.87,
+                    "origin": "derived",
+                    "status": "ok",
+                    "refs": [
+                        {
+                            "type": "zakat_calculation"
+                        }
+                    ]
                 },
                 "label": "إجمالي الإضافات إلى الوعاء",
                 "label_by_sign": false,
                 "n": 4,
                 "kind": "line",
                 "prior": 16328061,
-                "from": "input"
+                "from": "calculation"
             },
             {
                 "current": {
-                    "amount": -17727757,
+                    "amount": -1910627,
                     "origin": "derived",
-                    "status": "pending_confirmation",
-                    "refs": []
+                    "status": "ok",
+                    "refs": [
+                        {
+                            "type": "zakat_calculation"
+                        }
+                    ]
                 },
                 "label": "إجمالي الحسميات من الوعاء",
                 "label_by_sign": false,
-                "from": "derived",
-                "components": [
-                    "الخسائر المتراكمة أول السنة",
-                    "الممتلكات والآلات والمعدات",
-                    "أصول أخرى"
-                ],
                 "n": 5,
                 "kind": "line",
-                "prior": -17171474
+                "prior": -17171474,
+                "from": "calculation"
             },
             {
                 "current": {
-                    "amount": null,
-                    "origin": "missing",
-                    "status": "missing",
+                    "amount": 5206841.87,
+                    "origin": "derived",
+                    "status": "ok",
                     "refs": []
                 },
                 "label": "صافي الوعاء",
@@ -23764,7 +24611,23 @@
             "zakat": 0,
             "income_tax": 0
         },
-        "saudi_share_from": "default"
+        "saudi_share_from": "default",
+        "entry": {
+            "lines": [],
+            "profit": {
+                "before": 6007566.91,
+                "zakat": 0,
+                "income_tax": 0,
+                "after": 6007566.91
+            },
+            "provision": {
+                "opening": -14946.04,
+                "charge": 13835,
+                "paid": 27670,
+                "prior_year_adjustments": 0,
+                "closing": -28781.04
+            }
+        }
     },
     "comparative": {
         "source": "statements",
@@ -24187,7 +25050,7 @@
                     "kind": "rounding"
                 }
             ],
-            "rows": 30,
+            "rows": 29,
             "relations": [
                 {
                     "code": "equation_tb",
@@ -24281,7 +25144,7 @@
         "schedules": [],
         "upload": {
             "name": "قوائم تاج العوازل 2024 المعتمدة.pdf",
-            "uploaded_at": "2026-11-19T13:25:21+00:00",
+            "uploaded_at": "2026-11-23T15:02:16+00:00",
             "year": 2024,
             "in_use": true,
             "expenses_shown_positive": null,
@@ -26286,8 +27149,7 @@
                     "الزكاة",
                     "ارصدة مدينة اخري",
                     "عُهد وسُلف العاملين",
-                    "حسابات مدينة لدى الجهات الحكومية",
-                    "دفعات مقدمة للموردين"
+                    "حسابات مدينة لدى الجهات الحكومية"
                 ],
                 "cash": [
                     "نقدية لدى الصندوق",
@@ -26301,8 +27163,7 @@
                     "دائنون متنوعون",
                     "عهد وسلف موظفين",
                     "ايجارات مستحقة",
-                    "ضريبة القيمة المضافة",
-                    "عُهد وسُلف دائنة"
+                    "ضريبة القيمة المضافة"
                 ],
                 "revenue": [],
                 "cost_of_revenue": [
@@ -26316,7 +27177,6 @@
                     "ايجارات",
                     "أتعاب مهنية واستشارات",
                     "نقل وانتقالات",
-                    "مصروف مكافأة نهاية الخدمة",
                     "كهرباء ومياه وغاز"
                 ],
                 "other_income": [
@@ -26362,8 +27222,7 @@
                         "الزكاة": 14946,
                         "ارصدة مدينة اخري": 718,
                         "عُهد وسُلف العاملين": 0,
-                        "حسابات مدينة لدى الجهات الحكومية": 0,
-                        "دفعات مقدمة للموردين": 0
+                        "حسابات مدينة لدى الجهات الحكومية": 0
                     }
                 },
                 "cash": {
@@ -26389,8 +27248,7 @@
                         "دائنون متنوعون": 2747398,
                         "عهد وسلف موظفين": 91747,
                         "ايجارات مستحقة": 10417,
-                        "ضريبة القيمة المضافة": 44914,
-                        "عُهد وسُلف دائنة": 0
+                        "ضريبة القيمة المضافة": 44914
                     }
                 },
                 "revenue": {
@@ -26420,7 +27278,6 @@
                         "ايجارات": 162000,
                         "أتعاب مهنية واستشارات": 0,
                         "نقل وانتقالات": 0,
-                        "مصروف مكافأة نهاية الخدمة": 0,
                         "كهرباء ومياه وغاز": 0
                     }
                 },
@@ -26755,10 +27612,7 @@
                 "ppe.acc_opening.total",
                 "ppe.depreciation.total",
                 "ppe.acc_disposals.total",
-                "zakat.opening",
-                "zakat.charge",
                 "zakat.prior_year_adjustments",
-                "zakat.paid",
                 "zakat.reversal"
             ]
         }
@@ -26776,13 +27630,13 @@
         {
             "reason": "warnings_unacknowledged",
             "label_ar": "تنبيهات لم تُؤكَّد بعد",
-            "count": 22,
+            "count": 21,
             "label": "Warnings not yet acknowledged"
         },
         {
             "reason": "missing",
             "label_ar": "أرقام ناقصة",
-            "count": 5,
+            "count": 4,
             "label": "Missing figures"
         },
         {
@@ -26797,7 +27651,7 @@
         "latest": {
             "version": 1,
             "kind": "draft",
-            "created_at": "2026-11-19T13:25:23+00:00"
+            "created_at": "2026-11-23T15:02:18+00:00"
         },
         "final": null
     },

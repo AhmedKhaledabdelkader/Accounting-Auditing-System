@@ -409,6 +409,13 @@ final class CurrentYearStatements
         if ($ppePrior !== null && $ppePrior['comparative'] !== []) {
             $prior['schedules_entered'] = ($prior['schedules_entered'] ?? []) + $ppePrior['comparative'];
         }
+        // The provisions' movement last year (end of service, zakat, …) as last year's notes print it, where nothing is typed.
+        if ($source === 'statements' && isset($prior['file']['document'])) {
+            $provisions = PriorPdf\Provisions::comparative($prior['file'], $prior['file_rows'] ?? [], $catalogue->schedules());
+            if ($provisions !== []) {
+                $prior['schedules_entered'] = ($prior['schedules_entered'] ?? []) + $provisions;
+            }
+        }
         $cmpSchedules = $this->noteComparatives->schedules($notes['schedules'], $source, $prior, $cmpSofp ?? []);
 
         return [

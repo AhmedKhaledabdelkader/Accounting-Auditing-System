@@ -116,8 +116,18 @@ final class PriorNoteItems
                 }
                 $breakdowns[$note] = self::remainder(['rows' => $rows] + $b, $line);
                 continue;
-            } else {
+            } elseif (str_starts_with($b['lines'][0], 'is.')) {
+                // Last year's statements print the line without a note (no split): its amount on this year's main row (the
+                // largest), the others «-», said by the info check `prior_line_on_main_row` (P3), never left «[ناقص]».
+                $main = array_key_first(array_filter($rows, fn ($r) => abs($r['current']->amount ?? 0.0) === max(array_map(fn ($x) => abs($x['current']->amount ?? 0.0), $rows))));
+                foreach ($rows as $i => $r) {
+                    $rows[$i]['comparative'] = new Figure($i === $main ? $line : 0.0, 'prior_year_statements', 'ok', $i === $main ? $refs : []);
+                }
+                $breakdowns[$note]['rows'] = $rows;
+                $breakdowns[$note]['prior_on_main_row'] = ['item' => $rows[$main]['label_ar'], 'amount' => $line];
                 continue;
+            } else {
+                continue;   // a balance-sheet line whose accounts' openings don't add up to it: the accountant's to split
             }
             $breakdowns[$note]['rows'] = $rows;
         }
@@ -226,6 +236,48 @@ final class PriorNoteItems
                 [$placed[$a['ref']], $by[$a['ref']]] = [$best, 'words'];
             }
         }
+        // Merged by meaning (the accountant's rule: merge items where it can be done): an account of the same family as
+        // exactly one of last year's lines («رسوم وتراخيص» on «مصروفات حكومية», «سكن العاملين» on «أجور ورواتب وما في
+        // حكمها»), its family's parent when the family has no line of its own.
+        $families = (array) config('financial_statements.note_merge.families', []);
+        $itemFamily = array_map(fn ($i) => self::family($i['label']), $items);
+        foreach ($accounts as $a) {
+            if (isset($placed[$a['ref']])) {
+                continue;
+            }
+            // The class first (the classification's own wording), then the account's name.
+            for ($f = self::family((string) $a['class']) ?? self::family($a['label']), $seen = []; $f !== null && ! isset($seen[$f]); $f = $families[$f]['falls_to'] ?? null) {
+                $seen[$f] = true;
+                $lines = array_keys($itemFamily, $f, true);
+                if (count($lines) === 1) {
+                    [$placed[$a['ref']], $by[$a['ref']]] = [$lines[0], 'family'];
+                    break;
+                }
+                if (count($lines) > 1) {
+                    break;   // two of last year's lines of its kind: the accountant's choice
+                }
+            }
+        }
+        // Small items still on no line: on last year's «متنوعة» / «أخرى» line, when the note has one. Small by their kind
+        // together (their family, else their class), so a material kind split over many accounts (travel) stays an item.
+        $misc = array_keys($itemFamily, 'misc', true);
+        $total = array_sum(array_map(fn ($a) => abs((float) $a['current']), $accounts));
+        $share = (float) config('financial_statements.note_merge.misc_share', 0.05);
+        if (count($misc) === 1 && $total > 0) {
+            $groups = [];
+            foreach ($accounts as $a) {
+                if (! isset($placed[$a['ref']])) {
+                    $groups[self::family((string) $a['class']) ?? self::family($a['label']) ?? 'class:'.$a['class']][] = $a;
+                }
+            }
+            foreach ($groups as $group) {
+                if (array_sum(array_map(fn ($a) => abs((float) $a['current']), $group)) <= $share * $total) {
+                    foreach ($group as $a) {
+                        [$placed[$a['ref']], $by[$a['ref']]] = [$misc[0], 'misc'];
+                    }
+                }
+            }
+        }
 
         return [$placed, $by];
     }
@@ -276,10 +328,18 @@ final class PriorNoteItems
         $t = $tables[0];
         $at = array_search('current', $t['roles']['roles'], true);
         $items = [];
-        foreach ($t['rows'] as $r) {
+        $sum = 0.0;
+        foreach ($t['rows'] as $i => $r) {
             if ($r['kind'] !== 'line' || trim($r['label']) === '') {
                 continue;
             }
+            // A total read as a line («الإجمالي» last, or a row equal to the lines above it): never an item (R10).
+            $amount = (float) ($r['cells'][$at]['amount'] ?? 0.0);
+            if (self::isTotal((string) $r['label']) || (count($items) >= 2 && abs($amount) > Tables::TOLERANCE && abs($amount - $sum) <= Tables::TOLERANCE
+                && ! array_filter(array_slice($t['rows'], $i + 1), fn ($x) => $x['kind'] === 'line' && trim($x['label']) !== ''))) {
+                continue;
+            }
+            $sum += $amount;
             $label = Wording::apply(trim($r['label']), $doc['corrections'] ?? [], $file['wording_choices'] ?? []);
             $key = $label;
             for ($n = 2; isset($items[$key]); $n++) {
@@ -289,5 +349,28 @@ final class PriorNoteItems
         }
 
         return $items;
+    }
+
+    /** A total's wording: «الإجمالي», «المجموع», «إجمالي المصروفات», «الصافي» (with a year or a currency after it). */
+    public static function isTotal(string $label): bool
+    {
+        $text = trim((string) preg_replace('/[\d\x{0660}-\x{0669}\x{06F0}-\x{06F9}\/\-–:.,()]+|ريال(\s+سعودي)?|م$/u', ' ', $label));
+
+        return preg_match('/^(ال)?(إجمالي|اجمالي|الاجمالي|مجموع|المجموع|صافي|الصافي)(\s+(ال)?(كلي|عام|مصروفات|المصروفات|مصاريف|المصاريف|الإيضاح|البند))?\s*$/u', $text) === 1;
+    }
+
+    /**
+     * A name's family of meaning (config financial_statements.note_merge.families, the first that matches): salaries,
+     * government fees, rent, utilities, … ; null when none does.
+     */
+    public static function family(string $name): ?string
+    {
+        foreach ((array) config('financial_statements.note_merge.families', []) as $key => $f) {
+            if (preg_match($f['pattern'], $name) === 1) {
+                return $key;
+            }
+        }
+
+        return null;
     }
 }

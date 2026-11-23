@@ -49,7 +49,7 @@ class ApiContractTest extends TestCase
         'POST /api/v1/clients/{id}/follow-up/send' => ['201', '404', '422', '502'], 'POST /api/v1/clients/{id}/follow-up/replies' => ['201', '404', '422'],
         'GET /api/v1/clients/{id}/prepared-papers' => ['200', '404', '422'], 'POST /api/v1/clients/{id}/prepared-papers' => ['202', '404', '422'],
         'GET /api/v1/clients/{id}/prepared-papers/{paper}/download' => ['200', '404'],
-        'GET /api/v1/clients/{id}/findings' => ['200', '404', '422'], 'PUT /api/v1/clients/{id}/findings/{key}' => ['200', '404', '422'], 'GET /api/v1/clients/{id}/findings/export' => ['200', '404', '422'], 'GET /api/v1/account/mail' => ['200'], 'PUT /api/v1/account/mail' => ['200', '422'],
+        'GET /api/v1/clients/{id}/findings' => ['200', '404', '422'], 'GET /api/v1/clients/{id}/engagement' => ['200', '404', '422'], 'GET /api/v1/engagements/{id}/status' => ['200', '404', '422'], 'PUT /api/v1/clients/{id}/findings/{key}' => ['200', '404', '422'], 'GET /api/v1/clients/{id}/findings/export' => ['200', '404', '422'], 'GET /api/v1/account/mail' => ['200'], 'PUT /api/v1/account/mail' => ['200', '422'],
         'DELETE /api/v1/account/mail' => ['204'], 'POST /api/v1/account/mail/test' => ['200', '404'], 'POST /api/v1/account/mail/check' => ['200', '404'],
         // The AI limit needs a saved user with a limit: kernel only (merged with the statuses above in KERNEL_ONLY's lookup).
     ];
@@ -669,7 +669,8 @@ class ApiContractTest extends TestCase
         $this->expect($op, 404, 'PATCH', '/api/v1/financial-reports/'.Str::uuid().'/notes', ['visibility' => ['ppe' => 'on']]);
 
         $op = 'PUT /api/v1/financial-reports/{id}/acknowledgements';
-        $warning = collect($state['checks'])->firstWhere('severity', 'warning');
+        // A warning that is acknowledged (a suggested answer, `input_to_confirm`, is confirmed by saving it instead).
+        $warning = collect($state['checks'])->first(fn ($c) => $c['severity'] === 'warning' && $c['code'] !== 'input_to_confirm');
         $acks = $warning ? [['key' => $warning['key'], 'note' => 'تمت المراجعة.']] : [];
         $state = $this->expect($op, 200, 'PUT', "{$base}/acknowledgements", ['acknowledgements' => $acks]);
         $this->assertCount(count($acks), $state['acknowledgements']);
@@ -829,6 +830,20 @@ class ApiContractTest extends TestCase
         $this->assertSame(200, $r['status']);
         $this->assertSame([], OpenApiContract::get()->problems('GET /api/v1/clients/{id}/prepared-papers/{paper}/download', 200, $r['type'], $r['body']));
         $this->expect('GET /api/v1/clients/{id}/prepared-papers/{paper}/download', 404, 'GET', "{$base}/999999/download");
+    }
+
+    public function test_engagement_status(): void
+    {
+        if ($this->live) {
+            $this->markTestSkipped('Needs a saved office: kernel only.');
+        }
+        [, $company] = $this->officeClient();
+        foreach (['GET /api/v1/clients/{id}/engagement' => fn ($id) => "/api/v1/clients/{$id}/engagement", 'GET /api/v1/engagements/{id}/status' => fn ($id) => "/api/v1/engagements/{$id}/status"] as $op => $url) {
+            $s = $this->expect($op, 200, 'GET', $url($company->id).'?year=2025');
+            $this->assertSame('acceptance', $s['steps'][0]['step_key']);
+            $this->expect($op, 404, 'GET', $url((string) Str::uuid()));
+            $this->expect($op, 422, 'GET', $url($company->id).'?year=1900');
+        }
     }
 
     public function test_audit_findings(): void

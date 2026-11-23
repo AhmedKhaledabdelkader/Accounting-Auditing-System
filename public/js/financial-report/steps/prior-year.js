@@ -512,7 +512,7 @@ export async function render(ctx) {
     // A file of last year's issued statements (PR 17): uploaded, then reviewed below.
     let review = null;
     if (source === 'statements') {
-      const input = el('input', { type: 'file', accept: '.xlsx,.xls,.pdf', 'data-field': 'file' });
+      const input = el('input', { type: 'file', accept: '.xlsx,.xlsm,.xls,.xml,.ods,.csv,.txt,.htm,.html,.pdf', 'data-field': 'file' });
       const status = el('div');
       const send = el('button', { class: 'btn ghost', type: 'button', 'data-upload-prior': '', onclick: async () => {
         if (!input.files.length) return;

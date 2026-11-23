@@ -119,7 +119,7 @@ final class NotesBuilder
         $priorInputs = $report->priorReport?->inputs ?? PriorPdf\PdfDefaults::inputs($report);
         // Useful lives: one per category of last year's PPE note, each its own (100 / its rate, Phase 6); without last
         // year's categories, the template's.
-        $lifeRows = $this->usefulLives($built['ppe_prior']['categories'] ?? [], $categoryNz);
+        $lifeRows = $this->usefulLives($built['ppe_prior']['categories'] ?? [], $categoryNz, $schedules);
         if ($report->priorReport === null) {
             foreach ($lifeRows as $r) {
                 if ($r['years'] !== null) {
@@ -132,7 +132,14 @@ final class NotesBuilder
 
         // The zakat base as last year's zakat note computed it (with last year's statements confirmed from a PDF).
         $priorFile = ($report->prior_figures['source'] ?? null) === 'statements' ? ($report->prior_figures['file'] ?? null) : null;
-        $zakatBase = ZakatBase::of($priorFile, $cur, $built['schedules'], $inputs, $cmp, $catalogue);
+        // This year's zakat calculation (the accountants' sheet, ZakatCalculator) gives the base's additions, deductions and net base.
+        try {
+            $zakatCalc = ZakatCalculator::of($built['statements'], (array) ($report->zakat_tax['inputs'] ?? []),
+                ['start' => $report->period_start->format('Y-m-d'), 'end' => $report->period_end->format('Y-m-d')]);
+        } catch (\Throwable) {
+            $zakatCalc = null;
+        }
+        $zakatBase = ZakatBase::of($priorFile, $cur, $built['schedules'], $inputs, $cmp, $catalogue, $zakatCalc);
 
         // The partners (R14): last year's capital note's, shown till the accountant saves the table (P2).
         $pdfPartners = $priorFile === null ? null : PriorPdf\Partners::read($priorFile, $report->prior_figures['rows'] ?? []);
@@ -193,6 +200,15 @@ final class NotesBuilder
             }
             $meta[$key]['number']     = $meta[$key]['visible'] ? ++$number : null;
             $meta[$key]['references'] = $cfg['lines'] ?? [];
+        }
+        // The accountant's order of the notes (`order`, the freedom to arrange them): the shown notes numbered 1…N in it; a note
+        // it doesn't name keeps its place after the one before it in the template. The data stays in the template's order.
+        $order = self::order($keys, (array) ($options['order'] ?? []));
+        if ($order !== $keys) {
+            $number = 0;
+            foreach ($order as $key) {
+                $meta[$key]['number'] = $meta[$key]['visible'] ? ++$number : null;
+            }
         }
         $references = [];
         foreach ($config as $key => $cfg) {
@@ -272,6 +288,21 @@ final class NotesBuilder
             'zakat_base_py' => $firstYear ? new Figure(0.0, 'derived') : new Figure((float) $r['prior'], 'prior_year_statements')], $zakatBase['rows'] ?? []);
 
         $rendered = $this->renderer->render($template, $keys, $meta, $blocks, $values, $items, $options['texts'] ?? [], $firstYear);
+        // The template's incorporation sentence names a limited liability company: a sole proprietorship says so.
+        if (($values['legal_form'] ?? null) !== null && $values['legal_form'] !== Company::LEGAL_FORMS['llc']) {
+            foreach ($rendered['notes'] as $i => $n) {
+                if ($n['key'] !== 'incorporation') {
+                    continue;
+                }
+                foreach ($n['blocks'] as $j => $b) {
+                    foreach (['text_ar', 'template_ar'] as $field) {
+                        if (isset($b[$field]) && is_string($b[$field])) {
+                            $rendered['notes'][$i]['blocks'][$j][$field] = str_replace(Company::LEGAL_FORMS['llc'], $values['legal_form'], $b[$field]);
+                        }
+                    }
+                }
+            }
+        }
 
         // Intake: the notes' own questions, driven by what shows.
         $fields = $this->intake->noteFields([
@@ -283,7 +314,7 @@ final class NotesBuilder
             'other_provisions' => $meta['other_provisions']['visible'], 'trade_payables' => $meta['trade_payables']['visible'],
             'supplier_finance' => $this->supplierFinance($ctx),
             'fx' => $fx,
-            'zakat_base' => array_values(array_filter($zakatBase['rows'] ?? [], fn ($r) => in_array($r['from'], ['input', 'derived'], true))),
+            'zakat_base' => array_values(array_filter($zakatBase['rows'] ?? [], fn ($r) => in_array($r['from'], ['input', 'derived', 'calculation'], true))),
         ], $inputs, $priorInputs);
 
         // The kinds of revenue worked out from the activity and the accounts, not from last year or the user: said, never silent (P3).
@@ -306,6 +337,7 @@ final class NotesBuilder
                 ReportChecks::msg('related_party_line_on_one', ['name' => $l['name'], 'line' => number_format($l['line']), 'opening' => number_format($l['opening'], 2),
                     'difference' => number_format($l['line'] - $l['opening'], 2)]),
                 ['note' => 'related_parties', 'rows' => [$l['row']], 'input_key' => 'related_parties']), $lineOnOne)),
+            ...$this->relatedElsewhere($pdfParties, $rpRows, $ctx, $rpLines),
             ...($pdfParties !== null && $unmatchedParties !== [] && ! is_array($in('related_parties'))
                 ? [$this->check('related_parties_unmatched', 'warning', count($pdfParties['parties']), count($pdfParties['parties']) - count($unmatchedParties), count($unmatchedParties),
                     ReportChecks::msg('related_parties_unmatched', ['page' => $pdfParties['page'], 'names' => implode('، ', $unmatchedParties)]), ['note' => 'related_parties', 'names' => $unmatchedParties])]
@@ -321,6 +353,7 @@ final class NotesBuilder
                 ReportChecks::msg('ppe_columns_own', ['rows' => implode('، ', array_map(fn ($r) => __("statements.ppe_rows.{$r}", [], 'ar'), $ppeOwn['rows']))]), ['note' => 'ppe'])] : []),
             ...$this->additionsDepreciation($built['ppe_prior']['categories'] ?? []),
             ...$this->livesNotDerived($lifeRows, $built['ppe_prior']['categories'] ?? [], $inputs),
+            ...$this->livesEstimated($lifeRows, $built['ppe_prior']['categories'] ?? [], $inputs),
             ...$this->companyIdentity($report, $priorFile),
             ...$this->referenceChecks($config, $meta, $cur, $cmp, $rendered['note_refs'], $firstYear, $kz),
             ...$this->outdatedChecks($rendered['notes']),
@@ -452,8 +485,15 @@ final class NotesBuilder
                         default => Figure::missing(),
                     };
                     $moved = round($bal[$table][0] - $bal[$table][1], 2);
+                    // No account of the party's on this table's lines this year (moved to another line, or settled): nothing
+                    // is due on it at the year end, whatever last year's balance was.
+                    $cy = match (true) {
+                        ($refs[$table] ?? []) === [] => new Figure(0.0, 'trial_balance'),
+                        $py->isMissing()             => Figure::missing(),
+                        default                      => new Figure(round($py->amount + $moved, 2) + 0.0, 'trial_balance', 'ok', $refs[$table]),
+                    };
                     $out[] = ['table' => $table, 'name' => $p['name'] ?? null, 'relationship' => $p['relationship'] ?? null, 'nature' => $p['nature'] ?? null,
-                        'cy' => $py->isMissing() ? Figure::missing() : new Figure(round($py->amount + $moved, 2) + 0.0, 'trial_balance', 'ok', $refs[$table] ?? []), 'py' => $py,
+                        'cy' => $cy, 'py' => $py,
                         'volume_cy' => $table === $tables[0] ? $num('volume_cy') : new Figure(0.0, 'derived'),
                         'volume_py' => $table === $tables[0] ? $num('volume_py') : new Figure(0.0, 'derived')];
                     continue;
@@ -580,17 +620,77 @@ final class NotesBuilder
      * @return list<array{key: string, label: string, printed: ?string, years: ?string}> printed: last year's category;
      *         years: its life, 100 / its rate
      */
-    private function usefulLives(array $priorCategories, callable $categoryNz): array
+    private function usefulLives(array $priorCategories, callable $categoryNz, array $schedules = []): array
     {
         $cost = fn (array $c) => abs($c['last']['cost_closing'] ?? 0.0) > 0.5 || abs($c['current']['cost_closing'] ?? 0.0) > 0.5;
         $prior = array_values(array_filter($priorCategories, $cost));
         if ($prior !== []) {
-            return array_map(fn ($c) => ['key' => $c['key'], 'label' => $c['label'], 'printed' => $c['label'],
-                'years' => self::years($c['life'] ?? null, $c['life_range'] ?? null)], $prior);
+            return array_map(function ($c) {
+                $years = self::years($c['life'] ?? null, $c['life_range'] ?? null);
+                // A rate printed but no life from it (the file doesn't say straight-line): the accountant's, never estimated
+                // (100 / rate holds only for straight-line; check useful_life_not_derived says so).
+                $rated = ($c['rate'] ?? null) !== null || ($c['rate_range'] ?? null) !== null;
+                $estimate = $years === null && ! $rated;
+
+                return ['key' => $c['key'], 'label' => $c['label'], 'printed' => $c['label'], 'years' => $estimate ? self::estimatedLife($c['current'] ?? [], $c['own'] ?? null, $c['label']) : $years,
+                    'estimated' => $estimate ? self::lifeBasis($c['current'] ?? [], $c['own'] ?? null, $c['label']) : null];
+            }, $prior);
+        }
+        // The note's own categories: the life the year's depreciation implies, else the category's usual one (flagged).
+        $ppe = $schedules['ppe'] ?? null;
+        $cells = function (string $category) use ($ppe) {
+            $out = [];
+            foreach ($ppe['rows'] ?? [] as $r) {
+                $f = $r['cells'][$category] ?? null;
+                $out[$r['key']] = $f === null || $f->isMissing() ? null : $f->amount;
+            }
+
+            return $out;
+        };
+
+        return array_values(array_map(function ($k) use ($cells) {
+            $c = $cells(self::USEFUL_LIVES[$k][1]);
+
+            return ['key' => $k, 'label' => __("statements.useful_lives.{$k}", [], 'ar'), 'printed' => null,
+                'years' => self::estimatedLife($c, $k, ''), 'estimated' => self::lifeBasis($c, $k, '')];
+        }, array_keys(array_filter(self::USEFUL_LIVES, fn ($sc) => $categoryNz(...$sc)))));
+    }
+
+    /**
+     * A life no statement gives (never «[ناقص]»): 100 / the rate the year's depreciation implies on the category's cost
+     * (PriorPpe::impliedRate), else the usual life of its kind (config financial_statements.useful_life_defaults, by the
+     * note's category or the printed name's words). Shown, and said by check `useful_life_estimated` (P3).
+     */
+    private static function estimatedLife(array $cells, ?string $own, string $label): ?string
+    {
+        $rate = PriorPpe::impliedRate($cells);
+        if ($rate !== null) {
+            return self::years(round(100 / $rate, 2), null);
+        }
+        $usual = self::usualLife($own, $label);
+
+        return $usual === null ? null : self::years((float) $usual, null);
+    }
+
+    /** How an estimated life was found: `implied` (the year's depreciation), `usual` (the kind's usual life), or null. */
+    private static function lifeBasis(array $cells, ?string $own, string $label): ?string
+    {
+        return PriorPpe::impliedRate($cells) !== null ? 'implied' : (self::usualLife($own, $label) !== null ? 'usual' : null);
+    }
+
+    private static function usualLife(?string $own, string $label): ?int
+    {
+        $defaults = (array) config('financial_statements.useful_life_defaults', []);
+        if ($own !== null && isset($defaults['categories'][$own])) {
+            return (int) $defaults['categories'][$own];
+        }
+        foreach ((array) ($defaults['words'] ?? []) as $pattern => $years) {
+            if (preg_match($pattern, $label) === 1) {
+                return (int) $years;
+            }
         }
 
-        return array_values(array_map(fn ($k) => ['key' => $k, 'label' => __("statements.useful_lives.{$k}", [], 'ar'), 'printed' => null, 'years' => null],
-            array_keys(array_filter(self::USEFUL_LIVES, fn ($sc) => $categoryNz(...$sc)))));
+        return isset($defaults['other']) ? (int) $defaults['other'] : null;
     }
 
     private function values(FinancialReport $report, array $in, array $built, array $cur, array $cmp, array $meta, array $indicators, array $parties, array $schedules,
@@ -605,12 +705,28 @@ final class NotesBuilder
         $date    = fn (?CarbonInterface $d) => $d === null ? null : $d->day.' '.self::MONTHS[$d->month - 1].' '.$d->year.'م';
         $dayMonth = fn (CarbonInterface $d) => $d->day.' '.self::MONTHS[$d->month - 1];
 
-        foreach (['company_name' => $company?->name_ar, 'city' => $company?->city, 'cr_number' => $company?->cr_number, 'cr_date_hijri' => $company?->cr_date_hijri,
-            'unified_number' => $company?->unified_number, 'activity' => $company?->activity, 'head_office' => $company?->head_office] as $k => $value) {
+        // The company's facts; one its profile doesn't hold yet is last year's notes' (note 1 of the PDF), never «[ناقص]»
+        // when they say it. The registration number and name stay the profile's when it has them (the identity check
+        // compares the two).
+        $priorFile = ($report->prior_figures['source'] ?? null) === 'statements' ? ($report->prior_figures['file'] ?? null) : null;
+        $facts = isset($priorFile['document']) ? PriorPdf\CompanyFacts::of($priorFile['document'], $priorFile['document']['corrections'] ?? [], $priorFile['wording_choices'] ?? []) : [];
+        // Only the company's own statements: a file naming another company (its name or registration differs) gives nothing
+        // (the identity check says so, and the facts are offered in step 2, never filled on their own).
+        if ($facts !== [] && PriorPdf\CompanyIdentity::of($company, $facts)['differs'] !== []) {
+            $facts = [];
+        }
+        foreach (['company_name' => [$company?->name_ar, 'name_ar'], 'city' => [$company?->city, 'city'], 'cr_number' => [$company?->cr_number, 'cr_number'],
+            'cr_date_hijri' => [$company?->cr_date_hijri, 'cr_date_hijri'], 'unified_number' => [$company?->unified_number, null],
+            'activity' => [$company?->activity, 'activity'], 'head_office' => [$company?->head_office, 'head_office']] as $k => [$value, $fact]) {
             $v[$k] = $text($value);
             $src[$k] = 'company';
+            if ($v[$k] === null && $fact !== null && isset($facts[$fact])) {
+                $v[$k] = $text($facts[$fact]['value']);
+                $src[$k] = 'prior_pdf';
+            }
         }
-        $v['legal_form'] = $company?->legalFormText() ?? Company::LEGAL_FORMS['llc'];
+        $v['legal_form'] = $company?->legal_form !== null || ! isset($facts['legal_form']) ? ($company?->legalFormText() ?? Company::LEGAL_FORMS['llc'])
+            : Company::LEGAL_FORMS[$facts['legal_form']['value']] ?? Company::LEGAL_FORMS['llc'];
         $branches = array_values(array_filter(array_map('trim', (array) ($company?->branches ?? []))));
         $v['branches_clause'] = $branches ? '، وللشركة الفروع التالية: '.implode('، ', $branches) : '';
 
@@ -735,6 +851,16 @@ final class NotesBuilder
         }
         $v['receivables_net_cy'] = $cur['sofp.trade_receivables'] ?? Figure::missing();
         $v['receivables_net_py'] = $py($cmp['sofp.trade_receivables'] ?? null);
+        // Last year's split by last year's statements (the notes are theirs, not the trial balance's): the impairment their
+        // note prints (none printed: nil), else the contra accounts' openings; the gross is the approved line plus it.
+        if (! $firstYear && $v['receivables_gross_py']->isMissing() && ! $v['receivables_net_py']->isMissing()) {
+            $impairment = $this->priorImpairment($report, $built['breakdowns']['trade_receivables']['rows'] ?? []);
+            if ($impairment !== null) {
+                $v['receivables_impairment_py'] = $impairment;
+                $v['receivables_gross_py'] = new Figure(round($v['receivables_net_py']->amount - $impairment->amount, 2) + 0.0, 'prior_year_statements', 'ok',
+                    [['type' => 'line', 'key' => 'sofp.trade_receivables']]);
+            }
+        }
 
         // Movement tables.
         // A row or category the schedule doesn't have (no accounts, no transfers, no revaluation) is 0.
@@ -850,6 +976,12 @@ final class NotesBuilder
                 $r = $b['comparative_remainder'];
                 $checks[] = $this->check('note_comparative_remainder', 'info', null, $r['amount'], $r['amount'],
                     ReportChecks::msg('note_comparative_remainder', ['note' => __("statements.notes.{$note}", [], 'ar'), 'amount' => number_format($r['amount'], 2), 'item' => $r['item']]),
+                    ['scope' => 'comparative', 'line_key' => $b['lines'][0], 'note' => $note]);
+            }
+            if (! $firstYear && isset($b['prior_on_main_row'])) {
+                $r = $b['prior_on_main_row'];
+                $checks[] = $this->check('prior_line_on_main_row', 'info', null, $r['amount'], null,
+                    ReportChecks::msg('prior_line_on_main_row', ['note' => __("statements.notes.{$note}", [], 'ar'), 'amount' => number_format($r['amount'], 2), 'item' => $r['item']]),
                     ['scope' => 'comparative', 'line_key' => $b['lines'][0], 'note' => $note]);
             }
             if (! $firstYear) {
@@ -1003,6 +1135,123 @@ final class NotesBuilder
             ReportChecks::msg($method === 'other' ? 'useful_life_not_derived_other' : 'useful_life_not_derived', [
                 'categories' => implode('، ', array_map(fn ($r) => $r['label'], $rated)), 'page' => $byKey[$rated[0]['key']]['page']]),
             ['note' => 'ppe', 'input_key' => "useful_life.{$rated[0]['key']}", 'method' => $method])];
+    }
+
+    /**
+     * The notes in the accountant's order: the keys it names (known ones, once each), each note it leaves out right after the
+     * note before it in the template (or first). The template's order when it names none.
+     *
+     * @param list<string> $keys the template's notes in order
+     * @param list<string> $chosen
+     * @return list<string>
+     */
+    public static function order(array $keys, array $chosen): array
+    {
+        $out = array_values(array_unique(array_values(array_filter($chosen, fn ($k) => is_string($k) && in_array($k, $keys, true)))));
+        if ($out === []) {
+            return $keys;
+        }
+        foreach ($keys as $i => $key) {
+            if (in_array($key, $out, true)) {
+                continue;
+            }
+            $after = $i === 0 ? false : array_search($keys[$i - 1], $out, true);
+            array_splice($out, $after === false ? 0 : $after + 1, 0, [$key]);
+        }
+
+        return $out;
+    }
+
+    /**
+     * A related party of last year's note with an account on another line this year («جاري صاحب المؤسسة - فاطمة الشوا» on the
+     * partners' current accounts while last year's statements showed her balance due to related parties): the note and the
+     * line lose it. A warning naming the account and its line; moving it back is the comparability step's proposal (one click).
+     */
+    private function relatedElsewhere(?array $pdfParties, array $rpRows, ScheduleContext $ctx, array $rpLines): array
+    {
+        if ($pdfParties === null) {
+            return [];
+        }
+        $rpKeys = [...$rpLines['due_from'], ...$rpLines['due_to']];
+        $labels = array_column(array_filter($ctx->catalogue->statement('financial_position'), fn ($i) => isset($i['key'])), 'label_ar', 'key');
+        $out = [];
+        foreach ($pdfParties['parties'] as $p) {
+            if (abs((float) ($p['balance_py'] ?? 0)) <= 0.5) {
+                continue;
+            }
+            $want = PriorPdf\Partners::telling($p['name']);
+            foreach ($ctx->mapping['rows'] as $n => $m) {
+                $lines = array_keys($m['lines']['closing']);
+                if (isset($rpRows[$n]) || array_intersect($lines, $rpKeys) || ! array_filter($lines, fn ($l) => str_starts_with($l, 'sofp.'))) {
+                    continue;
+                }
+                $have = PriorPdf\Partners::telling((string) ($ctx->rows[$n]['account_name'] ?? ''));
+                $score = count(array_intersect($want, $have));
+                $open = abs((float) ($ctx->profile->opening($ctx->rows[$n]) ?? 0.0));
+                $close = abs((float) ($ctx->profile->closing($ctx->rows[$n]) ?? 0.0));
+                if ($open <= 0.5 && $close <= 0.5) {
+                    continue;   // nothing on it either year
+                }
+                if ($score === 0 || ($score < min(2, count($want)) && abs($open - abs((float) $p['balance_py'])) > PriorPdf\Tables::TOLERANCE)) {
+                    continue;
+                }
+                $out[] = $this->check('related_party_elsewhere', 'warning', abs((float) $p['balance_py']), $open, null,
+                    ReportChecks::msg('related_party_elsewhere', ['name' => $p['name'], 'account' => trim((string) ($ctx->rows[$n]['account_name'] ?? '')),
+                        'line' => $labels[$lines[0]] ?? $lines[0], 'prior' => number_format(abs((float) $p['balance_py']))]),
+                    ['note' => 'related_parties', 'rows' => [$n], 'name' => $p['name']]);
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Last year's impairment of trade receivables (negative): what last year's note prints on its impairment lines (nil
+     * when it prints none), else the contra accounts' openings; null when neither says.
+     *
+     * @param list<array> $rows the trade receivables note's rows (by class)
+     */
+    private function priorImpairment(FinancialReport $report, array $rows): ?Figure
+    {
+        $file = ($report->prior_figures['source'] ?? null) === 'statements' ? ($report->prior_figures['file'] ?? null) : null;
+        $doc = $file['document'] ?? null;
+        if ($doc !== null && ($section = PriorNoteItems::section($doc, $file, $report->prior_figures['rows'] ?? [], ['sofp.trade_receivables'])) !== null
+            && ($items = PriorNoteItems::items($doc, $section, $file)) !== []) {
+            $impairment = array_sum(array_map(fn ($i) => abs($i['prior']), array_filter($items,
+                fn ($i) => preg_match('/انخفاض|مخصص|مشكوك|هبوط|خسائر\s+ائتمان/u', $i['label']) === 1)));
+
+            return new Figure(-round($impairment, 2) + 0.0, 'prior_year_statements', 'ok', [['type' => 'prior_pdf', 'page' => $doc['sections'][$section]['page']]]);
+        }
+        $openings = [];
+        foreach ($rows as $r) {
+            if ($this->taxonomy->normalSide($r['key']) === 'credit') {
+                if ($r['opening'] === null) {
+                    return null;
+                }
+                $openings[] = $r['opening'];
+            }
+        }
+
+        return $openings === [] ? new Figure(0.0, 'derived') : Figure::sum($openings);
+    }
+
+    /**
+     * Lives no statement gives, estimated (never «[ناقص]»): from the year's depreciation, or the kind's usual life. An info
+     * check names them and how, until the accountant answers (P3). Those with last year's rates read are livesNotDerived's.
+     */
+    private function livesEstimated(array $lifeRows, array $categories, array $inputs): array
+    {
+        $byKey = array_column($categories, null, 'key');
+        $rows = array_values(array_filter($lifeRows, fn ($r) => ($r['estimated'] ?? null) !== null && ! isset($inputs["useful_life.{$r['key']}"])
+            && ! (isset($byKey[$r['key']]) && ($byKey[$r['key']]['rate'] !== null || $byKey[$r['key']]['rate_range'] !== null))));
+        if ($rows === []) {
+            return [];
+        }
+
+        return [$this->check('useful_life_estimated', 'info', null, null, null,
+            ReportChecks::msg('useful_life_estimated', ['lives' => implode('، ', array_map(fn ($r) => $r['label'].' '.$r['years'].' '
+                .__('report_messages.useful_life_basis.'.$r['estimated'], [], 'ar'), $rows))]),
+            ['note' => 'ppe', 'input_key' => "useful_life.{$rows[0]['key']}"])];
     }
 
     /**

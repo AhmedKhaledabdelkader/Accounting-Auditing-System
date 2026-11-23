@@ -4,8 +4,34 @@
 import { C, api, el, ui, box, money, exact, numberOf, runRows, accountList, showErrors, checkTitle, checkMessage } from '../core.js';
 import { cellLabel } from '../describe.js';
 import { fieldsForm, NOTE_FIELDS, optionLabel } from '../fields.js';
+import { ppeByPrior } from '../ppe-columns.js';
 
 const STATUS_BADGE = { pending: 'b-warn', confirmed: 'b-ok', edited: 'b-info', rejected: 'b-bad' };
+
+/**
+ * The PPE movement by last year's categories (state.ppe_prior: each category's this-year cells from the accounts placed on
+ * it), the total column the schedule's; a row still waiting for a confirmed movement is marked as in the schedule.
+ */
+function ppeTable(sch, prior) {
+  const t = ppeByPrior(prior, sch);
+  const rows = Object.fromEntries(sch.rows.map((r) => [r.key, r]));
+  const pending = (k) => Object.values(rows[k]?.cells ?? {}).some((f) => f.status === 'pending_confirmation');
+  const num = (v) => (v === null ? el('span', { class: 'badge b-bad' }, ui('missing_badge')) : money(v));
+  // Cost and accumulated depreciation, each with its own block, a blank row between, like last year's note.
+  const gap = new Set(['acc_opening', 'nbv_closing']);
+  return el('details', { open: true, 'data-ppe-by-prior': '' }, el('summary', {}, sch.title_ar, ' ', el('span', { class: 'note' }, ui('ppe_by_prior_note'))),
+    el('div', { style: 'overflow-x:auto' }, el('table', {},
+      el('tr', {}, el('th'), t.columns.map((c) => el('th', {}, c.label)), el('th', { 'data-ppe-total': '' }, ui('ppe_total'))),
+      t.rows.flatMap((r) => [
+        gap.has(r.key) ? el('tr', {}, el('td', { colspan: t.columns.length + 2, style: 'padding:4px' })) : null,
+        el('tr', { 'data-ppe-row': r.key, style: r.key.endsWith('closing') ? 'font-weight:700' : '' },
+          el('td', {}, rows[r.key]?.label_ar ?? ui('ppe_row_nbv_opening')),
+          r.cells.map((v) => el('td', { class: 'num' }, num(v))),
+          el('td', { class: 'num', style: 'font-weight:700' }, num(r.total),
+            pending(r.key) ? el('span', { class: 'badge b-warn' }, ui('suggestion_pending')) : null,
+            r.ties ? null : el('div', { class: 'note' }, ui('ppe_total_differs', { amount: money(r.schedule_total) })))),
+      ].filter(Boolean)))));
+}
 
 export async function render(ctx) {
   const s = ctx.state;
@@ -124,6 +150,12 @@ export async function render(ctx) {
   // E. The movement tables as they stand.
   const tables = el('div', { class: 'panel' }, el('h2', {}, ui('schedules_title')));
   for (const sch of s.schedules) {
+    // The PPE table with last year's statements: by last year's categories as printed (the note's own columns), not the
+    // template's (which put electrical equipment and air conditioners together with the furniture).
+    if (sch.key === 'ppe' && s.ppe_prior?.categories?.length) {
+      tables.append(ppeTable(sch, s.ppe_prior));
+      continue;
+    }
     const cols = sch.columns;
     tables.append(el('details', {}, el('summary', {}, sch.title_ar),
       el('div', { style: 'overflow-x:auto' }, el('table', {},

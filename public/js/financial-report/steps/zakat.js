@@ -90,7 +90,45 @@ export function calculation(z, edit = null) {
       el('tr', {}, el('td', {}, ui('zakat_tax_loss_offset'), el('div', { class: 'note' }, ui('zakat_art_loss'))), el('td', { class: 'num' }, exact(-t.loss_offset))),
       el('tr', {}, el('td', {}, ui('zakat_tax_taxable')), el('td', { class: 'num' }, exact(t.taxable))),
       el('tr', { class: 'total', 'data-zakat-tax-amount': '' }, el('td', {}, el('b', {}, ui('zakat_tax_amount', { rate: t.rate * 100 }))), el('td', { class: 'num' }, el('b', {}, exact(t.amount)))))));
+  if (z.entry) out.push(entryPanel(z.entry));
   return out;
+}
+
+/**
+ * The entry after the zakat (القيد بعد الزكاة): the year's charge as a journal entry on the trial balance's accounts, what the
+ * books already carry and the adjusting entry the statements post; then the result before and after it and the provision.
+ */
+export function entryPanel(e) {
+  const acc = (a) => [a.number ? `${a.number} — ` : '', a.name, a.row === null ? '' : ` (${a.line_label})`].join('');
+  const journal = (debit, credit, amount, attrs) => el('table', { class: 'grid-table', ...attrs },
+    el('tr', {}, el('th', {}, ui('zakat_entry_account')), el('th', { class: 'num' }, ui('zakat_entry_debit')), el('th', { class: 'num' }, ui('zakat_entry_credit'))),
+    el('tr', {}, el('td', {}, ui('zakat_entry_from'), ' ', acc(debit)), el('td', { class: 'num' }, exact(amount)), el('td')),
+    el('tr', {}, el('td', { style: 'padding-inline-start:28px' }, ui('zakat_entry_to'), ' ', acc(credit)), el('td'), el('td', { class: 'num' }, exact(amount))));
+  const body = [];
+  for (const l of e.lines) {
+    body.push(el('h4', {}, l.kind === 'zakat' ? ui('zakat_charge_zakat') : ui('zakat_charge_income_tax')),
+      el('p', { class: 'note' }, ui('zakat_entry_full_hint')), journal(l.full.debit, l.full.credit, l.full.amount, { 'data-zakat-entry-full': l.kind }),
+      el('p', {}, ui('zakat_entry_booked', { booked: exact(l.booked), carried: exact(l.carried) })),
+      Math.abs(l.adjustment) < 0.005 ? box('ok', ui('zakat_entry_none'))
+        : [el('p', { class: 'note' }, ui(l.adjustment > 0 ? 'zakat_entry_adjust_hint' : 'zakat_entry_reverse_hint')), journal(l.debit, l.credit, l.amount, { 'data-zakat-entry-adjust': l.kind })]);
+  }
+  if (!e.lines.length) body.push(el('p', { class: 'note' }, ui('zakat_entry_nothing')));
+  const p = e.profit;
+  body.push(el('h4', {}, ui('zakat_entry_effect')), el('table', { 'data-zakat-entry-effect': '' },
+    el('tr', {}, el('td', {}, ui('zakat_entry_profit_before')), el('td', { class: 'num' }, exact(p.before))),
+    el('tr', {}, el('td', {}, ui('zakat_charge_zakat')), el('td', { class: 'num' }, exact(p.zakat))),
+    p.income_tax ? el('tr', {}, el('td', {}, ui('zakat_charge_income_tax')), el('td', { class: 'num' }, exact(p.income_tax))) : null,
+    el('tr', { class: 'total' }, el('td', {}, el('b', {}, ui('zakat_entry_profit_after'))), el('td', { class: 'num' }, el('b', {}, exact(p.after))))));
+  if (e.provision) {
+    const v = e.provision;
+    body.push(el('h4', {}, ui('zakat_entry_provision')), el('table', { 'data-zakat-entry-provision': '' },
+      el('tr', {}, el('td', {}, ui('zakat_entry_prov_opening')), el('td', { class: 'num' }, exact(v.opening))),
+      el('tr', {}, el('td', {}, ui('zakat_entry_prov_charge')), el('td', { class: 'num' }, exact(v.charge))),
+      v.prior_year_adjustments ? el('tr', {}, el('td', {}, ui('zakat_entry_prov_adjust')), el('td', { class: 'num' }, exact(v.prior_year_adjustments))) : null,
+      el('tr', {}, el('td', {}, ui('zakat_entry_prov_paid')), el('td', { class: 'num' }, exact(v.paid === null ? null : -v.paid))),
+      el('tr', { class: 'total' }, el('td', {}, el('b', {}, ui('zakat_entry_prov_closing'))), el('td', { class: 'num' }, el('b', {}, exact(v.closing))))));
+  }
+  return el('div', { class: 'panel', 'data-zakat-entry': '' }, el('h3', {}, ui('zakat_entry_title')), el('p', { class: 'note' }, ui('zakat_entry_hint')), ...body);
 }
 
 export async function render(ctx) {

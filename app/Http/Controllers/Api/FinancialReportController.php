@@ -356,8 +356,73 @@ class FinancialReportController extends Controller
             $calc['can_apply'] = ['zakat' => false, 'income_tax' => false];
             $calc['warnings'][] = 'post_closing_tb';
         }
+        $calc['entry'] = $this->zakatEntry($report, $built, $calc);
 
         return $calc;
+    }
+
+    /**
+     * The entry after the zakat (القيد بعد الزكاة): for the zakat and the income tax, what the books carry, what the statements
+     * carry (the amount adopted), and the entry that takes the one to the other (Dr expense, Cr provision; reversed when the
+     * books carry more), on the trial balance's own accounts where it has them, else on the statement lines. Then the year's
+     * result before and after the charge, and the provision's movement with it.
+     *
+     * @return array{lines: list<array>, profit: array, provision: ?array}
+     */
+    private function zakatEntry(FinancialReport $report, array $built, array $calc): array
+    {
+        $names = array_column(array_map(fn ($r) => [$r['row'], $r], $report->run->result['data']), 1, 0);
+        $catalogue = $built['context']->catalogue;
+        $labels = [];
+        foreach (['financial_position', 'comprehensive_income'] as $st) {
+            foreach ($catalogue->statement($st) as $i) {
+                if (isset($i['key'])) {
+                    $labels[$i['key']] = $i['label_ar'];
+                }
+            }
+        }
+        // The accounts on a line (by their share), the largest first: the account the entry goes to.
+        $account = function (string $line) use ($built, $names, $labels) {
+            $rows = [];
+            foreach ($built['mapping']['rows'] as $n => $m) {
+                if (isset($m['lines']['closing'][$line])) {
+                    $rows[] = $n;
+                }
+            }
+            $n = $rows[0] ?? null;
+
+            return ['line' => $line, 'line_label' => $labels[$line] ?? $line, 'row' => $n,
+                'number' => $n === null ? null : ($names[$n]['account_number'] ?? null), 'name' => $n === null ? ($labels[$line] ?? $line) : ($names[$n]['account_name'] ?? null)];
+        };
+        $lines = [];
+        foreach (['zakat' => ['is.zakat', 'sofp.zakat_provision'], 'income_tax' => ['is.income_tax', 'sofp.income_tax_provision']] as $kind => [$expense, $provision]) {
+            $carried = (float) ($calc['in_statements'][$kind] ?? 0.0);
+            $booked = (float) ($calc['candidates'][$kind]['booked'] ?? 0.0);
+            if (abs($carried) < 0.005 && abs($booked) < 0.005) {
+                continue;
+            }
+            if (! $catalogue->has($provision)) {
+                $provision = 'sofp.zakat_provision';
+            }
+            $adjust = round($carried - $booked, 2);
+            $lines[] = ['kind' => $kind, 'carried' => round($carried, 2), 'booked' => round($booked, 2), 'adjustment' => $adjust,
+                // The adjusting entry: debit the expense, credit the provision; the books carrying more: the other way round.
+                'debit' => $adjust >= 0 ? $account($expense) : $account($provision), 'credit' => $adjust >= 0 ? $account($provision) : $account($expense),
+                'amount' => abs($adjust),
+                // The year's whole charge as one entry (what the statements carry).
+                'full' => ['debit' => $account($expense), 'credit' => $account($provision), 'amount' => round($carried, 2)]];
+        }
+        $figure = fn (string $key) => collect($built['statements']['comprehensive_income'])->firstWhere('key', $key)['current'] ?? null;
+        $amount = fn (string $key) => ($f = $figure($key)) !== null && ! $f->isMissing() ? round($f->amount, 2) : null;
+        $schedule = collect($built['schedules'])->firstWhere('key', 'zakat');
+        $cell = fn (string $row) => ($c = collect($schedule['rows'] ?? [])->firstWhere('key', $row)['cells']['amount'] ?? null) !== null && ! $c->isMissing() ? round($c->amount, 2) : null;
+
+        return [
+            'lines' => $lines,
+            'profit' => ['before' => $amount('is.profit_before_zakat'), 'zakat' => $amount('is.zakat'), 'income_tax' => $amount('is.income_tax'), 'after' => $amount('is.net_profit')],
+            'provision' => $schedule === null ? null : ['opening' => $cell('opening'), 'charge' => $cell('charge'), 'paid' => $cell('paid'),
+                'prior_year_adjustments' => $cell('prior_year_adjustments'), 'closing' => $cell('closing')],
+        ];
     }
 
     /**
@@ -714,7 +779,7 @@ class FinancialReportController extends Controller
     {
         \App\Support\ClientFileSource::attach($request);   // or a file the client uploaded in the portal (`client_file_id`)
         $isPdf = strtolower((string) $request->file('file')?->getClientOriginalExtension()) === 'pdf';
-        $request->validate(['file' => ['required', 'file', 'mimes:xlsx,xls,pdf', 'max:'.($isPdf ? config('financial_statements.prior_pdf.max_kb') : 10240)]]);
+        $request->validate(['file' => ['required', 'file', $isPdf ? 'mimes:pdf' : \App\Support\SpreadsheetFile::rule(), 'max:'.($isPdf ? config('financial_statements.prior_pdf.max_kb') : 10240)]]);
         $report = FinancialReport::find($id);
         if (! $report) {
             return $this->notFound();
@@ -1051,8 +1116,18 @@ class FinancialReportController extends Controller
             // Last year's PPE categories (R13): account (row number) → a category's key, `none`, or null (back to the proposal).
             'ppe'          => ['nullable', 'array'],
             'ppe.*'        => ['nullable', 'string', 'max:20'],
+            // The notes' order (the freedom to arrange them): the note keys in the order wanted; [] back to the template's.
+            'order'        => ['nullable', 'array', 'max:100'],
+            'order.*'      => ['string', 'max:60'],
+            // An account moved to any note (the freedom to choose its note): account (row number) => {note, line?, item?}, or
+            // null (back to where the classification puts it). Its statement line becomes the note's line.
+            'moves'        => ['nullable', 'array', 'max:2000'],
+            'moves.*'      => ['nullable', 'array'],
+            'moves.*.note' => ['required_with:moves.*', 'string', 'max:60'],
+            'moves.*.line' => ['nullable', 'string', 'max:100'],
+            'moves.*.item' => ['nullable', 'string', 'max:300'],
         ]);
-        if (! $request->has('visibility') && ! $request->has('texts') && ! $request->has('items') && ! $request->has('ppe')) {
+        if (! $request->has('visibility') && ! $request->has('texts') && ! $request->has('items') && ! $request->has('ppe') && ! $request->has('order') && ! $request->has('moves')) {
             throw ValidationException::withMessages(['visibility' => [__('report_messages.errors.notes_nothing_sent')]]);
         }
         $report = FinancialReport::find($id);
@@ -1142,14 +1217,99 @@ class FinancialReportController extends Controller
                 $options['ppe'][(string) $row] = $category;
             }
         }
+        if ($request->has('order')) {
+            $order = array_values((array) $request->input('order', []));
+            foreach ($order as $i => $key) {
+                if (! isset($catalogue->notes()[$key])) {
+                    $errors["order.{$i}"][] = __('report_messages.errors.note_unknown');
+                }
+            }
+            $options['order'] = $order;
+        }
+        $overrides = $report->account_overrides ?? [];
+        $rows = array_flip(array_column($report->run->result['data'], 'row'));
+        foreach ((array) $request->input('moves', []) as $row => $move) {
+            $was = $options['moves'][(string) $row] ?? null;
+            if ($move === null) {
+                // Back: the override the move made goes, and its line's choice.
+                if ($was !== null) {
+                    $overrides = array_values(array_filter($overrides, fn ($o) => ! ((int) $o['row'] === (int) $row && ($o['line_key'] ?? null) === $was['line'])));
+                    unset($options['moves'][(string) $row], $options['items'][$was['note']][(string) $row]);
+                }
+                continue;
+            }
+            $note = $catalogue->notes()[$move['note']] ?? null;
+            $line = $move['line'] ?? ($note['lines'][0] ?? null);
+            if (! isset($rows[(int) $row])) {
+                $errors["moves.{$row}"][] = __('report_messages.errors.account_not_in_tb');
+            } elseif ($note === null || $line === null || ! in_array($line, $note['lines'] ?? [], true)) {
+                $errors["moves.{$row}.note"][] = __('report_messages.errors.note_move_target');
+            } else {
+                if ($was !== null) {
+                    unset($options['items'][$was['note']][(string) $row]);
+                }
+                $overrides = array_values(array_filter($overrides, fn ($o) => (int) $o['row'] !== (int) $row || isset($o['exclude'])));
+                $overrides[] = ['row' => (int) $row, 'line_key' => $line];
+                $options['moves'][(string) $row] = ['note' => $move['note'], 'line' => $line];
+                if (($move['item'] ?? null) !== null) {
+                    $options['items'][$move['note']][(string) $row] = $move['item'];
+                }
+            }
+        }
         if ($errors) {
             throw ValidationException::withMessages($errors);
         }
         $options = array_filter(['visibility' => $options['visibility'] ?? [], 'texts' => $options['texts'] ?? [], 'items' => array_filter($options['items'] ?? []),
-            'ppe' => $options['ppe'] ?? []]);
-        $report->update(['notes' => $options ?: null, 'last_computed_at' => now()]);
+            'ppe' => $options['ppe'] ?? [], 'order' => $options['order'] ?? [], 'moves' => $options['moves'] ?? []]);
+        $report->update(['notes' => $options ?: null, 'account_overrides' => $overrides, 'last_computed_at' => now()]);
 
         return response()->json($this->state($report->fresh(), $report->run));
+    }
+
+    /**
+     * The notes an account can be moved to: each note with an item table (a breakdown), as numbered now, with its statement
+     * lines and, with last year's statements from a PDF, its lines as printed there.
+     */
+    private function noteTargets(array $built): array
+    {
+        $catalogue = $built['context']->catalogue;
+        $numbers = array_column($built['notes'], 'number', 'key');
+        $titles = array_column($built['notes'], 'title_ar', 'key');
+        $labels = [];
+        foreach (['financial_position', 'comprehensive_income'] as $st) {
+            foreach ($catalogue->statement($st) as $i) {
+                if (isset($i['key'])) {
+                    $labels[$i['key']] = $i['label_ar'];
+                }
+            }
+        }
+        $ctx = $built['context'];
+        $out = [];
+        foreach ($catalogue->notes() as $key => $n) {
+            if (! isset($n['breakdown']) || ($n['lines'] ?? []) === []) {
+                continue;
+            }
+            // The trial balance's accounts on the note's lines now, with their balance (as the line shows it).
+            $accounts = [];
+            foreach ($ctx->mapping['rows'] as $row => $m) {
+                $on = array_values(array_intersect(array_keys($m['lines']['closing']), $n['lines']));
+                if ($on === []) {
+                    continue;
+                }
+                $sum = $ctx->sum([$row => 1.0], $catalogue->side($on[0]));
+                if (abs((float) ($sum['closing'] ?? 0)) < 0.005 && abs((float) ($sum['opening'] ?? 0)) < 0.005) {
+                    continue;
+                }
+                $accounts[] = ['row' => $row, 'number' => $ctx->rows[$row]['account_number'] ?? null, 'name' => $ctx->rows[$row]['account_name'] ?? (string) $row,
+                    'line' => $on[0], 'amount' => round((float) ($sum['closing'] ?? 0), 2)];
+            }
+            $out[] = ['note' => $key, 'number' => $numbers[$key] ?? null, 'title' => $titles[$key] ?? $key,
+                'lines' => array_map(fn ($l) => ['key' => $l, 'label' => $labels[$l] ?? $l], $n['lines']),
+                'items' => array_map(fn ($i) => ['key' => $i['key'], 'label' => $i['label']], $built['note_items'][$key]['items'] ?? []),
+                'accounts' => $accounts];
+        }
+
+        return $out;
     }
 
     /**
@@ -1489,7 +1649,11 @@ class FinancialReportController extends Controller
                 ? ['rows' => array_map(fn ($r) => ['cells' => array_map(fn ($c) => isset($c['amount']) ? ['amount' => $c['amount']->toArray()] : $c, $r['cells'])], $b['rows'])] + $b
                 : $b, $n['blocks'])] + $n, $built['notes']),
             'note_options'      => ['visibility' => (object) ($report->notes['visibility'] ?? []), 'texts' => (object) ($report->notes['texts'] ?? []),
-                'items' => (object) ($report->notes['items'] ?? []), 'ppe' => (object) ($report->notes['ppe'] ?? [])],
+                'items' => (object) ($report->notes['items'] ?? []), 'ppe' => (object) ($report->notes['ppe'] ?? []),
+                'order' => $report->notes['order'] ?? [], 'moves' => (object) ($report->notes['moves'] ?? [])],
+            // Where an account can be moved (the freedom to choose its note): each note with an item table, its lines, and its
+            // last year's lines when the PDF gives them.
+            'note_targets'      => $this->noteTargets($built),
             // Last year's PPE note (R13) with a PDF of last year's statements: its categories (rate, useful life, last
             // year's cells, this year's from the accounts placed on them, the opening check) and the accounts.
             'ppe_prior'         => $built['ppe_prior'] ?? null,

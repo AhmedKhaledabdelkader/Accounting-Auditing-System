@@ -86,7 +86,55 @@ final class Sections
             $main = $i;
         }
 
-        return ['sections' => $sections, 'flags' => $flags];
+        return ['sections' => self::nestLetters($sections), 'flags' => $flags];
+    }
+
+    /**
+     * A note's lettered parts («أ- احتساب المخصص», «ب- حركة مخصص الزكاة», «a)») read as notes of their own: put inside the
+     * last numbered note before them, with the unnumbered parts nested under them. Idempotent: a reading made before this
+     * rule is fixed where it is used (App\Casts\PriorFile).
+     *
+     * @param list<array> $sections
+     * @return list<array>
+     */
+    public static function nestLetters(array $sections): array
+    {
+        // A reading made before commas counted as dots («٣,٢ الزكاة» taken for a note of its own): numbered again from
+        // what was printed, and put inside its note.
+        foreach ($sections as $i => $s) {
+            if ($s['printed'] === null || $s['number'] === null || $s['parent'] !== null) {
+                continue;
+            }
+            $number = self::number($s['printed']);
+            $parts = explode('.', (string) $number);
+            if ($number !== $s['number'] && count($parts) > 1 && ctype_digit($parts[0])) {
+                $sections[$i]['number'] = $number;
+                $sections[$i]['parent'] = self::find($sections, implode('.', array_slice($parts, 0, -1)), $i) ?? self::find($sections, $parts[0], $i);
+            }
+        }
+        $main = null;
+        foreach ($sections as $i => $s) {
+            if ($s['number'] === null) {
+                continue;
+            }
+            if (self::isLetter($s['number'])) {
+                if ($s['parent'] === null && $main !== null) {
+                    $sections[$i]['parent'] = $main;
+                }
+                continue;
+            }
+            if ($s['parent'] === null) {
+                $main = $i;
+            }
+        }
+
+        return $sections;
+    }
+
+    /** A part's letter, not a note's number: one Arabic letter («أ», «ب», «ج», «هـ»), or a Latin one. */
+    public static function isLetter(string $number): bool
+    {
+        return preg_match('/^(\p{Arabic}ـ?|[a-zA-Z])$/u', trim($number, " ()-–:.\u{0640}")) === 1 && preg_match('/^\d/u', $number) !== 1;
     }
 
     /**
@@ -198,6 +246,8 @@ final class Sections
         }
         $n = str_replace(' ', '', AmountParser::asciiDigits(trim($printed)));
         $n = trim($n, "()[]-–:.");
+        // «٤,١» / «4،1» / «4٫1»: a part of note 4 printed with a comma, as «4.1».
+        $n = (string) preg_replace('/(?<=\d)[,،٫](?=\d)/u', '.', $n);
         if (preg_match('/^(\d+)\/(\d+)$/u', $n, $m)) {
             return "{$m[2]}.{$m[1]}";   // «1/16»: the first part of note 16
         }

@@ -28,7 +28,7 @@ class FinancialReport extends Model
     {
         return [
             'period_start' => 'date:Y-m-d', 'period_end' => 'date:Y-m-d', 'comparative_start' => 'date:Y-m-d', 'comparative_end' => 'date:Y-m-d',
-            'inputs' => 'array', 'account_overrides' => 'array', 'adjustments' => 'array', 'movement_decisions' => 'array', 'zakat_tax' => 'array', 'notes' => 'array', 'acknowledgements' => 'array', 'prior_figures' => 'array', 'prior_upload' => 'array',
+            'inputs' => 'array', 'account_overrides' => 'array', 'adjustments' => 'array', 'movement_decisions' => 'array', 'zakat_tax' => 'array', 'notes' => 'array', 'acknowledgements' => 'array', 'prior_figures' => \App\Casts\PriorFile::class, 'prior_upload' => \App\Casts\PriorFile::class,
             'last_computed_at' => 'datetime', 'finalized_at' => 'datetime',
         ];
     }

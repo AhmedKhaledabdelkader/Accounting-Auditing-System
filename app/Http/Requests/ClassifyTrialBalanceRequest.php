@@ -16,6 +16,6 @@ class ClassifyTrialBalanceRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'], 'company_id' => ['nullable', 'uuid', 'exists:companies,id']];
+        return ['file' => ['required', 'file', \App\Support\SpreadsheetFile::rule(), 'max:20480'], 'company_id' => ['nullable', 'uuid', 'exists:companies,id']];
     }
 }

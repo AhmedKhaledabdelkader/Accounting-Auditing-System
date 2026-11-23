@@ -98,6 +98,8 @@ return [
     ],
     'max_digits' => 'يجب ألا يزيد :attribute على :max أرقام.',
     'mimes' => 'نوع ملف :attribute غير مسموح به.',
+    'spreadsheet_type' => 'الملف يجب أن يكون جدول بيانات: :types.',
+    'spreadsheet_unreadable' => 'تعذّرت قراءة الملف كجدول بيانات. افتحه في Excel واحفظه باسم «مصنف Excel (xlsx)» ثم ارفعه.',
     'mimetypes' => 'نوع ملف :attribute غير مسموح به.',
     'min' => [
         'array' => 'يجب أن يحتوي :attribute على :min عنصر على الأقل.',

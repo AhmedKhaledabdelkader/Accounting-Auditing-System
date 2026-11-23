@@ -50,9 +50,9 @@ final class PriorStatementsFile
      */
     public function read(string $path, int $year, LineCatalogue $catalogue, array $synonyms = []): array
     {
-        $reader = IOFactory::createReaderForFile($path);
+        [$reader, $readable] = \App\Support\SpreadsheetFile::open($path);
         $reader->setReadEmptyCells(false);
-        $book = $reader->load($path);
+        $book = $reader->load($readable);
         $sheets = [];
         $auditor = false;
         try {

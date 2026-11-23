@@ -161,3 +161,96 @@ The client's documents are read, checked and matched with the books; the finding
 - **Recalculations ↔ trial balance.** The books' figure of a recalculation is the trial balance's own (its accounts by classification; `sub_only` for prepaid and the allowance), no longer the AI's copy (that only where no account is classified, with a note). `analysis.computed_vs_tb` is the recalculation minus the trial balance.
 - **Findings** (`App\Services\Audit\Findings`): recomputed on every view from the reviews and the prepared papers — balance differences, documents still with problems, recalculations against the trial balance (with the suggested adjusting entry from `tb_matching.papers.*.more/less`), payroll differences, missing data, working-paper differences and open rows. The accountant's word (`open | adjusted | accepted | dismissed` + comment) is kept by the finding's key in `audit_findings`.
 - Pages: `/work/findings`, `/clients/{id}/findings` (+ export to Excel). API: `GET /api/v1/clients/{id}/findings`, `PUT /api/v1/clients/{id}/findings/{key}`, `GET /api/v1/clients/{id}/findings/export`.
+
+
+## Materiality (الأهمية النسبية) — step 12, and the revenue sample (عينات الإيرادات) — step 13 (2026-11-21)
+
+- **Materiality** (`App\Services\Audit\Materiality`, ISA 320). From the client's financial statements of the year (the report whose period ends in it, the one worked on last): each benchmark (profit before zakat 5–10%, revenue 0.5–1%, total assets 1–2%, equity 1–5%, total expenses 0.5–2%; `config/audit.php`) with its amount and range. Proposed: the profit before zakat when it is at least 3% of the revenue (a steady profit), else the revenue, else the total assets. The accountant chooses the benchmark, the percentage, the risk (performance materiality 75 / 60 / 50% of the overall, or a percentage typed) and the clearly trivial threshold (5%), with a reason. The overall materiality is rounded down (to the thousand from 10,000). The page lists the statement lines at or above the performance materiality (significant, × how many times).
+- **Revenue sample** (`App\Services\Audit\RevenueSampling`, ISA 530). The population is the client's sales list (`SalesListReader`): a sales account statement (credits = sales, debits = returns) or a list of invoices (the amount before VAT where printed), from Excel (the header row found by its words, `audit.sampling.columns`; totals and balances brought forward left out) or a PDF (copied row by row by the AI, kind `sales-list-1`, cached like the other PDF readings; the AI budget applies). It is uploaded, or picked from the client's own uploads (purpose `sales`). The list is reconciled with the revenue in the statements (agrees within the clearly trivial threshold, else a warning). The sample: every sale at or above the performance materiality (key items), then a systematic monetary-unit sample of the rest: size = the rest's total × the assurance factor (high 3.0 / moderate 2.3 / low 1.6) ÷ the performance materiality, at least 10; the random start is kept (`seed`), so the same sample comes again. The page says when the performance materiality changed after the sample was drawn. Exported as a working paper (Excel, right to left): the materiality, the population and its reconciliation, how it was drawn, the items with the tests' columns (invoice, delivery, collection, period, VAT, notes) and the conclusion.
+- **A file of every account's statement** (كشوفات حساب الحسابات: a block per account under «: الحساب»): only the sales accounts are the population (`SalesListReader::salesRole`: names of sales or revenue, not costs, staff, VAT or other income; with a chart numbered by class, the revenue class 4 only), their credits sales and debits returns, the sales returns accounts' debits returns; the page lists the accounts taken. A row is judged by all its words (opening balances, an account's total «اجمالي الحساب», the amount in words «فقط … لا غير» are never items). The page warns when the file's dates fall outside the audited year.
+- **Downloads** (`public/js/busy.js`): the file fetched is saved through a `blob:` link that the download handler never takes for another download (it used to fetch it again for ever).
+- Table `audit_plans` (company, year: `materiality` = the accountant's choice, `sales` = the list read, `sampling` = the sample drawn). Pages: `/work/materiality`, `/work/sampling`, `/clients/{id}/materiality`, `/clients/{id}/sampling` (+ `sampling/sales`, `sampling/draw`, `sampling/export`). Tests: `AuditPlanTest`, `AuditPlanningAndNotesTest`.
+
+
+### As the firm's working papers 2003 and 7002 (2026-11-22)
+
+The user brought how 1audit's working papers do it; steps 12 and 13 now follow them.
+
+- **Materiality (2003), four steps** (`Materiality::build`): 1. the measures this year and last (total assets, gross profit, profit before zakat and tax, net profit, revenue, total liabilities, equity: the statements' lines and their comparatives); 2. a percentage on each basis (`config audit.materiality.bases`: total assets 1%, revenue 1%, profit before zakat 10% ticked by default; the others offered), its materiality this year and last, then the rows «الأعلى» and «المتوسط» of the bases ticked (a nil or negative basis, a loss, gives none and is left out); 3. the preliminary materiality: one basis, the highest or the average (proposed: the profit when steady, else the revenue), rounding down optional; 4. performance materiality 50% and clearly trivial 5% of it, with the justification. Saved: `percents`, `bases`, `choice`, `performance_percent`, `trivial_percent`, `round`, `reason`. The samples page shows it locked at the top.
+- **Revenue samples (7002)** (`RevenueSampling`): several samples a year (`sampling.samples[]`, a sample saved before as the first), each on one account of the sales list (sales; other revenue — «إيرادات أخرى» — is a population of its own; or the whole list), by a method: `mus` (statistical, monetary unit) or `strata_amount` (strata of equal value, 2–10) / `strata_date` (by month), both non-statistical, the size shared out by the strata's value (one at least each, what a stratum can't take given to the others) and picked at random in each from the kept seed. The table: the account, its population, the sample size, the misstatement found, the misstatement projected, the result. For each entry the accountant gives the audited amount (and a note): misstatement = book − audited; key items count as found; projected: MUS by tainting × interval, strata by each stratum's misstatement rate × its value. Result: pending, partial, acceptable (≤ clearly trivial), above_trivial (to accumulate), material (≥ performance materiality). Routes `sampling/draw` (account, method, strata, assurance), `sampling/{sample}/results`, `sampling/{sample}/delete`, `sampling/export?sample=`. The working paper exports the entries with their audited amounts and a formula for the misstatement, the tests' columns, found, projected and the conclusion.
+- Not done from 1audit's: the control tests («اختبار رقابي») and the documents a control test covered taken out of the detail test's population.
+- **The office's limits on every sample** (the user's rule, 2026-11-22; `audit.sampling.limits`, `RevenueSampling::limits`): the whole sample, key items included, holds 12% to 25% of the population's invoices, and whatever the share never more than 50 nor fewer than 5 (all of them when there are fewer). The method's size is brought inside them; more key items than 50: the largest 50; fewer strata to fill than there are: one each in the strata of the most value; a monetary-unit sample short of the minimum is made up at random (`top_up`). The page says what the method asked for and the limits.
+- **The measures' source** (2026-11-22, `materiality.source`): `statements` (the year's financial statements and their comparatives, the default) or `trial_balance` (`Materiality::run`: the run of the year's statements, else the client's latest classified one, built as it is with nothing of the report's: no entries, no zakat charge; last year's balance sheet from its opening columns, last year's income «—»). Usable before the statements are prepared. A toggle at the top of the page (`?source=`), saved with the form.
+- **A sample on any account** (2026-11-22, the user's request: «زي وان اوديت»; the page is «العينات»): the new sample's account is any account of the year's trial balance (`RevenueSampling::trialBalanceAccounts`: by main class, its natural side from the taxonomy, else its balance; the year's movement on that side and its balance). Its population: its entries on that side in the accounts' statements file (every account is now kept with its debit and credit, `SalesListReader`; `ledgerPopulation` by number, else name), or in its own statement uploaded with the sample (`statement`). Each sample keeps its selected entries (`selected[].row`) and the trial balance's figure (`tb`), shown against the population; a new statements file keeps them. The revenue reconciliation stays for the revenue accounts of the file.
+
+### 14. Audit procedures (the audit program)
+
+- **What it is** (`App\Services\Audit\AuditProcedures`, `config/audit_procedures.php`, page `/work/procedures` · `/clients/{id}/procedures`): the procedures tab of each working paper, as in the firm's audit software. There are 19 areas: 1000 acceptance, 2000 planning, 3000 risk, 5100–5700 assets, 6100–6500 liabilities and equity, 7002 revenue, 7100 cost of revenue, 7200 expenses and 8000 completion. The areas hold 133 procedures, each with:
+  - its assertions (existence, occurrence, completeness, accuracy, valuation, rights, cut-off, classification, presentation);
+  - its type (general, analytical, control, detail, or sample, which links to step 13).
+- **What the accountant records on each procedure:**
+  - a status: pending, done, exception or not applicable;
+  - a reference (the paper or sample number);
+  - a note, kept with who answered it and when.
+  The accountant can also add procedures of their own (`c1`, `c2`, …) and delete them later. The program's own procedures can't be deleted; they are marked not applicable instead.
+- **Per area:**
+  - The balance comes from the statement lines listed under `lines`, through `Materiality`'s `lines`. The area is «significant» when the balance is at or above the performance materiality.
+  - A whole area can be marked not applicable, with a reason.
+  - The accountant writes the area's conclusion.
+- **Sign-off:**
+  - The preparer signs only when no procedure is left pending.
+  - The reviewer signs after the preparer.
+  - Any change to a signed area drops both sign-offs.
+- **Where it is kept:** `audit_plans.procedures`. The step is done when every area is signed by its preparer or not applicable.
+- **Export:** `procedures/export` (optionally `?area=`) gives an Excel file with a summary sheet plus one sheet per area.
+- **Rules for editing the program:** add new procedures only at the end of an area, and never renumber one, because the answers are kept under each procedure's key.
+- **Tests:** `AuditProceduresTest`.
+- **Linked to the requirements (step 8):** each area names what it rests on.
+  - `requirements`: sections of `config/audit_requirements.php`. A rule can also be «section::word», which takes only that section's requests whose title holds the word.
+  - `papers`: the working papers and recalculations the client fills (the request's `paper` key, e.g. `bank-confirmations` or `recalc-eosb`).
+  - `standards`: the ISAs the area applies.
+  - `framework`: the IFRS for SMEs sections of the balances it audits.
+
+  What the page does with this:
+  - The area shows the client's requests of that year with their status (each links to `#req-{id}`).
+  - Each procedure can take one of those requests as its evidence (`items.{code}.request`). A request from another area is dropped. A procedure marked done whose evidence is not yet accepted gets a warning.
+  - The preparer can't sign while a required (non-optional) request is pending, sent back, or uploaded and not yet accepted (`AuditProcedures::AWAITED`; error `requirements_awaited`).
+  - On the requirements page, each request shows the areas it serves (`AuditProcedures::areasOf`), linking back to them.
+  - The export adds an evidence column, the standards, and the area's requirements.
+
+## The engagement file (ملف الارتباط, 2026-11-23)
+
+The office's order of the work, as six phases (config/engagement.php): **acceptance** (1 client, details, permanent file) ·
+**data intake** (2 trial balances, 3 opening balances and prior statements, 4 classification) · **planning** (5 entity and risks,
+6 materiality, 7 audit plan) · **fieldwork** (8 requirements, working papers, recalculations; 9 samples; 10 findings, adjusting
+entries and misstatements) · **completion** (11 zakat and tax — after the entries, 12 final statements, 13 completion memo) ·
+**reporting** (14 partner review and release). The side menu and the chips follow it.
+
+- **Status and blockers are the server's** (App\Services\Engagement\Engagement): each step's status (not_started, in_progress,
+  waiting_client, ready_for_review, approved), its sign-offs, whether it is locked, the blockers (code, message ar/en, link), the
+  current phase and the next step. `GET /api/v1/engagements/{client}/status?year=` (also `/clients/{client}/engagement`, and the web
+  `/clients/{client}/engagement/status`). A step whose `requires` isn't done refuses its page (shows its blockers); `after` is a note.
+  `ENGAGEMENT_LOCKS=false` turns the locks off (the older tests do).
+- **Sign-offs** (`engagement_signoffs`): prepared, reviewed, approved (the partner, on the release), eqr. Each keeps the step's
+  content hash: a change voids it. The same person can't prepare and review. An open review note blocks the reviewer's sign-off,
+  the partner's approval and the release.
+- **Review notes** (`review_notes`): raised on a step, answered by the preparer, closed by whoever raised them.
+- **Materiality versions** (`materiality_versions`): the paper is a draft; approving keeps a version that never changes (the
+  justification required; the highest/average never approved; a later version says why it changed). Samples, the plan's
+  significance and the misstatements use the version in force; a sample of an older version is flagged for reassessment.
+- **Risk register** (`audit_risks`, step 5): suggested from the figures (ISA 240 revenue and override, a loss or negative equity,
+  related parties, estimates at or above PM); likelihood × magnitude gives the rating; a significant risk needs a detail/sample
+  procedure of its area linked or the plan is blocked; the highest rating on revenue gives the sample's default factor.
+- **Samples (the brief's §4)**: key items (≥ PM) all tested, outside the cap; n = remainder × CF ÷ (PM − expected × expansion);
+  the office's limits hold n only; above the cap a decision (full / lower_assurance / capped_with_approval) with a justification;
+  achieved CF = executed n × PM ÷ remainder, shown always («high» only at 3 or more). No sample without an approved materiality;
+  a ledger mostly outside the year is refused without a written reason.
+- **Adjusting entries** (`adjusting_entries`, `adjusting_entry_lines`, step 10): balanced or not saved; proposed → accepted →
+  posted (or rejected → a misstatement). ReportSource::result adds the posted ones to the run (the adjusted trial balance), so the
+  statements and zakat change and the report is flagged stale; unposting gives them back. Import from Excel/CSV (match by number,
+  then name; an unbalanced entry or unknown account listed with why, not saved). PDF import isn't built yet.
+- **Misstatements** (`misstatements`, ISA 450): typed, refused entries, and each sample's found and projected misstatement. Below
+  trivial listed, not counted. The uncorrected total (absolute amounts) above overall materiality blocks an unmodified opinion.
+- **Completion memo** (step 13) and **release** (step 14) on `audit_plans.completion` / `.release`: the opinion must agree with the
+  misstatements and the going-concern conclusion; issued only after the partner's approval, kept with the run's fingerprint.
+- **audit_logs**: who, when, before and after, for every change on these registers and sign-offs.

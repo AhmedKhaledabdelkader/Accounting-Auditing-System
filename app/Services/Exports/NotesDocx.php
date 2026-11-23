@@ -103,7 +103,8 @@ final class NotesDocx
             && array_reduce($open, fn ($ok, $b) => $ok && ($blocks[$b] ?? false), true);
 
         $remove = [];
-        foreach (NotesTemplate::walk($xp)['nodes'] as $n) {
+        $walked = NotesTemplate::walk($xp)['nodes'];
+        foreach ($walked as $n) {
             $node = $n['node'];
             $key  = $n['note'] !== null ? ($notes[$n['note']]['key'] ?? throw new RuntimeException('The version and the notes template differ in number of notes.')) : null;
             switch ($n['kind']) {
@@ -145,6 +146,7 @@ final class NotesDocx
         foreach ($remove as $node) {
             $node->parentNode->removeChild($node);
         }
+        $this->reorder($xp, $walked, $notes);
 
         // The template's yellow marks (where its author was to fill or check) are not the statements' formatting.
         foreach (iterator_to_array($xp->query('//w:rPr/w:highlight')) as $node) {
@@ -160,6 +162,64 @@ final class NotesDocx
         }
 
         return $dom->saveXML();
+    }
+
+    /**
+     * The notes in the accountant's order (NotesBuilder::order; the shown notes' numbers say it): each note's part of the body
+     * (its title and all that follows it up to the next note's) moved into that order; Word's numbering follows the document.
+     * Left in the template's order when the order is the template's, or when a section break sits among the notes (moving it
+     * would move the pages' layout with it).
+     */
+    private function reorder(DOMXPath $xp, array $walked, array $notes): void
+    {
+        $shown = array_keys(array_filter($notes, fn ($n) => $n['visible'] ?? false));
+        $wanted = $shown;
+        usort($wanted, fn ($a, $b) => (int) $notes[$a]['number'] <=> (int) $notes[$b]['number']);
+        if ($wanted === $shown) {
+            return;
+        }
+        $noteOf = new \SplObjectStorage;
+        foreach ($walked as $n) {
+            if ($n['note'] !== null && $n['node']->parentNode !== null) {
+                $noteOf[$n['node']] = $n['note'];
+            }
+        }
+        $body = $xp->query('/w:document/w:body')->item(0);
+        $groups = [];
+        $current = null;
+        $end = null;
+        foreach (iterator_to_array($body->childNodes) as $child) {
+            if (! $child instanceof DOMElement) {
+                continue;
+            }
+            if ($child->localName === 'sectPr') {
+                $end = $child;
+                break;
+            }
+            $current = $noteOf->contains($child) ? $noteOf[$child] : $current;
+            if ($current === null) {
+                continue;   // before the first note
+            }
+            $groups[$current][] = $child;
+        }
+        $breaks = fn (array $g) => $g !== [] && $xp->query('./w:pPr/w:sectPr', end($g))->length > 0;
+        $template = array_keys($groups);
+        $order = [...array_values(array_filter($wanted, fn ($n) => isset($groups[$n]))), ...array_values(array_diff($template, $wanted))];
+        $previous = null;
+        foreach ($order as $note) {
+            // A note that is a section of its own (the PPE note, landscape: the note before it in the template ends with a
+            // section break, and so does it) needs a break before it wherever it goes: the one that came before it, copied.
+            $i = array_search($note, $template, true);
+            $before = $i > 0 ? $groups[$template[$i - 1]] : [];
+            if ($breaks($groups[$note]) && $breaks($before) && $previous !== null && ! $breaks($groups[$previous])) {
+                $copy = end($before)->cloneNode(true);
+                $end === null ? $body->appendChild($copy) : $body->insertBefore($copy, $end);
+            }
+            foreach ($groups[$note] as $child) {
+                $end === null ? $body->appendChild($child) : $body->insertBefore($child, $end);
+            }
+            $previous = $note;
+        }
     }
 
     /**

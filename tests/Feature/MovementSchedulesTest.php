@@ -74,12 +74,13 @@ class MovementSchedulesTest extends TestCase
         $id    = $this->report($this->assetRows());
         $state = $this->getJson(self::URL."/{$id}")->assertOk()->json();
 
-        // The accumulated depreciation account has no category: its side shows the total only (Q8).
-        $this->assertSame(['cost' => true, 'accumulated' => false], $this->schedule($state, 'ppe')['split']);
-        $this->assertContains(['key' => 'ppe.accumulated', 'reason' => 'category_split_required', 'input_key' => null], $state['missing']);
-        $this->assertSame([null, 'missing', 'missing'], $this->cell($state, 'ppe', 'acc_closing', 'vehicles'));
-        $this->assertSame([31.0, 'trial_balance', 'ok'], $this->cell($state, 'ppe', 'acc_closing'));
-        $this->assertSame([15.0, 'trial_balance', 'ok'], $this->cell($state, 'ppe', 'depreciation'));   // the year's charge: the depreciation expense
+        // The accumulated depreciation account has no category of its own, and its name tells none: with one cost category it
+        // takes that one, so the note shows the category's figures, never the total alone (2026-11-21, no «[ناقص]»).
+        $this->assertSame(['cost' => true, 'accumulated' => true], $this->schedule($state, 'ppe')['split']);
+        $this->assertNotContains(['key' => 'ppe.accumulated', 'reason' => 'category_split_required', 'input_key' => null], $state['missing']);
+        $this->assertSame([31.0, 'trial_balance', 'ok'], $this->cell($state, 'ppe', 'acc_closing', 'vehicles'));
+        $this->assertSame([31.0, 'derived'], array_slice($this->cell($state, 'ppe', 'acc_closing'), 0, 2));
+        $this->assertSame([15.0, 'trial_balance', 'ok'], $this->cell($state, 'ppe', 'depreciation', 'vehicles'));   // the year's charge: the depreciation expense
 
         $state = $this->overrides($id, [['row' => 3, 'category' => 'vehicles']])->assertOk()->json();
         $this->assertSame(['cost' => true, 'accumulated' => true], $this->schedule($state, 'ppe')['split']);
@@ -233,8 +234,8 @@ class MovementSchedulesTest extends TestCase
         $this->assertSame([], $state['suggestions']);
         $this->assertSame([null, 'missing', 'missing'], $this->cell($state, 'ppe', 'additions', 'vehicles'));
         $this->assertContains(['key' => 'ppe.disposals.vehicles', 'reason' => 'movement_required', 'input_key' => null], $state['missing']);
-        // One column of accumulated depreciation: the charge is the expense, disposals follow (20 + 15 − 35).
-        $this->assertSame([[15.0, 'trial_balance'], [0.0, 'derived']], [array_slice($this->cell($state, 'ppe', 'depreciation'), 0, 2), array_slice($this->cell($state, 'ppe', 'acc_disposals'), 0, 2)]);
+        // The accumulated depreciation on the one category: the charge is the expense, disposals follow (20 + 15 − 35).
+        $this->assertSame([[15.0, 'trial_balance'], [0.0, 'derived']], [array_slice($this->cell($state, 'ppe', 'depreciation', 'vehicles'), 0, 2), array_slice($this->cell($state, 'ppe', 'acc_disposals', 'vehicles'), 0, 2)]);
         // End-of-service: the charge is the expense, paid follows (10 + 8 − 13).
         $this->assertSame([[8.0, 'trial_balance'], [5.0, 'derived'], [0.0, 'derived']], [array_slice($this->cell($state, 'employee_benefits', 'charge', 'amount'), 0, 2),
             array_slice($this->cell($state, 'employee_benefits', 'paid', 'amount'), 0, 2), array_slice($this->cell($state, 'employee_benefits', 'reversal', 'amount'), 0, 2)]);

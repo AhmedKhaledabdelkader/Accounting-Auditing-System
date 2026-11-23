@@ -169,3 +169,15 @@
 .cf-chips .st.todo{color:var(--muted)}
 .cf-bar .acts{display:flex;gap:14px;font-size:13px}
 .cfw .cf-main{min-width:0}
+/* The engagement file: chips locked, the step bar (status, blockers, sign-offs, the reviewer's notes), the phases board. */
+.cf-chips a.locked{opacity:.6}
+.eng-bar{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:0 0 14px;background:var(--panel2);display:grid;gap:8px}
+.eng-bar .top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.eng-bar ul{margin:0;padding-inline-start:18px}
+.eng-bar .signs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.eng-bar form{display:inline}
+.eng-phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.eng-phases .ph{border:1px solid var(--line);border-radius:12px;padding:12px}
+.eng-phases .ph.cur{border-color:var(--info)}
+.eng-phases ol{margin:6px 0 0;padding-inline-start:20px}
+.eng-phases li{margin:4px 0}

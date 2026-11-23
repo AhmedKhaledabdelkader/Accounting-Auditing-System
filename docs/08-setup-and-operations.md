@@ -304,3 +304,7 @@ No production deployment is configured. For one: set `APP_ENV=production`, `APP_
 - **Scheduler:** a cron every minute `php artisan schedule:run` (reads the clients' replies every two minutes, reminders, cleanup).
 - **Archives:** `.zip` works with PHP's own zip extension; `.rar` / `.7z` need 7-Zip (not available on shared hosting).
 - Outbound ports 587/465 (SMTP) and 993 (IMAP) must be open for the clients' emails and replies.
+
+## Spreadsheets in any format (2026-11-22)
+
+A trial balance, last year's statements as a spreadsheet, a classification import or a sales list is accepted by its extension (`App\Support\SpreadsheetFile::EXTENSIONS`: xlsx, xlsm, xls, xml, ods, csv, txt, htm, html) and read by its real content, never refused because a `.xls` holds something else: accounting systems (FastReport, Crystal, …) export «XML Spreadsheet 2003» or HTML tables under an .xls name. An XML spreadsheet is streamed into a temporary xlsx (`SpreadsheetFile::xmlToXlsx`: seconds, where the library's own XML reader takes most of a minute on a few thousand rows, and it fails on the bad creation dates these exporters write in the document properties). The client portal accepts uploads by extension too (`config/portal.php` `extensions`).

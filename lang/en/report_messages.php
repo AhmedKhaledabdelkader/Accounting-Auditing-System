@@ -25,6 +25,9 @@ return [
 
     'company_fields' => ['name_ar' => 'name', 'cr_number' => 'commercial registration number'],
     'checks' => [
+        'prior_line_on_main_row'      => 'Last year’s statements show «:note» without a note splitting it, so last year’s figure (:amount) was put on the main item «:item» and the others are «-». Change the split if you have last year’s detail.',
+        'related_party_elsewhere'     => 'The party «:name» had :prior in related parties in last year’s statements, but its account «:account» is on «:line» this year. Move it to the related-party line from the comparability proposals in the prior-year step so the note shows it and the comparatives agree.',
+        'useful_life_estimated'       => "Last year's statements don't give these categories' useful lives, so they were estimated: :lives. Review them; you can change them in the notes' questions.",
         'tb_unbalanced'               => 'Total debits do not equal total credits in :group (difference :diff).',
         'tb_unbalanced_rounding'      => 'Rounding difference in :group (difference :diff).',
         'tb_partial'                  => 'The trial balance is partial: it contains only :families, so the statements will be incomplete.',
@@ -308,6 +311,8 @@ return [
         'note_items_none'           => 'This note has no lines from last year\'s notes.',
         'note_items_account'        => 'This account is not one of the note\'s accounts.',
         'note_items_line'           => 'This is not one of the note\'s lines last year.',
+        'note_unknown'              => 'A note this template does not have.',
+        'note_move_target'          => 'The account cannot be moved to this note or line.',
         'ppe_account'               => 'This account is not one of the property, plant and equipment accounts.',
         'ppe_category'              => 'This is not one of last year\'s categories.',
         'zakat_input_unknown' => 'This is not an answer of the zakat calculation.',
@@ -344,6 +349,7 @@ return [
         'short_term_investments' => 'Short-term investments can be at amortised cost or murabaha deposits: choose the line.',
         'long_term_investments'  => 'Long-term investments can be associates, investment property, equity instruments or at amortised cost: choose the line.',
     ],
+    'useful_life_basis' => ['implied' => "years (from the year's depreciation on the category's cost)", 'usual' => 'years (the usual life of this kind of asset)'],
     'zakat_components' => ['opening' => ':line at the start of the year', 'accumulated_losses' => 'Accumulated losses at the start of the year', 'retained_earnings' => 'Retained earnings at the start of the year'],
     'pdf_issues' => [
         'check_unread'          => 'Page :pages: some figures could not be read («?»). Open the page and type them.',

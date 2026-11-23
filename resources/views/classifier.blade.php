@@ -182,7 +182,7 @@
     <h3>{{ __('classifier_page.drop.heading') }}</h3>
     <p>{{ __('classifier_page.drop.formats') }}</p>
     <div id="fileChip"></div>
-    <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
+    <input type="file" id="file" accept=".xlsx,.xlsm,.xls,.xml,.ods,.csv,.txt,.htm,.html" hidden>
   </div>
 
   @can('companies.view')
@@ -644,6 +644,8 @@ function showConfirmation(j){
   $('cfRows').innerHTML = `<tr><td class="rn">#</td>${letters.map(l => `<td class="rn">${esc(l)}</td>`).join('')}</tr>` +
     c.rows.map(r => `<tr><td class="rn">${r.row}</td>${letters.map(l => `<td>${esc(r.cells[l] ?? '')}</td>`).join('')}</tr>`).join('');
   $('confirm').classList.add('on');
+  // The question waits below the progress bar: brought into view, so the upload doesn't look stuck.
+  $('confirm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // "Confirm anyway" applies only to the exact mapping the new doubts were raised for: any edit takes it back.

@@ -4,6 +4,11 @@
 @php
   $steps = \App\Support\ClientSteps::of($company);
   $work = array_key_exists($active ?? '', \App\Support\ClientSteps::WORK);
+  // The engagement file of the year shown: each step's status, number and lock (App\Services\Engagement\Engagement decides).
+  $eYear = $year ?? \App\Services\Engagement\Engagement::year(request(), $company);
+  $eng = $work ? app(\App\Services\Engagement\Engagement::class)->status($company, $eYear) : null;
+  $eSteps = $eng ? collect($eng['steps'])->keyBy('step_key') : collect();
+  $mark = ['not_started' => '○', 'in_progress' => '◐', 'waiting_client' => '⏳', 'ready_for_review' => '✓', 'approved' => '✔'];
 @endphp
 @if ($work)
 <div class="cfw">
@@ -11,10 +16,10 @@
     <div class="who"><b>{{ $company->clientName() }}</b><small>{{ $company->name_ar }}@if ($company->cr_number) · <span dir="ltr">{{ $company->cr_number }}</span>@endif</small></div>
     <ol class="cf-chips" aria-label="{{ __('client_file.nav.label') }}">
       @foreach (\App\Support\ClientSteps::WORK as $key => $route)
-        @php $s = $steps[$key]; @endphp
-        <li><a href="{{ route($route, $company) }}" @class(['on' => $active === $key]) @if ($active === $key) aria-current="page" @endif>
-          <span class="n">{{ $loop->iteration + 3 }}</span>{{ __("client_file.nav.steps.{$key}") }}
-          <span class="st {{ $s['done'] ? 'done' : 'todo' }}" title="{{ __($s['done'] ? 'client_file.nav.done' : 'client_file.nav.todo') }}">{{ $s['done'] ? '✓' : '○' }}</span></a></li>
+        @php $es = $eSteps[$key] ?? null; $st = $es['status'] ?? 'not_started'; @endphp
+        <li><a href="{{ route($route, [$company, 'year' => $eYear]) }}" @class(['on' => $active === $key, 'locked' => $es['locked'] ?? false]) @if ($active === $key) aria-current="page" @endif data-step-chip="{{ $key }}" data-status="{{ $st }}">
+          <span class="n">{{ $es['n'] ?? '◆' }}</span>{{ __("client_file.nav.steps.{$key}") }}
+          @if ($es)<span class="st {{ in_array($st, ['ready_for_review', 'approved'], true) ? 'done' : 'todo' }}" title="{{ __("engagement.status.{$st}") }}">{{ ($es['locked'] ?? false) ? '🔒' : $mark[$st] }}</span>@endif</a></li>
       @endforeach
     </ol>
     <div class="acts">
@@ -24,6 +29,7 @@
   </header>
   <div class="cf-main">
     @include('partials.flash')
+    @if ($eng && isset($eSteps[$active]))@include('portal.file._engagement', ['company' => $company, 'year' => $eYear, 'eng' => $eng, 'es' => $eSteps[$active]])@endif
 @else
 <div class="cf">
   <nav class="cf-nav" aria-label="{{ __('client_file.nav.label') }}">

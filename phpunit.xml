@@ -21,6 +21,8 @@
         <!-- The suite runs in one process: the xlsx exports (PR 14) and generated workbooks leave memory PHP keeps. -->
         <ini name="memory_limit" value="512M"/>
         <env name="APP_ENV" value="testing"/>
+        <!-- The older tests walk the steps out of order; tests/Feature/EngagementTest.php turns the locks on. -->
+        <env name="ENGAGEMENT_LOCKS" value="false"/>
         <env name="FS_AUTO_CHARGE" value="false"/>
         <env name="PORTAL_AI_REVIEW" value="off"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>

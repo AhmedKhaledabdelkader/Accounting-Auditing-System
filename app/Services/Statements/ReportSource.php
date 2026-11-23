@@ -33,8 +33,10 @@ final class ReportSource
     public function hash(ClassificationRun $run): ?string
     {
         $raw = $run->getRawOriginal('result');
+        // The adjusting entries posted on it are part of it (the adjusted trial balance): a post or an unpost changes it.
+        $posted = $raw === null ? '' : \App\Services\Engagement\AdjustedTrialBalance::fingerprint((string) $run->id);
 
-        return $raw === null ? null : sha1($raw);
+        return $raw === null ? null : sha1($raw.$posted);
     }
 
     /**
@@ -44,7 +46,8 @@ final class ReportSource
      */
     public function result(ClassificationRun $run): array
     {
-        $result = $run->result;
+        // The adjusted trial balance: the run as approved plus the adjusting entries posted on it.
+        $result = \App\Services\Engagement\AdjustedTrialBalance::apply((string) $run->id, (array) $run->result);
         foreach ($result['data'] ?? [] as $i => $row) {
             $sub  = $this->taxonomy->resolveSub($row['sub_class'] ?? null);
             $main = $sub !== null ? $this->taxonomy->find($sub)[1] : $this->taxonomy->resolveMain($row['main_class'] ?? null);

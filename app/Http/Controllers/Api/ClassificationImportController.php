@@ -44,7 +44,7 @@ class ClassificationImportController extends Controller
             $force = filter_var($request->input('force'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
             $request->merge(['force' => $force ?? $request->input('force')]);
         }
-        $request->validate(['file' =>['required', 'file', 'mimes:xlsx,xls,csv', 'max:20480'], 'force' => ['nullable', 'boolean']], [
+        $request->validate(['file' =>['required', 'file', \App\Support\SpreadsheetFile::rule(), 'max:20480'], 'force' => ['nullable', 'boolean']], [
             'file.required' => __('classification_messages.import.file_required'),
             'file.mimes'    => __('classification_messages.import.file_mimes'),
             'file.max'      => __('classification_messages.import.file_max'),

@@ -74,7 +74,7 @@
       <h3>{{ __('cache_pages.cache.upload.drop') }}</h3>
       <p>{{ __('cache_pages.cache.upload.columns') }}</p>
       <div id="fileChip"></div>
-      <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
+      <input type="file" id="file" accept=".xlsx,.xlsm,.xls,.xml,.ods,.csv,.txt,.htm,.html" hidden>
     </div>
     <div class="actions"><button class="btn" id="go" disabled>{{ __('cache_pages.cache.upload.start') }} ✨</button></div>
     <div class="msg bad" id="upError"></div>

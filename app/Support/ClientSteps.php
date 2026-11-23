@@ -22,8 +22,11 @@ final class ClientSteps
     public const ORDER = ['details' => 'clients.edit', 'registration' => 'clients.file.registration', 'articles' => 'clients.file.articles'];
 
     /** The work steps (4 to 7), in the main side menu: step key => the client's page of it. */
-    public const WORK = ['trial_balance' => 'clients.file.trial-balance', 'prior' => 'clients.file.prior', 'statements' => 'clients.file.statements', 'zakat' => 'clients.file.zakat',
-        'requirements' => 'clients.show', 'papers' => 'clients.file.papers', 'recalc' => 'clients.file.recalculation', 'findings' => 'clients.file.findings'];
+    public const WORK = ['engagement' => 'clients.file.engagement', 'trial_balance' => 'clients.file.trial-balance', 'prior' => 'clients.file.prior',
+        'classification' => 'clients.file.classification', 'risks' => 'clients.file.risks', 'materiality' => 'clients.file.materiality',
+        'procedures' => 'clients.file.procedures', 'requirements' => 'clients.show', 'papers' => 'clients.file.papers', 'recalc' => 'clients.file.recalculation',
+        'sampling' => 'clients.file.sampling', 'findings' => 'clients.file.findings', 'adjustments' => 'clients.file.adjustments', 'zakat' => 'clients.file.zakat',
+        'statements' => 'clients.file.statements', 'completion' => 'clients.file.completion', 'release' => 'clients.file.release'];
 
     /**
      * @return array<string, array{done: bool, count: ?int}>
@@ -56,6 +59,13 @@ final class ClientSteps
             // The findings: settled once every finding the accountant has looked at is decided (none left open).
             'findings' => ['done' => ($decided = \App\Models\AuditFinding::withoutGlobalScopes()->where('company_id', $company->id)->get(['status']))->isNotEmpty()
                 && $decided->where('status', 'open')->isEmpty(), 'count' => null],
+            'materiality' => ['done' => ($plans = \App\Models\AuditPlan::withoutGlobalScopes()->where('company_id', $company->id)->get(['materiality', 'sampling', 'procedures']))
+                ->filter(fn ($p) => ! empty($p->materiality))->isNotEmpty(), 'count' => null],
+            // Done once a year has samples and every one of them is fully tested (an untested sample isn't done).
+            'sampling' => ['done' => $plans->contains(fn ($p) => ($ss = \App\Services\Audit\RevenueSampling::samples($p->sampling)) !== []
+                && collect($ss)->every(fn ($x) => count(array_filter((array) ($x['results'] ?? []), fn ($r) => ($r['audited'] ?? null) !== null)) >= count($x['selected']))), 'count' => null],
+            // The audit program: done once every area of a year is signed off by its preparer, or not applicable.
+            'procedures' => ['done' => $plans->contains(fn ($p) => ! empty($p->procedures) && \App\Services\Audit\AuditProcedures::complete($p->procedures)), 'count' => null],
         ];
     }
 }

@@ -44,6 +44,17 @@ final class AssetNotesBuilder
             $category = $ctx->categories[$n] ?? $ctx->catalogue->category($key, $ctx->rows[$n]['sub_class'] ?? null);
             $sides[$ctx->isContra($n) ? 'accumulated' : 'cost'][isset($cfg['categories'][$category]) ? $category : ''][$n] = $share;
         }
+        // An accumulated depreciation account of no category («مجمع اهلاك السيارات» in a class «مجمع إهلاك الأصول الثابتة»)
+        // takes the category of the cost account its name names: the note shows every category's figures, never the total alone.
+        foreach (array_keys($sides['accumulated']['']  ?? []) as $n) {
+            if (($category = $this->contraCategory((string) ($ctx->rows[$n]['account_name'] ?? ''), $sides['cost'], $ctx)) !== null) {
+                $sides['accumulated'][$category][$n] = $sides['accumulated'][''][$n];
+                unset($sides['accumulated'][''][$n]);
+            }
+        }
+        if (($sides['accumulated'][''] ?? null) === []) {
+            unset($sides['accumulated']['']);
+        }
         $split      = ['cost' => ! isset($sides['cost']['']), 'accumulated' => ! isset($sides['accumulated'][''])];
         $categories = array_values(array_filter(array_keys($cfg['categories']), fn ($c) => isset($sides['cost'][$c]) || isset($sides['accumulated'][$c])));
         $columns    = [...$categories, 'total'];
@@ -162,6 +173,68 @@ final class AssetNotesBuilder
         }
 
         return $out;
+    }
+
+    /**
+     * The category of an accumulated depreciation account by its name: the cost category whose accounts share the most of
+     * its telling words (a word matching another's start: «الأثاث» and «أثاثات»), one category clearly ahead; the only cost
+     * category when there is one. Null when the name says nothing or two categories say it as much.
+     */
+    private function contraCategory(string $name, array $cost, ScheduleContext $ctx): ?string
+    {
+        $categories = array_filter(array_keys($cost), fn ($c) => $c !== '');
+        if ($categories === []) {
+            return null;
+        }
+        $mine = self::tellingWords($name);
+        $scores = [];
+        foreach ($categories as $category) {
+            $theirs = [];
+            foreach (array_keys($cost[$category]) as $n) {
+                $theirs = [...$theirs, ...self::tellingWords((string) ($ctx->rows[$n]['account_name'] ?? ''))];
+            }
+            $scores[$category] = count(array_filter($mine, fn ($w) => array_filter($theirs, fn ($t) => self::sameWord($w, $t)) !== []));
+        }
+        arsort($scores);
+        $best = array_key_first($scores);
+        $second = array_values($scores)[1] ?? 0;
+        if ($scores[$best] > 0 && $scores[$best] > $second) {
+            return $best;
+        }
+
+        return count($categories) === 1 && $mine === [] ? array_values($categories)[0] : null;
+    }
+
+    /** A name's words that can tell a category: normalised, without «ال» and «و», generic words and short ones left out. */
+    private static function tellingWords(string $name): array
+    {
+        $generic = array_map(fn ($w) => self::bare(StatementSynonyms::wording($w)), [...self::GENERIC, 'الأصول', 'اصول', 'الثابتة', 'ثابتة', 'المتراكم', 'متراكم']);
+        $out = [];
+        foreach (explode(' ', StatementSynonyms::wording($name)) as $w) {
+            $w = self::bare($w);
+            if (mb_strlen($w) > 2 && ! in_array($w, $generic, true)) {
+                $out[] = $w;
+            }
+        }
+
+        return array_values(array_unique($out));
+    }
+
+    private static function bare(string $w): string
+    {
+        $w = (string) preg_replace('/[^\p{L}\p{N}]/u', '', $w);
+        $w = (string) preg_replace('/^(وال|بال|لل|ال|و)(?=\p{L}{3})/u', '', $w);
+
+        return $w;
+    }
+
+    /** The same word, or one the start of the other (at least 3 letters): «اثاث» and «اثاثات». */
+    private static function sameWord(string $a, string $b): bool
+    {
+        $short = mb_strlen($a) <= mb_strlen($b) ? $a : $b;
+        $long = $short === $a ? $b : $a;
+
+        return $a === $b || (mb_strlen($short) >= 3 && str_starts_with($long, $short));
     }
 
     /** Words that say nothing of a category («مصاريف إهلاك …», «مجمع …»). */

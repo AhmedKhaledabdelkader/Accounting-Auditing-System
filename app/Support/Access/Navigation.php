@@ -39,14 +39,24 @@ class Navigation
                 $item('/clients', ['clients*'], 'clients', 'clients.view'),
                 $item('/portal', ['portal*'], 'portal', 'portal.use'),
                 // The work on a client: 4 to 7 (they ask for a client when none is open; the one opened last is remembered).
+                // The engagement file in the office's order (config/engagement.php, 2026-11-23): the board, then the steps 2 to 14.
+                $item('/work/engagement', ['work/engagement', 'clients/*/engagement*'], 'engagement', 'clients.view'),
                 $item('/work/trial-balance', ['work/trial-balance', 'clients/*/trial-balance', 'classifier'], 'trial_balance', 'clients.view'),
                 $item('/work/prior-statements', ['work/prior-statements', 'clients/*/prior-statements'], 'prior', 'clients.view'),
-                $item('/work/statements', ['work/statements', 'clients/*/statements', 'financial-reports*', 'financial-statements*'], 'statements', 'clients.view'),
-                $item('/work/zakat', ['work/zakat', 'clients/*/zakat'], 'zakat', 'clients.view'),
+                $item('/work/classification', ['work/classification', 'clients/*/classification'], 'classification', 'clients.view'),
+                $item('/work/risks', ['work/risks', 'clients/*/risks*'], 'risks', 'clients.view'),
+                $item('/work/materiality', ['work/materiality', 'clients/*/materiality*'], 'materiality', 'clients.view'),
+                $item('/work/procedures', ['work/procedures', 'clients/*/procedures*'], 'procedures', 'clients.view'),
                 $item('/work/requirements', ['work/requirements', 'clients/*/requirements'], 'requirements', 'clients.view'),
                 $item('/work/working-papers', ['work/working-papers', 'clients/*/working-papers'], 'papers', 'clients.view'),
                 $item('/work/recalculation', ['work/recalculation', 'clients/*/recalculation'], 'recalc', 'clients.view'),
+                $item('/work/sampling', ['work/sampling', 'clients/*/sampling*'], 'sampling', 'clients.view'),
                 $item('/work/findings', ['work/findings', 'clients/*/findings*'], 'findings', 'clients.view'),
+                $item('/work/adjustments', ['work/adjustments', 'clients/*/adjustments*', 'clients/*/misstatements*'], 'adjustments', 'clients.view'),
+                $item('/work/zakat', ['work/zakat', 'clients/*/zakat'], 'zakat', 'clients.view'),
+                $item('/work/statements', ['work/statements', 'clients/*/statements', 'financial-reports*', 'financial-statements*'], 'statements', 'clients.view'),
+                $item('/work/completion', ['work/completion', 'clients/*/completion'], 'completion', 'clients.view'),
+                $item('/work/release', ['work/release', 'clients/*/release*'], 'release', 'clients.view'),
             ],
             'nav.sections.tuning' => [
                 $item('/classification-cache', ['classification-cache*'], 'cache', 'cache.view'),
@@ -67,7 +77,8 @@ class Navigation
     }
 
     /** Links whose icon is another's. */
-    private const ICON_OF = ['memory' => 'synonyms', 'trial_balance' => 'classifier', 'prior' => 'cache', 'statements' => 'reports', 'requirements' => 'users', 'papers' => 'reports', 'recalc' => 'rules', 'findings' => 'rules', 'classifier' => 'classifier'];
+    private const ICON_OF = ['memory' => 'synonyms', 'trial_balance' => 'classifier', 'prior' => 'cache', 'statements' => 'reports', 'requirements' => 'users', 'papers' => 'reports', 'recalc' => 'rules', 'findings' => 'rules', 'materiality' => 'rules', 'sampling' => 'reports', 'procedures' => 'rules', 'classifier' => 'classifier',
+        'engagement' => 'portal', 'classification' => 'taxonomy', 'risks' => 'roles', 'adjustments' => 'synonyms', 'completion' => 'rules', 'release' => 'reports'];
 
     /** The link of the main side menu the current page belongs to: the most specific pattern that matches (a client's zakat page over the list of clients). */
     public static function activeHref(?User $user): ?string

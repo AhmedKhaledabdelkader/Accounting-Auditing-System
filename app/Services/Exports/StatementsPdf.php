@@ -144,6 +144,8 @@ final class StatementsPdf
             }
             $notes[] = ['number' => $n['number'], 'title' => $n['title_ar'], 'blocks' => $blocks];
         }
+        // In their numbers' order: the accountant's order of the notes when one is set (NotesBuilder::order).
+        usort($notes, fn ($a, $b) => (int) $a['number'] <=> (int) $b['number']);
         $pages = array_values(array_filter([$statements['financial_position'], $statements['comprehensive_income'],
             $equity ? $equity + ['kind' => 'equity', 'orientation' => count($equity['columns']) + 1 > self::PORTRAIT_COLUMNS ? 'L' : 'P'] : null,
             $statements['cash_flows']]));

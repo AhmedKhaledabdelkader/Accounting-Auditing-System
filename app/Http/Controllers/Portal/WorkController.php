@@ -15,8 +15,10 @@ use Illuminate\View\View;
 class WorkController extends Controller
 {
     /** Step key → the name of its route. */
-    public const ROUTES = ['trial_balance' => 'work.trial-balance', 'prior' => 'work.prior', 'statements' => 'work.statements', 'zakat' => 'work.zakat',
-        'requirements' => 'work.requirements', 'papers' => 'work.papers', 'recalc' => 'work.recalc', 'findings' => 'work.findings'];
+    public const ROUTES = ['engagement' => 'work.engagement', 'trial_balance' => 'work.trial-balance', 'prior' => 'work.prior', 'classification' => 'work.classification',
+        'risks' => 'work.risks', 'materiality' => 'work.materiality', 'procedures' => 'work.procedures', 'requirements' => 'work.requirements',
+        'papers' => 'work.papers', 'recalc' => 'work.recalc', 'sampling' => 'work.sampling', 'findings' => 'work.findings', 'adjustments' => 'work.adjustments',
+        'zakat' => 'work.zakat', 'statements' => 'work.statements', 'completion' => 'work.completion', 'release' => 'work.release'];
 
     public function __construct(private readonly ClientFileController $files) {}
 
@@ -58,6 +60,51 @@ class WorkController extends Controller
     public function findings(Request $request): View
     {
         return $this->step($request, 'findings', fn (Company $c) => app(FindingsController::class)->show($request, $c));
+    }
+
+    public function materiality(Request $request): View
+    {
+        return $this->step($request, 'materiality', fn (Company $c) => app(AuditPlanController::class)->materiality($request, $c));
+    }
+
+    public function sampling(Request $request): View
+    {
+        return $this->step($request, 'sampling', fn (Company $c) => app(AuditPlanController::class)->sampling($request, $c));
+    }
+
+    public function engagement(Request $request): View
+    {
+        return $this->step($request, 'engagement', fn (Company $c) => app(EngagementController::class)->show($request, $c));
+    }
+
+    public function classification(Request $request): View
+    {
+        return $this->step($request, 'classification', fn (Company $c) => app(EngagementController::class)->classification($request, $c));
+    }
+
+    public function risks(Request $request): View
+    {
+        return $this->step($request, 'risks', fn (Company $c) => app(RisksController::class)->show($request, $c));
+    }
+
+    public function adjustments(Request $request): View
+    {
+        return $this->step($request, 'adjustments', fn (Company $c) => app(AdjustmentsController::class)->show($request, $c));
+    }
+
+    public function completion(Request $request): View
+    {
+        return $this->step($request, 'completion', fn (Company $c) => app(CompletionController::class)->show($request, $c));
+    }
+
+    public function release(Request $request): View
+    {
+        return $this->step($request, 'release', fn (Company $c) => app(CompletionController::class)->release($request, $c));
+    }
+
+    public function procedures(Request $request): View
+    {
+        return $this->step($request, 'procedures', fn (Company $c) => app(ProceduresController::class)->show($request, $c));
     }
 
     private function step(Request $request, string $step, \Closure $page): View

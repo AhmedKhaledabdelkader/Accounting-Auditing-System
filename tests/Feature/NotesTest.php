@@ -133,7 +133,7 @@ class NotesTest extends TestCase
         // Back to automatic; a note shown always can't be hidden.
         $state = $this->notes($id, ['visibility' => ['inventory' => 'auto', 'trade_payables' => 'auto']])->assertOk()->json();
         $this->assertSame(6, $this->numbers($state)['trade_payables']);
-        $this->assertSame(['visibility' => [], 'texts' => [], 'items' => [], 'ppe' => []], $state['note_options']);
+        $this->assertSame(['visibility' => [], 'texts' => [], 'items' => [], 'ppe' => [], 'order' => [], 'moves' => []], $state['note_options']);
         $this->notes($id, ['visibility' => ['capital' => 'off']])->assertStatus(422)->assertJsonValidationErrors('visibility.capital');
         $this->notes($id, ['visibility' => ['ppe' => 'maybe']])->assertStatus(422);
         $this->notes($id, [])->assertStatus(422);

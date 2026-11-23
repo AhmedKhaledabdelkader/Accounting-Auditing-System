@@ -161,8 +161,8 @@ final class ReportIntake
         foreach ($f['zakat_base'] ?? [] as $r) {
             $fields[] = $this->field("zakat.base.{$r['n']}", 'number', false, ['label' => Phrase::text(['ar' => $r['label']]),
                 'help' => Phrase::make('report_messages.intake.zakat_base.help'),
-                // Proposed from last year's components when they explain last year's figure.
-                'default' => $r['from'] === 'derived' ? $r['current']->amount : null]);
+                // Proposed from this year's zakat calculation, or from last year's components when they explain last year's figure.
+                'default' => in_array($r['from'], ['derived', 'calculation'], true) ? $r['current']->amount : null]);
         }
 
         // Policies.

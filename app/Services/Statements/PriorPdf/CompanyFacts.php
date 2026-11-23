@@ -47,8 +47,28 @@ final class CompanyFacts
                 if (preg_match('/الصادر\s+من\s+(?:مدينة\s+)?([^\s،.]+)/u', $text, $m) && ! str_contains($m[1], 'وزار')) {
                     $put('city', $m[1], $s['page']);
                 }
+                // A sole proprietorship: «مؤسسة لؤلؤة الطب - مؤسسة فردية سعودية …».
+                if (preg_match('/^(.{3,120}?)\s*[-–،,]?\s*(?:هي\s+)?مؤسس[ةه]\s+فردي[ةه]/um', $text, $m)) {
+                    $put('name_ar', self::name($m[1]), $s['page']);
+                    $put('legal_form', 'sole_proprietorship', $s['page']);
+                }
                 if (preg_match('/(?:حدد|يتمثل|ويتمثل|يتمثل)\s+نشاط\s+الشركة\s+(?:في|فى)\s*:?-?\s*(.+)/u', $text, $m)) {
                     $put('activity', $m[1], $s['page']);
+                }
+                // «ويتمثل غرض الشركة في :-» (or «نشاط المؤسسة»), the activity on the line after it.
+                if (preg_match('/(?:غرض|نشاط|أغراض|اغراض)\s+(?:ال)?(?:شركة|مؤسس[ةه]|منشأ[ةه])\s+(?:في|فى)\s*:?\s*-?\s*(.*)(?:\n(.+))?/u', $text, $m)) {
+                    $put('activity', trim($m[1]) !== '' ? $m[1] : ($m[2] ?? null), $s['page']);
+                }
+                // «عنوان الشركة :-» with the address on the line after it: the head office, and its first part the city.
+                if (preg_match('/(?:عنوان|مقر|المركز\s+الرئيسي\s+ل)\s*(?:ال)?(?:شركة|مؤسس[ةه]|منشأ[ةه])\s*(?:هو|في|فى)?\s*:?\s*-?\s*(.*)(?:\n(.+))?/u', $text, $m)) {
+                    $address = trim($m[1]) !== '' ? $m[1] : ($m[2] ?? '');
+                    if (trim($address) !== '' && mb_strlen($address) <= 120) {
+                        $put('head_office', $address, $s['page']);
+                        $city = trim((string) preg_split('/\s*[-–،,]\s*/u', trim($address))[0]);
+                        if ($city !== '' && mb_strlen($city) <= 30) {
+                            $put('city', $city, $s['page']);
+                        }
+                    }
                 }
                 if ($s['parent'] !== null && preg_match('/عنوان|المركز\s+الرئيسي|مقر/u', $s['title']) && mb_strlen($text) <= 120) {
                     // The note's own address: the head office, and the city over where the registry was issued.

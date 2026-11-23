@@ -209,19 +209,17 @@ class PriorNoteItemsTest extends TestCase
         $base = fn () => $this->getJson(self::URL."/{$id}")->assertOk()->json('zakat_base');
         $rows = fn (array $b) => array_map(fn ($r) => [$r['label'], $r['kind'], $r['prior'], $r['current']['amount'] ?? null, $r['from']], $b['rows']);
 
-        // Last year's lines, as printed, last year's amounts; this year's from the statements where they give it. The two
-        // «إجمالي» lines are lines (R10), asked under their own wording. Last year's deductions (300) are its PPE (250) and
-        // other assets (50): proposed again with this year's (PPE 220; other assets 50: last year's approved 50, no movement,
-        // the trial balance has none, Step B), flagged; nothing explains the additions (500).
+        // Last year's lines, as printed, last year's amounts; this year's from the statements where they give it, and the
+        // additions to the base and the deductions from it from this year's zakat calculation (2026-11-21: the note shows the
+        // year's own calculation, never «[ناقص]»): nothing added, the PPE (220) deducted. The two «إجمالي» lines are lines (R10).
         $this->assertEquals([['صافي الربح قبل الزكاة', 'line', 100, 0, 'statements'], ['مخصصات مكونة', 'line', 10, 0, 'schedules'], ['صافي الدخل المعدل', 'total', 110, 0, 'total'],
-            ['إجمالي الإضافات إلى الوعاء', 'line', 500, null, 'input'], ['إجمالي الحسميات من الوعاء', 'line', -300, -270, 'derived'], ['صافي الوعاء', 'total', 310, null, 'total'],
+            ['إجمالي الإضافات إلى الوعاء', 'line', 500, 0, 'calculation'], ['إجمالي الحسميات من الوعاء', 'line', -300, -220, 'calculation'], ['صافي الوعاء', 'total', 310, -220, 'total'],
             ['الزكاة المستحقة', 'line', 8, 0, 'statements']], $rows($base()));
+        // Still the accountant's to change, under last year's wording, the calculation's figure proposed.
         $fields = collect($this->getJson(self::URL."/{$id}/intake")->json('fields'))->keyBy('key');
         $this->assertSame(['إجمالي الإضافات إلى الوعاء', false], [$fields['zakat.base.4']['label_ar'], $fields['zakat.base.4']['required']]);
         $this->assertArrayNotHasKey('zakat.base.1', $fields->all());
-        $this->assertEquals(-270, $fields['zakat.base.5']['default']);
-        $this->assertSame(['الممتلكات والآلات والمعدات', 'أصول أخرى'], $base()['rows'][4]['components']);
-        $this->assertContains('zakat_base_derived', array_column($this->getJson(self::URL."/{$id}")->json('checks'), 'code'));
+        $this->assertEquals(-220, $fields['zakat.base.5']['default']);
 
         // Answered: the base adds up this year.
         $this->patchJson(self::URL."/{$id}/inputs", ['inputs' => ['zakat.base.4' => 700, 'zakat.base.5' => -200]])->assertOk();
@@ -237,8 +235,9 @@ class PriorNoteItemsTest extends TestCase
         // A zakat provision this year (the note shows); no charge.
         $id = $this->report([], [$this->account(9, 'مخصص الزكاة الشرعية', ['opening' => 0, 'closing' => -5])]);
         $state = fn () => $this->getJson(self::URL."/{$id}")->assertOk()->json();
-        $this->assertContains('notes.zakat', array_column($state()['missing'], 'key'));
-        $this->assertContains('zakat_base_derived', array_column($state()['checks'], 'code'));
+        // The base's additions and deductions are this year's calculation's: nothing missing.
+        $this->assertNotContains('notes.zakat', array_column($state()['missing'], 'key'));
+        $this->assertSame('calculation', $state()['zakat_base']['rows'][4]['from']);
 
         // The reason is the one switch: a line not answered is «-» (0), not asked or proposed; the note says the reason.
         $this->patchJson(self::URL."/{$id}/inputs", ['inputs' => ['zakat.zero_reason' => 'سبب تجريبي']])->assertOk();

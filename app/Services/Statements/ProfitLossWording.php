@@ -41,7 +41,8 @@ final class ProfitLossWording
         $done = false;
         // Both words already: «الربح (الخسارة)», «ربح ( خسارة )», «الدخل (الخسارة)»: one of them while the signs agree.
         foreach (self::PAIRS as [$profit, $loss]) {
-            if (preg_match('/'.self::pattern($profit).'\s*\(\s*'.self::pattern($loss).'\s*\)/u', $out, $m)) {
+            // «الربح (الخسارة)», and «الربح/الخسارة» printed with a slash.
+            if (preg_match('/'.self::pattern($profit).'\s*(?:\(\s*'.self::pattern($loss).'\s*\)|\/\s*'.self::pattern($loss).')/u', $out, $m)) {
                 $out = $want === 'both' ? $out : str_replace($m[0], $want === 'profit' ? $profit : $loss, $out);
                 $done = true;
                 break;

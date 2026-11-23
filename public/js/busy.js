@@ -131,7 +131,8 @@
     const a = e.target.closest?.('a[download][href]');
     if (!a || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || a.dataset.busy === 'off') return;
     const url = new URL(a.href, location.href);
-    if (url.origin !== location.origin || a.href.endsWith('#')) return;
+    // The file already fetched (a blob: link, made below): saved as it is, never fetched again (that looped for ever).
+    if (url.protocol === 'blob:' || url.protocol === 'data:' || url.origin !== location.origin || a.href.endsWith('#')) return;
     e.preventDefault();
     const h = start({ title: a.dataset.busyTitle || word('preparing'), hint: word('download_hint') });
     h.process(word('generating'), 0, 8);
@@ -155,6 +156,7 @@
       const disp = res.headers.get('content-disposition') || '';
       const name = decodeURIComponent((disp.match(/filename\*=UTF-8''([^;]+)/i) || [])[1] || (disp.match(/filename="?([^";]+)"?/i) || [])[1] || a.getAttribute('download') || 'file');
       const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: name });
+      link.dataset.busy = 'off';   // this click saves the file; it is not a download to fetch
       document.body.append(link); link.click(); link.remove();
       setTimeout(() => URL.revokeObjectURL(link.href), 10000);
       h.done();

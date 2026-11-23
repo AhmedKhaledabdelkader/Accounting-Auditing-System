@@ -8,7 +8,7 @@ return [
             'details' => 'Client details and period', 'registration' => 'Commercial registration', 'articles' => 'Articles of association',
             'trial_balance' => 'Trial balance (current and previous, if any)', 'prior' => 'Previous financial statements (opening balances comparison)',
             'statements' => 'Financial statements', 'zakat' => 'Zakat and income tax',
-            'requirements' => 'Requirements', 'papers' => 'Working papers', 'recalc' => 'Recalculation', 'findings' => 'Audit findings',
+            'requirements' => 'Requirements', 'papers' => 'Working papers', 'recalc' => 'Recalculation', 'findings' => 'Audit findings', 'materiality' => 'Materiality', 'sampling' => 'Samples', 'procedures' => 'Audit procedures', 'engagement' => 'Engagement', 'classification' => 'Classification', 'risks' => 'Risks', 'adjustments' => 'Entries & misstatements', 'completion' => 'Completion', 'release' => 'Release',
         ],
         'follow_up' => 'Follow-up', 'requests' => 'Requests and chat',
     ],

@@ -120,28 +120,57 @@ final class ZakatBase
         return ['current' => new Figure(round($sum, 2) + 0.0, 'derived', 'pending_confirmation'), 'components' => array_column($parts, 'label')];
     }
 
+    /** A base line of last year's note as this year's calculation gives it: additions, deductions, the net base; else null. */
+    private static function fromCalculation(string $label, ?array $calc, float $prior): ?Figure
+    {
+        $base = $calc['base'] ?? null;
+        if ($base === null) {
+            return null;
+        }
+        $sign = $prior < 0 ? -1 : 1;
+        $amount = match (true) {
+            (bool) preg_match('/(الإضافات|الاضافات|اضافات|إضافات)/u', $label) => abs(($base['equity'] ?? 0) + ($base['non_current_liabilities'] ?? 0)
+                + max(0, $base['profit_difference'] ?? 0) + ($base['current_excess'] ?? 0) + ($base['extra_additions'] ?? 0)),
+            (bool) preg_match('/(الحسميات|حسميات|الحسومات|الخصومات|المحسوم|الاستبعادات|يخصم)/u', $label) => abs(($base['deducted_assets'] ?? 0)
+                + min(0, $base['profit_difference'] ?? 0) - abs($base['extra_deductions'] ?? 0)),
+            (bool) preg_match('/(صافي|وعاء)\s*(ال)?وعاء|الوعاء\s+(الزكوي|الخاضع)/u', $label) => abs((float) ($calc['final_base'] ?? 0)),
+            default => null,
+        };
+
+        return $amount === null ? null : new Figure(round($sign * $amount, 2) + 0.0, 'derived', 'ok', [['type' => 'zakat_calculation']]);
+    }
+
     /** No zakat for the year, with its reason (`zakat.zero_reason`): the one switch for the base, the note and the provision's checks. */
     public static function none(array $inputs, array $cur): bool
     {
         return ($inputs['zakat.zero_reason'] ?? null) !== null && abs($cur['is.zakat']->amount ?? 0.0) <= (float) config('classification.balance_tolerance', 0.01);
     }
 
-    public static function of(?array $file, array $cur, array $schedules, array $inputs, array $cmp = [], ?LineCatalogue $catalogue = null): ?array
+    /**
+     * @param ?array $calc this year's zakat calculation (ZakatCalculator::of): the base's additions, deductions and net base
+     *                     where last year's note prints them as lines, so the note shows this year's figures, never «[ناقص]»
+     */
+    public static function of(?array $file, array $cur, array $schedules, array $inputs, array $cmp = [], ?LineCatalogue $catalogue = null, ?array $calc = null): ?array
     {
         $doc = $file['document'] ?? null;
         if ($doc === null) {
             return null;
         }
+        // The zakat note: titled so, with a table of the base (the policy «الزكاة» has none); the first such note.
         $section = null;
+        $tables = [];
         foreach ($doc['sections'] as $s) {
-            if ($s['parent'] === null && ! $s['slip'] && preg_match('/الزكاة|الزكاه/u', $s['title'])) {
+            if ($s['parent'] !== null || $s['slip'] || ! preg_match('/الزكاة|الزكاه/u', $s['title'])) {
+                continue;
+            }
+            $tables = array_values(array_filter(Sections::tablesOf($s['id'], $doc['sections'], $doc['tables']),
+                fn ($t) => ! ($t['movement'] ?? false) && in_array('current', $t['roles']['roles'] ?? [], true)));
+            if ($tables !== []) {
                 $section = $s;
                 break;
             }
         }
-        $tables = $section === null ? [] : array_values(array_filter(Sections::tablesOf($section['id'], $doc['sections'], $doc['tables']),
-            fn ($t) => ! ($t['movement'] ?? false) && in_array('current', $t['roles']['roles'] ?? [], true)));
-        if ($tables === []) {
+        if ($section === null) {
             return null;
         }
         $t = $tables[0];
@@ -172,6 +201,11 @@ final class ZakatBase
                     : ($none ? new Figure(0.0, 'derived') : Figure::missing()), 'input'],
             };
             $prior = (float) ($r['cells'][$at]['amount'] ?? 0.0);
+            // The additions to the base, the deductions from it and the net base: this year's zakat calculation, signed as
+            // last year's line (the accountant's answer still wins).
+            if ($from === 'input' && ! $none && ! isset($inputs["zakat.base.{$n}"]) && ($fromCalc = self::fromCalculation($label, $calc, $prior)) !== null) {
+                [$current, $from] = [$fromCalc, 'calculation'];
+            }
             $rows[$i] = ['n' => $n, 'label' => $label, 'kind' => $r['kind'], 'sum_of' => $r['sum_of'] ?? [], 'prior' => $prior, 'current' => $current, 'from' => $from];
             // Not answered: proposed from last year's components, taken with this year's figures.
             if ($from === 'input' && $current->isMissing() && $catalogue !== null && ($d = self::derive($prior, self::components($file, $catalogue, $cur, $cmp))) !== null) {

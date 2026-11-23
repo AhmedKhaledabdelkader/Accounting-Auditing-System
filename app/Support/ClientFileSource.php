@@ -20,6 +20,7 @@ final class ClientFileSource
         'trial_balance'    => ['extensions' => ['xlsx', 'xls', 'csv'], 'words' => ['ميزان مراجعة', 'ميزان المراجعة']],
         'prior_statements' => ['extensions' => ['xlsx', 'xls', 'pdf'], 'words' => ['القوائم المالية المعتمدة', 'القوائم المالية للسنة السابقة']],
         'articles'         => ['extensions' => ['pdf'], 'words' => ['عقد تأسيس', 'عقد التأسيس']],
+        'sales'            => ['extensions' => ['xlsx', 'xls', 'csv', 'pdf'], 'words' => ['المبيعات', 'مبيعات', 'الإيرادات', 'فواتير']],
     ];
 
     /** Puts the picked file in the request as `file` (a copy: the portal's own stays as it is). No `client_file_id`: nothing changes. */

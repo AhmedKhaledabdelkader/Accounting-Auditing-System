@@ -15,7 +15,7 @@ return [
     // The tool that unpacks anything but a zip (7-Zip reads rar, 7z, tar, gz): the first found; ARCHIVE_TOOL names one.
     'archive_tool' => env('ARCHIVE_TOOL'),
     'archive_tools' => ['7z', '7za', '7zz', 'C:\\Program Files\\7-Zip\\7z.exe', '/usr/bin/7z', '/usr/bin/7zz', '/usr/local/bin/7z'],
-    'extensions' => ['xlsx', 'xls', 'csv', 'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'zip', 'txt'],
+    'extensions' => ['xlsx', 'xlsm', 'xls', 'xml', 'ods', 'csv', 'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'zip', 'txt'],
 
     // Following the client up by email (FollowUp): the AI finds what is missing and writes the email; the office reads and sends it (nothing
     // is sent without a click, unless `auto_remind` is on). Replies come to `reply_to` and reach us at POST /mail/inbound (the mail

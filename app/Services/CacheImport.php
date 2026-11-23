@@ -123,7 +123,7 @@ class CacheImport
     public function check(string $path): array
     {
         try {
-            $reader = IOFactory::createReaderForFile($path);
+            [$reader, $readable] = \App\Support\SpreadsheetFile::open($path);
             $reader->setReadDataOnly(true);
             $reader->setReadFilter(new class implements IReadFilter
             {
@@ -132,7 +132,7 @@ class CacheImport
                     return $row <= 60;
                 }
             });
-            $cells = $reader->load($path)->getSheet(0)->toArray(null, true, false, false);
+            $cells = $reader->load($readable)->getSheet(0)->toArray(null, true, false, false);
         } catch (\Throwable) {
             return ['errors' => [self::m('unreadable')], 'warnings' => []];
         }
@@ -162,9 +162,9 @@ class CacheImport
     /** @return list<array> import rows (without import_id), in file order */
     public function read(string $path): array
     {
-        $reader = IOFactory::createReaderForFile($path);
+        [$reader, $readable] = \App\Support\SpreadsheetFile::open($path);
         $reader->setReadDataOnly(true);
-        $sheet = $reader->load($path)->getSheet(0);
+        $sheet = $reader->load($readable)->getSheet(0);
 
         $layout = null;
         $out    = [];

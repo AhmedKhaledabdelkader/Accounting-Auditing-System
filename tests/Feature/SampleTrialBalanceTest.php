@@ -192,8 +192,11 @@ class SampleTrialBalanceTest extends TestCase
         $this->assertSame([280743.94, 91888.9, 0.0, 0.0], [$cell($built, 'ppe', 'additions')->amount, $cell($built, 'ppe', 'depreciation')->amount,
             $cell($built, 'ppe', 'disposals')->amount, $cell($built, 'ppe', 'acc_disposals')->amount]);
         $this->assertSame(848609.34, $cell($built, 'ppe', 'nbv_closing')->amount);
-        // Four accumulated depreciation accounts against three cost accounts: no category until the user pairs them (Q8).
-        $this->assertContains(['key' => 'ppe.accumulated', 'reason' => 'category_split_required', 'input_key' => null], $built['missing']);
+        // Four accumulated depreciation accounts against three cost accounts, each paired by its name («مجمع إستهلاك / السيارات» with
+        // «السيارات», «الاجهزة المكتبية» with the furniture and office equipment): every category's figures, never the total alone.
+        $this->assertNotContains(['key' => 'ppe.accumulated', 'reason' => 'category_split_required', 'input_key' => null], $built['missing']);
+        $this->assertSame([184344.06, 776316.43], [$cell($built, 'ppe', 'acc_closing', 'vehicles')->amount, $cell($built, 'ppe', 'nbv_closing', 'vehicles')->amount]);
+        $this->assertSame(11376.51, $cell($built, 'ppe', 'acc_closing', 'furniture')->amount);
         $this->assertArrayNotHasKey('depreciation_mismatch', $codes($built));
         $this->assertArrayNotHasKey('asset_rollforward', $codes($built));
 

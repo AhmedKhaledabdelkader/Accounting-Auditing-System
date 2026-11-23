@@ -53,7 +53,7 @@ class ClientFilePagesTest extends TestCase
 
         // Nothing is done but the details (the client's names, email and period are all there).
         $steps = \App\Support\ClientSteps::of($company);
-        $this->assertSame([true, false, false, false, false, false, false, false, false, false, false], array_values(array_map(fn ($s) => $s['done'], $steps)));
+        $this->assertSame([true, false, false, false, false, false, false, false, false, false, false, false, false, false], array_values(array_map(fn ($s) => $s['done'], $steps)));
 
         // Each step is done by its own thing.
         $company->update(['profile' => ['registration' => ['file' => 'x.pdf', 'name' => 'x.pdf', 'number' => '1010123456', 'read_at' => now()->toIso8601String()],
@@ -62,7 +62,7 @@ class ClientFilePagesTest extends TestCase
         $report = FinancialReport::forceCreate(['office_id' => $office->id, 'id' => (string) Str::uuid(), 'company_id' => $company->id, 'classification_run_id' => $run->id, 'period_start' => '2025-01-01', 'period_end' => '2025-12-31',
             'template_version' => 'sa-ifrs-smes-3', 'prior_figures' => ['source' => 'statements'], 'zakat_tax' => ['applied' => ['zakat' => 100]]]);
         $steps = \App\Support\ClientSteps::of($company->fresh());
-        $this->assertSame([true, true, true, true, true, true, true, false, false, false, false], array_values(array_map(fn ($s) => $s['done'], $steps)));
+        $this->assertSame([true, true, true, true, true, true, true, false, false, false, false, false, false, false], array_values(array_map(fn ($s) => $s['done'], $steps)));
         $this->assertSame([1, 1], [$steps['trial_balance']['count'], $steps['statements']['count']]);
         $this->assertNotNull($report);
     }
@@ -84,8 +84,10 @@ class ClientFilePagesTest extends TestCase
         $this->assertStringNotContainsString('class="cf-nav"', $work);
         preg_match('/<ol class="cf-chips".*?<\/ol>/su', $work, $chips);
         preg_match_all('/<span class="n">(\d+)<\/span>\s*(.*?)\s*<span class="st/su', $chips[0], $c);
-        $this->assertSame(['4', '5', '6', '7', '8', '9', '10', '11'], $c[1]);
-        $this->assertSame(array_map(fn ($k) => __("client_file.nav.steps.{$k}"), ['trial_balance', 'prior', 'statements', 'zakat', 'requirements', 'papers', 'recalc', 'findings']), array_map('trim', $c[2]));
+        // In the office's order (config/engagement.php, 2026-11-23), numbered by the engagement's steps (8 and 10 hold several pages).
+        $this->assertSame(['2', '3', '4', '5', '6', '7', '8', '8', '8', '9', '10', '10', '11', '12', '13', '14'], $c[1]);
+        $this->assertSame(array_map(fn ($k) => __("client_file.nav.steps.{$k}"), ['trial_balance', 'prior', 'classification', 'risks', 'materiality', 'procedures', 'requirements', 'papers',
+            'recalc', 'sampling', 'findings', 'adjustments', 'zakat', 'statements', 'completion', 'release']), array_map('trim', $c[2]));
         $this->get(route('clients.file.registration', $company))->assertOk()->assertSee('1010123456')->assertSee('تجارة')->assertSee(__('client_file.registration.valid'))->assertSee('سجل.pdf');
         $this->get(route('clients.file.articles', $company))->assertOk()->assertSee('جون')->assertSee(__('client_file.articles.groups.foreign'))->assertSee('60%');
         $this->get(route('clients.file.trial-balance', $company))->assertOk()->assertSee(__('client_file.trial_balance.none_files'))->assertSee(__('client_file.trial_balance.no_runs'));
@@ -187,10 +189,10 @@ class ClientFilePagesTest extends TestCase
         $b = $this->company($office, ['name_ar' => 'شركة الأمل', 'client_name' => 'منى العلي', 'cr_number' => '1010000002']);
         $this->actingAs($sara);
 
-        // The main menu: the clients, then the four work steps, in order; the old trial-balance and statements links are these.
+        // The main menu: the clients, then the engagement file and its steps in the office's order; the old trial-balance and statements links are these.
         $html = $this->get('/clients')->assertOk()->getContent();
         $menu = mb_substr($html, mb_strpos($html, '<aside'));
-        $order = array_map(fn ($k) => __("nav.items.{$k}.0"), ['clients', 'trial_balance', 'prior', 'statements', 'zakat']);
+        $order = array_map(fn ($k) => __("nav.items.{$k}.0"), ['clients', 'engagement', 'trial_balance', 'prior', 'classification', 'risks', 'materiality', 'procedures', 'sampling', 'adjustments', 'zakat', 'statements', 'completion', 'release']);
         $at = -1;
         foreach ($order as $label) {
             $pos = mb_strpos($menu, '<span class="label">'.$label, $at + 1);

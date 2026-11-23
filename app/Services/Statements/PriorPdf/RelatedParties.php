@@ -21,7 +21,7 @@ final class RelatedParties
     /** A sideways table's column that is no party: a total, a movement, a provision. */
     private const NOT_A_COLUMN = '/^(ال)?(صافي|اجمالي|إجمالي|مجموع|محمل|مكون|مستخدم|مخصص|رصيد)(\s|$)/u';
 
-    private const NOT_A_PARTY = '/^(ال)?(إجمالي|اجمالي|المجموع|مجموع|البيان|الاسم|اسم|الطرف|الأطراف|الاطراف)(\s|$)/u';
+    private const NOT_A_PARTY = '/^(ال)?(إجمالي|اجمالي|المجموع|مجموع|البيان|الاسم|اسم|الطرف|الأطراف|الاطراف|تكلفة|افتتاحي|رصيد|مدين|دائن|حركة|ختامي|صافي)(\s|$)|^[\d\s\x{0660}-\x{0669}\x{06F0}-\x{06F9}\/\-–.,م]+$/u';
 
     /** A role or a family tie, by its first word (after «*» in an account's name: «محمد*المدير التنفيذي»). */
     private const ROLE = '/^(ال)?(مدير|رئيس|عضو|نائب|شريك|مالك|مؤسس|مساهم|زوج|زوجة|ابن|ابنة|أخ|اخ|أخت|اخت|والد|والدة)(\s|$)/u';
@@ -53,8 +53,15 @@ final class RelatedParties
                 if (($byColumn = self::sideways($t, $doc['years']['current'] ?? null)) !== null) {
                     foreach ($byColumn as $p) {
                         $p['name'] = $fix($p['name']);
-                        $key = ImportNormalizer::text($p['name']).'|'.$side;   // a party owed and owing: one row a side
-                        $parties[$key] = ($parties[$key] ?? []) + array_map(fn ($v) => is_string($v) ? $fix($v) : $v, $p) + ['side' => $side, 'page' => $t['page']];
+                        $pSide = $side ?? $p['balance_side'];
+                        $p['volume_py'] ??= match ($pSide) {
+                            'due_to'   => $p['credits_py'],
+                            'due_from' => $p['debits_py'],
+                            default    => null,
+                        };
+                        $p = array_diff_key($p, ['debits_py' => 1, 'credits_py' => 1, 'balance_side' => 1]);
+                        $key = ImportNormalizer::text($p['name']).'|'.$pSide;   // a party owed and owing: one row a side
+                        $parties[$key] = ($parties[$key] ?? []) + array_map(fn ($v) => is_string($v) ? $fix($v) : $v, $p) + ['side' => $pSide, 'page' => $t['page']];
                     }
                     continue;
                 }
@@ -106,11 +113,20 @@ final class RelatedParties
         $find = fn (callable $test) => collect($t['rows'])->search(fn ($r) => $test(trim(AmountParser::asciiDigits($r['label']))));
         $relationship = $find(fn ($l) => preg_match('/علاقة|العلاقه|العلاقة/u', $l) === 1 && preg_match('/طبيعة\s+المعاملات/u', $l) !== 1);
         $nature = $find(fn ($l) => preg_match('/طبيعة\s+(ال)?(معاملات|تعامل)/u', $l) === 1);
+        // The balance at the file's year end: its date («31 ديسمبر 2022»), or the year alone with a mark («2022 م»).
         $balance = $find(fn ($l) => in_array($year, Tables::years($l), true) && ! Tables::yearStart($l) && preg_match('/^\d{4}$/', $l) !== 1);
         $volume = $find(fn ($l) => $l === (string) $year);
-        if (count(array_filter([$relationship, $nature, $balance, $volume], fn ($i) => $i !== false)) < 2) {
+        // Printed as the party's account movement: the opening, its debits and credits, then the balance (the year's
+        // transactions are the movement that raised the balance: credits due to the party, debits due from it).
+        $opening = $find(fn ($l) => preg_match('/^(ال)?(افتتاحي|رصيد\s+(أول|اول|بداية))/u', $l) === 1);
+        $debit = $find(fn ($l) => preg_match('/^(ال)?(مدين|حركة\s+مدينة|المدفوع)$/u', $l) === 1);
+        $credit = $find(fn ($l) => preg_match('/^(ال)?(دائن|حركة\s+دائنة|المحصل)$/u', $l) === 1);
+        $closing = $balance !== false ? $balance : $find(fn ($l) => preg_match('/^(ال)?(رصيد\s+(آخر|اخر|نهاية)|ختامي|الختامي)/u', $l) === 1);
+        $movement = $closing !== false && ($debit !== false || $credit !== false || $opening !== false);
+        if (! $movement && count(array_filter([$relationship, $nature, $balance, $volume], fn ($i) => $i !== false)) < 2) {
             return null;
         }
+        $balance = $closing;
         $cell = fn ($row, int $c) => $row === false ? null : ($t['rows'][$row]['cells'][$c] ?? null);
         $words = fn ($row, int $c) => ($x = $cell($row, $c)) !== null && $x['status'] === 'text' ? trim((string) $x['raw']) : null;
         $out = [];
@@ -119,11 +135,36 @@ final class RelatedParties
             if (Tables::isBalance($col['header']) || preg_match(self::NOT_A_COLUMN, ImportNormalizer::text($col['header'])) === 1) {
                 continue;
             }
-            $out[] = ['name' => trim($col['header']), 'relationship' => $words($relationship, $c), 'nature' => $words($nature, $c),
-                'volume_py' => $cell($volume, $c)['amount'] ?? null, 'balance_py' => $cell($balance, $c)['amount'] ?? null];
+            ['name' => $name, 'role' => $role] = self::fromHeader(trim($col['header']));
+            $balancePy = $cell($balance, $c)['amount'] ?? null;
+            $out[] = ['name' => $name, 'relationship' => $words($relationship, $c) ?? $role, 'nature' => $words($nature, $c),
+                'volume_py' => $cell($volume, $c)['amount'] ?? null, 'balance_py' => $balancePy,
+                // The movement's sides, for the caller to take the one that raised the balance (its side).
+                'debits_py' => $movement && $debit !== false ? abs((float) ($cell($debit, $c)['amount'] ?? 0.0)) : null,
+                'credits_py' => $movement && $credit !== false ? abs((float) ($cell($credit, $c)['amount'] ?? 0.0)) : null,
+                // Printed negative (a credit balance in a debit layout): due to the party.
+                'balance_side' => $balancePy === null || abs($balancePy) < 0.005 ? null : ($balancePy < 0 ? 'due_to' : null)];
         }
 
         return $out;
+    }
+
+    /**
+     * A party's name from a column header that adds its role after it («السيدة / فاطمة الشوا شريك تشغيلي»): the name,
+     * and the role (ROLE's first word and what follows) as its relationship.
+     *
+     * @return array{name: string, role: ?string}
+     */
+    public static function fromHeader(string $header): array
+    {
+        $words = preg_split('/\s+/u', trim($header)) ?: [];
+        foreach ($words as $i => $w) {
+            if ($i > 0 && preg_match(self::ROLE, $w) === 1) {
+                return ['name' => trim(implode(' ', array_slice($words, 0, $i)), " \t-–/"), 'role' => implode(' ', array_slice($words, $i))];
+            }
+        }
+
+        return ['name' => trim($header), 'role' => null];
     }
 
     /**
@@ -164,7 +205,13 @@ final class RelatedParties
 
             return $sum === null ? null : round($sum, 2) + 0.0;
         };
-        $party = fn (string $name, array $rows, array $from = []) => ['name' => $name, 'relationship' => $from['relationship'] ?? null, 'nature' => $from['nature'] ?? null,
+        // What the accounts themselves say, where last year's note doesn't: a partner's or owner's current account is a
+        // partner's («شريك»), its transactions a current account («حساب جاري»).
+        $current = fn (array $rows) => array_filter($rows, fn ($n) => preg_match('/جار[يى]\s*(ال)?(شريك|شركاء|مالك|صاحب)|حساب\s*(ال)?مالك|صاحب\s*(ال)?مؤسس/u',
+            ($ctx->rows[$n]['sub_class'] ?? '').' '.($ctx->rows[$n]['account_name'] ?? '')) === 1) !== [];
+        $party = fn (string $name, array $rows, array $from = []) => ['name' => $name,
+            'relationship' => $from['relationship'] ?? ($current($rows) ? 'شريك' : null),
+            'nature' => $from['nature'] ?? ($current($rows) ? 'حساب جاري' : null),
             'rows' => $rows, 'volume_cy' => $rows === [] ? null : $volume($rows), 'volume_py' => $from['volume_py'] ?? null,
             'balance_py' => isset($from['balance_py']) ? ($from['side'] === 'due_from' || ($from['side'] === null && $rows !== [] && $tableOf($rows[0]) === 'due_from') ? 1 : -1) * abs($from['balance_py']) : null];
 

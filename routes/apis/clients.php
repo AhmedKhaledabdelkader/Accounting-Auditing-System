@@ -17,3 +17,5 @@ Route::get('/{id}/findings', [FindingsController::class, 'index'])->middleware('
 Route::get('/{id}/findings/export', [FindingsController::class, 'export'])->middleware('can:clients.view')->name('api.clients.findings.export');
 Route::put('/{id}/findings/{key}', [FindingsController::class, 'decide'])->middleware('can:clients.manage')->where('key', '[A-Za-z0-9_-]+')->name('api.clients.findings.decide');
 Route::get('/{id}/prepared-papers/{paper}/download', [PreparedPaperController::class, 'download'])->middleware('can:clients.view')->name('api.clients.papers.download');
+// The engagement file: the steps' statuses, sign-offs and locks, the blockers, the current phase and the next step.
+Route::get('/{id}/engagement', [\App\Http\Controllers\Api\EngagementController::class, 'status'])->middleware('can:clients.view')->name('api.clients.engagement');

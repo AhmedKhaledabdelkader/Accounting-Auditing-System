@@ -14,6 +14,65 @@ function noteTable(b) {
     r.cells.map((c) => (c.amount ? el('td', { class: 'num' }, money(c.amount.amount)) : el('td', {}, c.text_ar)))))));
 }
 
+/**
+ * «حرية اختيار الإيضاح»: (1) the shown notes in the order the accountant wants (moved up or down, saved as `order`; the
+ * numbers, the statements' «إيضاح» column and the files follow); (2) every account of a note with an item table, movable to
+ * any line of any note, or to one of last year's lines of it (saved as `moves`: the account's statement line becomes the note's).
+ */
+function freedomPanel(s, saveNotes, near) {
+  const shown = [...s.notes].filter((n) => n.visible).sort((a, b) => a.number - b.number);
+  const order = shown.map((n) => n.key);
+  const list = el('ol', { 'data-note-order': '', style: 'padding-inline-start:22px' });
+  const draw = () => {
+    list.replaceChildren(...order.map((key, i) => {
+      const n = shown.find((x) => x.key === key);
+      const move = (d) => { const j = i + d; if (j < 0 || j >= order.length) return; [order[i], order[j]] = [order[j], order[i]]; draw(); };
+      return el('li', { 'data-order-note': key, style: 'margin:3px 0' }, n.title_ar || name(`notes.${key}`), ' ',
+        el('button', { class: 'btn ghost small', type: 'button', disabled: i === 0, 'aria-label': ui('note_up'), onclick: () => move(-1) }, '▲'),
+        el('button', { class: 'btn ghost small', type: 'button', disabled: i === order.length - 1, 'aria-label': ui('note_down'), onclick: () => move(1) }, '▼'));
+    }));
+  };
+  draw();
+  const orderErrors = near();
+  const custom = (s.note_options.order ?? []).length > 0;
+
+  // Where an account may go: every note with an item table, each of its lines, and last year's lines of it.
+  const targets = s.note_targets ?? [];
+  const moves = s.note_options.moves ?? {};
+  const value = (t, line, item = null) => JSON.stringify({ note: t.note, line, item });
+  const options = (current) => [
+    el('option', { value: '' }, ui('move_keep')),
+    ...targets.map((t) => el('optgroup', { label: `${t.number ? `${t.number}. ` : ''}${t.title}` },
+      ...t.lines.map((l) => el('option', { value: value(t, l.key), disabled: current === l.key && !t.items.length }, t.lines.length > 1 ? `${t.title} — ${l.label}` : t.title)),
+      ...t.items.map((i) => el('option', { value: value(t, t.lines[0].key, i.key) }, `${t.title} ← ${i.label}`)))),
+  ];
+  const choices = [];
+  const moveErrors = near();
+  const accounts = el('div', {}, targets.filter((t) => t.accounts.length).map((t) => el('details', { 'data-move-note': t.note },
+    el('summary', {}, `${t.number ? `${t.number}. ` : ''}${t.title} (${t.accounts.length})`),
+    el('table', {}, t.accounts.map((a) => {
+      const sel = el('select', { 'data-move-account': a.row }, options(a.line));
+      const moved = moves[a.row];
+      choices.push([a, sel]);
+      return el('tr', {}, el('td', {}, a.number ? `${a.number} — ` : '', a.name), el('td', { class: 'num' }, money(a.amount)), el('td', {}, sel),
+        el('td', {}, moved ? [el('span', { class: 'badge b-info' }, ui('moved_here')), ' ',
+          el('button', { class: 'btn ghost small', type: 'button', 'data-move-back': a.row, onclick: () => saveNotes({ moves: { [a.row]: null } }, moveErrors) }, ui('move_back'))] : null));
+    })))));
+
+  return el('details', { class: 'panel', 'data-note-freedom': '' }, el('summary', {}, ui('freedom_title')), el('p', { class: 'note' }, ui('freedom_hint')),
+    el('h3', {}, ui('order_title')), el('p', { class: 'note' }, ui('order_hint')), list,
+    el('div', { class: 'toolbar' },
+      el('button', { class: 'btn', type: 'button', 'data-save-order': '', onclick: () => saveNotes({ order: [...order] }, orderErrors) }, ui('order_save')),
+      custom ? el('button', { class: 'btn ghost', type: 'button', 'data-reset-order': '', onclick: () => saveNotes({ order: [] }, orderErrors) }, ui('order_reset')) : null),
+    orderErrors,
+    el('h3', {}, ui('move_title')), el('p', { class: 'note' }, ui('move_hint')), accounts,
+    el('button', { class: 'btn', type: 'button', 'data-save-moves': '', onclick: () => {
+      const out = {};
+      for (const [a, sel] of choices) if (sel.value) out[a.row] = JSON.parse(sel.value);
+      if (Object.keys(out).length) saveNotes({ moves: out }, moveErrors); else moveErrors.replaceChildren(box('warn', ui('nothing_changed')));
+    } }, ui('move_save')), moveErrors);
+}
+
 export async function render(ctx) {
   const s = ctx.state;
   const byRow = await runRows();
@@ -116,13 +175,16 @@ export async function render(ctx) {
   // The zakat base as last year's zakat note computed it: this year's figures, the ones to type among the questions.
   if (s.zakat_base) {
     const from = { statements: () => ui('zakat_from_statements'), schedules: () => ui('zakat_from_schedules'), input: () => ui('zakat_from_input'), total: () => ui('zakat_from_total'),
-      derived: () => ui('zakat_from_derived') };
+      derived: () => ui('zakat_from_derived'), calculation: () => ui('zakat_from_calculation') };
     wrap.append(el('details', { class: 'panel', 'data-zakat-base': '' }, el('summary', {}, ui('zakat_base_title', { note: s.zakat_base.note ?? '', page: s.zakat_base.page })),
       el('table', {}, el('tr', {}, el('th', {}), el('th', { class: 'num' }, ui('item_current')), el('th', { class: 'num' }, ui('zakat_prior')), el('th', {})),
         s.zakat_base.rows.map((r) => el('tr', { style: r.kind === 'total' ? 'font-weight:700' : '' }, el('td', {}, r.label),
           el('td', { class: 'num' }, r.current.status === 'missing' ? ui('missing_figure') : money(r.current.amount)), el('td', { class: 'num' }, money(r.prior)),
           el('td', {}, el('span', { class: 'note' }, from[r.from](), r.components ? ` (${r.components.join(' + ')})` : '')))))));
   }
+
+  // The freedom to choose the note: the notes' order, and any account moved to any note (its line follows).
+  wrap.append(freedomPanel(s, saveNotes, near));
 
   // B. Policies forced on or off.
   const forced = s.note_options.visibility ?? {};
@@ -139,9 +201,10 @@ export async function render(ctx) {
       if (Object.keys(visibility).length) saveNotes({ visibility }, policyErrors); else policyErrors.replaceChildren(box('warn', ui('nothing_changed')));
     } }, ui('save_policies')), policyErrors));
 
-  // C. The notes, in order.
+  // C. The notes, in their numbers' order (the accountant's order when one is set), the hidden ones after them.
   const notes = el('div', { class: 'panel' }, el('h2', {}, ui('notes_title')), el('p', { class: 'note' }, ui('notes_hint')));
-  for (const n of s.notes) {
+  const inOrder = [...s.notes].sort((a, b) => (a.visible ? a.number : 1e6) - (b.visible ? b.number : 1e6));
+  for (const n of inOrder) {
     const head = el('div', { class: 'toolbar', style: 'margin:0' },
       el('b', {}, n.visible ? `${n.number}. ` : '', n.title_ar || name(`notes.${n.key}`)),
       (s.checks ?? []).some((c) => c.note === n.key && c.severity === 'error') ? el('span', { class: 'badge b-bad' }, ui('note_has_error')) : null,

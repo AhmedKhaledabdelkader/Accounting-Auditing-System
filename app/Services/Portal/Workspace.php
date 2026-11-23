@@ -34,7 +34,7 @@ class Workspace
 
     public static function uploadRules(): array
     {
-        return ['required', 'file', 'max:'.config('portal.max_file_kb'), 'mimes:'.implode(',', config('portal.extensions'))];
+        return ['required', 'file', 'max:'.config('portal.max_file_kb'), 'extensions:'.implode(',', config('portal.extensions'))];   // by the name: an accounting system's .xls is often XML or HTML inside
     }
 
     /** The checklist's lines for a year, numbered as in the engagement letter. Lines already requested for that year are kept as they are. */

@@ -40,6 +40,12 @@
             <span class="pill {{ $statusClass[$r->status] }}">{{ __("portal.status.{$r->status}") }}</span>
             @if ($r->format)<span class="pill">{{ __("portal.format.{$r->format}") }}</span>@endif
             @if ($r->optional)<span class="pill">{{ __('portal.optional') }}</span>@endif
+            {{-- The audit program's areas the document is evidence for (step 14): for the office only. --}}
+            @if ($office)
+              @foreach (App\Services\Audit\AuditProcedures::areasOf($r) as $pa)
+                <a class="pill info" data-procedure-area="{{ $pa['key'] }}" href="{{ route('clients.file.procedures', [$company, 'year' => $r->year, 'area' => $pa['key']]) }}#area-{{ $pa['key'] }}" title="{{ __('audit_plan.procedures.title') }}">{{ $pa['code'] }} {{ $pa['title'] }}</a>
+              @endforeach
+            @endif
           </div>
           @if ($r->status === App\Models\DocumentRequest::RETURNED && $r->note)
             <div class="note-return"><b>{{ __('portal.returned_note') }}</b>{{ $r->note }}</div>

@@ -27,12 +27,9 @@ class SpreadsheetReader
      */
     public function read(UploadedFile $file): array
     {
-        $path   = $file->getRealPath();
-        $reader = IOFactory::createReader(IOFactory::identify($path));
+        // By its real content (an .xls of XML or HTML too), the XML's broken properties left out (SpreadsheetFile).
+        [$reader, $path] = \App\Support\SpreadsheetFile::open($file->getRealPath());
         $reader->setReadDataOnly(true);   // values only: no styles, far less memory
-        if ($reader instanceof Csv) {
-            $reader->setInputEncoding(Csv::GUESS_ENCODING);   // Arabic CSVs are often Windows-1256
-        }
 
         $sheets             = [];
         $this->subtotalRows = [];
@@ -121,11 +118,7 @@ class SpreadsheetReader
     public function levelHints(UploadedFile $file, int $sheet, string $column): array
     {
         try {
-            $path   = $file->getRealPath();
-            $reader = IOFactory::createReader(IOFactory::identify($path));
-            if ($reader instanceof Csv) {
-                $reader->setInputEncoding(Csv::GUESS_ENCODING);
-            }
+            [$reader, $path] = \App\Support\SpreadsheetFile::open($file->getRealPath());
             $reader->setReadFilter(new class($column) implements IReadFilter {
                 public function __construct(private string $column) {}
 
@@ -161,9 +154,9 @@ class SpreadsheetReader
     {
         $titles = [];
         try {
-            $reader = IOFactory::createReader(IOFactory::identify($file->getRealPath()));
+            [$reader, $path] = \App\Support\SpreadsheetFile::open($file->getRealPath());
             if (method_exists($reader, 'listWorksheetNames')) {
-                $titles = $reader->listWorksheetNames($file->getRealPath());
+                $titles = $reader->listWorksheetNames($path);
             }
         } catch (Throwable) {
             // Names are cosmetic; fall back to numbers.

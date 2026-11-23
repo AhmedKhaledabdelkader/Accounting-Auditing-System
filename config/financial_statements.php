@@ -28,6 +28,55 @@ return [
     // the prior file's totals): a difference BELOW this many riyals is rounding and accepted, never an error. The accountant's
     // rule: under 2 riyals.
     'difference_tolerance' => (float) env('FS_DIFFERENCE_TOLERANCE', 2),
+
+    // Merging this year's accounts into last year's note lines by meaning (PriorNoteItems::place, after the name, amount
+    // and words): an account goes on the one line of last year's note of its family (the first family whose pattern its
+    // name, else its class, matches), or of its family's `falls_to` when its own has no line; never when two lines share
+    // the family. A small account still on no line (at most `misc_share` of the note) goes on last year's «متنوعة»
+    // / «أخرى» line when the note has one. Order matters: the first match wins.
+    'note_merge' => [
+        'misc_share' => 0.05,
+        'families' => [
+            'social_insurance' => ['pattern' => '/(تأمينات|تامينات|التأمينات|التامينات)\s*(ال)?اجتماعي|المؤسسة العامة للتأمينات/u', 'falls_to' => 'salaries'],
+            'medical'          => ['pattern' => '/(تأمين|تامين|التأمين|التامين)\s*(ال)?طبي|علاج|رعاية\s*طبي/u', 'falls_to' => 'insurance'],
+            'eosb'             => ['pattern' => '/نهاي[ةه]\s*(ال)?خدم[ةه]/u', 'falls_to' => 'salaries'],
+            'travel'           => ['pattern' => '/سفر|تذاكر|طيران|انتقالات/u'],
+            'government'       => ['pattern' => '/حكومي|رسوم|تراخيص|ترخيص|جوازات|إقام[ةه]|اقام[ةه]|إقامات|اقامات|تأشير|تاشير|مكتب\s*العمل|بلدي[ةه]|غرف[ةه]\s*تجاري|قوى\s*عامل/u'],
+            'housing'          => ['pattern' => '/سكن/u', 'falls_to' => 'salaries'],
+            'salaries'         => ['pattern' => '/رواتب|أجور|اجور|مرتبات|بدلات|مكافآت|مكافات|حوافز|عمال[ةه]/u'],
+            'insurance'        => ['pattern' => '/تأمين|تامين/u'],
+            'rent'             => ['pattern' => '/إيجار|ايجار/u'],
+            'utilities'        => ['pattern' => '/كهرباء|مياه|غاز|وقود|محروقات|بنزين|ديزل/u'],
+            'communications'   => ['pattern' => '/هاتف|اتصالات|انترنت|إنترنت|بريد|شحن|جوال|تلفون|تليفون/u'],
+            'professional'     => ['pattern' => '/أتعاب|اتعاب|استشار|قانوني|محاما[ةه]|تدقيق/u'],
+            'office'           => ['pattern' => '/قرطاسي|مطبوعات|(أدوات|ادوات|مهمات)\s*مكتبي|ضياف|استقبال|بوفي|نظاف/u'],
+            'maintenance'      => ['pattern' => '/صيان[ةه]|إصلاح|اصلاح/u'],
+            'bank_charges'     => ['pattern' => '/بنكي|عمولات\s*(ال)?بنك|(مصاريف|مصروفات)\s*(ال)?بنك/u'],
+            'marketing'        => ['pattern' => '/دعاي[ةه]|إعلان|اعلان|تسويق/u'],
+            'depreciation'     => ['pattern' => '/إهلاك|اهلاك|استهلاك/u'],
+            'vat'              => ['pattern' => '/(ال)?قيم[ةه]\s*(ال)?مضاف/u'],
+            'supplier_advances' => ['pattern' => '/دفعات\s*مقدم[ةه]?\s*(لل|ل)?موردين|موردين\s*دفعات|مقدم[ةه]\s*(لل|ل)?موردين/u'],
+            'prepaid'          => ['pattern' => '/مدفوع[ةه]?\s*مقدم|مقدما|مقدماً/u'],
+            'advances'         => ['pattern' => '/ع[ُ]?هد|عهد[ةه]|س[ُ]?لف/u'],
+            'misc'             => ['pattern' => '/متنوع|متفرق|أخرى|اخرى/u'],
+        ],
+    ],
+
+    // A PPE category's useful life when last year's statements don't give it and the year's depreciation doesn't imply
+    // one (fully depreciated, or nothing charged): the usual life of its kind, in years, flagged for the accountant
+    // (check useful_life_estimated). By the note's category, else by the printed name's words, else `other`.
+    'useful_life_defaults' => [
+        'categories' => ['buildings' => 20, 'machinery' => 10, 'furniture' => 10, 'computers' => 4, 'vehicles' => 4],
+        'words' => [
+            '/مبان|مباني|إنشاءات|انشاءات/u' => 20,
+            '/سيار|مركب|نقل|شاحن/u' => 4,
+            '/حاسب|كمبيوتر|كومبيوتر|برامج/u' => 4,
+            '/أثاث|اثاث|مفروشات|ديكور|تركيبات/u' => 10,
+            '/مكيف|تكييف|كهربائ/u' => 5,
+            '/آلات|الات|معدات/u' => 10,
+        ],
+        'other' => 5,
+    ],
     'opening_tolerance' => (float) env('FS_OPENING_TOLERANCE', 3),
     // The calculated zakat and income tax are charged into the statements by themselves (the zakat step can take one out). Tests of the
     // older flows switch it off (phpunit.xml); the auto-charge tests switch it on.

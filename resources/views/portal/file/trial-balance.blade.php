@@ -2,7 +2,7 @@
 @section('title', __('client_file.trial_balance.title'))
 @section('subtitle', __('client_file.trial_balance.sub'))
 @section('content')
-  @include('portal.file._open', ['company' => $company, 'active' => 'trial_balance'])
+  @include('portal.file._open', ['company' => $company, 'active' => $active ?? 'trial_balance'])
   @foreach ($periods as $p)
     <div class="panel" data-period="{{ $p['year'] }}">
       <h2>{{ __($p['current'] ? 'client_file.trial_balance.current' : 'client_file.trial_balance.previous') }} <small class="note">{{ $p['text'] }}</small></h2>
@@ -36,7 +36,7 @@
         @endforeach
       </table>
     @endif
-    <p class="note" style="margin-top:10px">{{ __('client_file.trial_balance.upload_hint') }} <label class="btn ghost small" style="cursor:pointer">{{ __('client_file.trial_balance.upload_own') }}<input id="own-file" type="file" accept=".xlsx,.xls,.csv" hidden></label></p>
+    <p class="note" style="margin-top:10px">{{ __('client_file.trial_balance.upload_hint') }} <label class="btn ghost small" style="cursor:pointer">{{ __('client_file.trial_balance.upload_own') }}<input id="own-file" type="file" accept=".xlsx,.xlsm,.xls,.xml,.ods,.csv,.txt,.htm,.html" hidden></label></p>
     <div id="classify-status"></div>
   </div>
   @include('portal.file._close')
