@@ -13,4 +13,6 @@ Route::middleware(['auth:sanctum', 'active', 'ai.payer'])->group(function () {
     // The brief's path: GET /engagements/{client}/status?year=
     Route::get('engagements/{id}/status', [\App\Http\Controllers\Api\EngagementController::class, 'status'])->middleware('can:clients.view')->name('api.engagements.status');
     Route::prefix('account')->group(base_path('routes/apis/account.php'));
+    // Who is signed in: name, role, permissions, office (any active user).
+    Route::get('me', [\App\Http\Controllers\Api\MeController::class, 'show'])->name('api.me');
 });

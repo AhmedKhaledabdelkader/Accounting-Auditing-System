@@ -25,8 +25,10 @@ return [
     'types' => ['general', 'analytical', 'control', 'detail', 'sample'],
     'assertions' => ['existence', 'occurrence', 'completeness', 'accuracy', 'valuation', 'rights', 'cutoff', 'classification', 'presentation'],
 
+    // `ref`: the area's letter code (the classic practice: a letter for an asset, two for a liability or equity, initials for the
+    // general areas). A procedure's reference = ref + its number (A1, A2); its working paper = ref-number (A-1). `code` stays as it was.
     'areas' => [
-        'acceptance' => ['code' => '1000', 'title' => 'قبول التكليف والاستمرار فيه', 'lines' => [], 'requirements' => ['عامة::السجل التجاري', 'عامة::عقد تأسيس', 'عامة::هويات'], 'papers' => [],
+        'acceptance' => ['code' => '1000', 'ref' => 'EA', 'title' => 'قبول التكليف والاستمرار فيه', 'lines' => [], 'requirements' => ['عامة::السجل التجاري', 'عامة::عقد تأسيس', 'عامة::هويات'], 'papers' => [],
             'standards' => ['ISA 210', 'ISA 220', 'ISQM 1', 'IESBA'], 'framework' => [],
             'procedures' => [
             '01' => ['التحقق من استقلال المكتب وجميع أعضاء فريق المراجعة عن المنشأة والحصول على إقرارات الاستقلال الموقعة', ['presentation'], 'general'],
@@ -36,19 +38,19 @@ return [
             '05' => ['إعداد خطاب الارتباط وتوقيعه من الإدارة متضمنًا نطاق المراجعة ومسؤوليات الطرفين والأتعاب', [], 'general'],
             '06' => ['التحقق من صحة السجل التجاري وعقد التأسيس وتاريخ انتهاء السجل وبيانات الشركاء ورأس المال', ['rights', 'presentation'], 'general'],
         ]],
-        'planning' => ['code' => '2000', 'title' => 'التخطيط وفهم المنشأة وبيئتها', 'lines' => [], 'requirements' => ['القوائم المالية', 'مستندات إعداد القوائم المالية', 'عامة::الهيكل', 'عامة::خطة العمل', 'عامة::الموازنة', 'عامة::العقود والاتفاقيات'], 'papers' => [],
+        'planning' => ['code' => '2000', 'ref' => 'PL', 'title' => 'التخطيط وفهم المنشأة وبيئتها', 'lines' => [], 'requirements' => ['القوائم المالية', 'مستندات إعداد القوائم المالية', 'عامة::الهيكل', 'عامة::خطة العمل', 'عامة::الموازنة', 'عامة::العقود والاتفاقيات'], 'papers' => [],
             'standards' => ['ISA 300', 'ISA 315', 'ISA 320', 'ISA 510', 'ISA 520'], 'framework' => ['القسم 3', 'القسم 10'],
             'procedures' => [
             '01' => ['الحصول على فهم لطبيعة نشاط المنشأة وهيكل ملكيتها وإدارتها والإطار النظامي الذي تعمل فيه', [], 'general'],
             '02' => ['الحصول على فهم للسياسات المحاسبية المطبقة ومدى ملاءمتها للمعيار الدولي للتقرير المالي للمنشآت الصغيرة ومتوسطة الحجم', ['presentation'], 'general'],
             '03' => ['تنفيذ الإجراءات التحليلية الأولية بمقارنة أرصدة السنة الحالية بالسنة السابقة وتحديد التغيرات غير المعتادة', [], 'analytical'],
-            '04' => ['احتساب الأهمية النسبية الكلية والأهمية النسبية للأداء وحد الأخطاء التافهة وتوثيق أساس اختيارها (ورقة 2003)', [], 'general'],
+            '04' => ['احتساب الأهمية النسبية الكلية والأهمية النسبية للأداء وحد التحريفات الضئيلة وتوثيق أساس اختيارها (ورقة 2003)', [], 'general'],
             '05' => ['تحديد الأطراف ذات العلاقة وطبيعة المعاملات معها', ['completeness', 'presentation'], 'general'],
             '06' => ['مناقشة فريق المراجعة حول قابلية القوائم المالية للتحريف الجوهري بما في ذلك الغش', [], 'general'],
             '07' => ['إعداد الاستراتيجية العامة وخطة المراجعة وتوزيع المهام والجدول الزمني', [], 'general'],
             '08' => ['مطابقة الأرصدة الافتتاحية مع القوائم المالية المراجعة للسنة السابقة', ['existence', 'accuracy'], 'detail'],
         ]],
-        'risk' => ['code' => '3000', 'title' => 'تقييم المخاطر والرقابة الداخلية', 'lines' => [], 'requirements' => ['عامة::اللوائح', 'عامة::الدورة المستندية', 'عامة::محاضر'], 'papers' => [],
+        'risk' => ['code' => '3000', 'ref' => 'RA', 'title' => 'تقييم المخاطر والرقابة الداخلية', 'lines' => [], 'requirements' => ['عامة::اللوائح', 'عامة::الدورة المستندية', 'عامة::محاضر'], 'papers' => [],
             'standards' => ['ISA 240', 'ISA 315', 'ISA 330', 'ISA 265'], 'framework' => [],
             'procedures' => [
             '01' => ['الحصول على فهم لنظام الرقابة الداخلية ودورات العمل الرئيسية (المبيعات والتحصيل، المشتريات والسداد، الرواتب، المخزون)', [], 'general'],
@@ -59,7 +61,7 @@ return [
             '06' => ['تقييم مخاطر الاعتراف بالإيراد بوصفها مخاطر هامة ما لم يثبت خلاف ذلك', ['occurrence', 'cutoff'], 'general'],
             '07' => ['توثيق الاستجابة المخططة لكل خطر مقيّم (طبيعة الإجراءات وتوقيتها ومداها)', [], 'general'],
         ]],
-        'cash' => ['code' => '5100', 'title' => 'النقد وما في حكمه', 'lines' => ['sofp.cash', 'sofp.bank_overdraft'], 'requirements' => ['النقدية لدى البنوك'], 'papers' => ['bank-confirmations'],
+        'cash' => ['code' => '5100', 'ref' => 'A', 'title' => 'النقد وما في حكمه', 'lines' => ['sofp.cash', 'sofp.bank_overdraft'], 'requirements' => ['النقدية لدى البنوك'], 'papers' => ['bank-confirmations'],
             'standards' => ['ISA 500', 'ISA 505'], 'framework' => ['القسم 7', 'القسم 11'],
             'procedures' => [
             '01' => ['الحصول على بيان تفصيلي بأرصدة الصناديق والبنوك في نهاية الفترة ومطابقة إجماليه مع ميزان المراجعة', ['completeness', 'accuracy'], 'detail'],
@@ -71,7 +73,7 @@ return [
             '07' => ['التحقق من وجود قيود على النقد (ودائع مرهونة أو محجوزة) وخطابات الضمان والإفصاح عنها', ['rights', 'presentation'], 'detail'],
             '08' => ['التحقق من تبويب السحب على المكشوف ضمن المطلوبات المتداولة والإفصاح الملائم', ['classification', 'presentation'], 'detail'],
         ]],
-        'receivables' => ['code' => '5200', 'title' => 'الذمم المدينة التجارية', 'lines' => ['sofp.trade_receivables', 'sofp.contract_assets'], 'requirements' => ['الذمم المدينة (مدينون تجاريون)'], 'papers' => ['customer-confirmations', 'recalc-ecl'],
+        'receivables' => ['code' => '5200', 'ref' => 'B', 'title' => 'الذمم المدينة التجارية', 'lines' => ['sofp.trade_receivables', 'sofp.contract_assets'], 'requirements' => ['الذمم المدينة (مدينون تجاريون)'], 'papers' => ['customer-confirmations', 'recalc-ecl'],
             'standards' => ['ISA 505', 'ISA 530', 'ISA 540'], 'framework' => ['القسم 11', 'القسم 23'],
             'procedures' => [
             '01' => ['الحصول على كشف تحليلي بأرصدة العملاء ومطابقة إجماليه مع ميزان المراجعة ودفتر الأستاذ', ['completeness', 'accuracy'], 'detail'],
@@ -84,7 +86,7 @@ return [
             '08' => ['التحقق من الأرصدة الدائنة ضمن العملاء وإعادة تبويبها إن كانت جوهرية', ['classification'], 'detail'],
             '09' => ['التحقق من الإفصاح عن الذمم المدينة والمخصص وحركته في الإيضاحات', ['presentation'], 'detail'],
         ]],
-        'prepayments' => ['code' => '5300', 'title' => 'المصروفات المدفوعة مقدمًا والأرصدة المدينة الأخرى', 'lines' => ['sofp.prepayments_other_receivables', 'sofp.other_assets'], 'requirements' => ['مصاريف مدفوعة مقدماً وأرصدة مدينة أخرى'], 'papers' => ['prepaid-expenses', 'recalc-prepaid'],
+        'prepayments' => ['code' => '5300', 'ref' => 'C', 'title' => 'المصروفات المدفوعة مقدمًا والأرصدة المدينة الأخرى', 'lines' => ['sofp.prepayments_other_receivables', 'sofp.other_assets'], 'requirements' => ['مصاريف مدفوعة مقدماً وأرصدة مدينة أخرى'], 'papers' => ['prepaid-expenses', 'recalc-prepaid'],
             'standards' => ['ISA 500'], 'framework' => ['القسم 11'],
             'procedures' => [
             '01' => ['الحصول على بيان تفصيلي بالمصروفات المدفوعة مقدمًا والأرصدة المدينة الأخرى ومطابقته مع ميزان المراجعة', ['completeness', 'accuracy'], 'detail'],
@@ -94,7 +96,7 @@ return [
             '05' => ['التحقق من التأمينات المستردة وخطابات الضمان', ['existence', 'rights'], 'detail'],
             '06' => ['تقييم قابلية استرداد الأرصدة القديمة والحاجة إلى مخصص', ['valuation'], 'detail'],
         ]],
-        'related_parties' => ['code' => '5400', 'title' => 'الأطراف ذات العلاقة', 'lines' => ['sofp.due_from_related_parties', 'sofp.due_to_related_parties', 'sofp.due_to_related_parties_non_current', 'sofp.partners_current_liability'], 'requirements' => ['المعاملات مع أطراف ذات علاقة'], 'papers' => [],
+        'related_parties' => ['code' => '5400', 'ref' => 'RP', 'title' => 'الأطراف ذات العلاقة', 'lines' => ['sofp.due_from_related_parties', 'sofp.due_to_related_parties', 'sofp.due_to_related_parties_non_current', 'sofp.partners_current_liability'], 'requirements' => ['المعاملات مع أطراف ذات علاقة'], 'papers' => [],
             'standards' => ['ISA 550', 'ISA 505'], 'framework' => ['القسم 33'],
             'procedures' => [
             '01' => ['الحصول من الإدارة على قائمة بالأطراف ذات العلاقة وطبيعة العلاقة ومقارنتها بالسجل التجاري وعقد التأسيس', ['completeness'], 'general'],
@@ -104,7 +106,7 @@ return [
             '05' => ['البحث عن معاملات مع أطراف ذات علاقة غير مفصح عنها (محاضر الاجتماعات، العقود، المعاملات الكبيرة أو غير المعتادة)', ['completeness'], 'detail'],
             '06' => ['التحقق من تبويب الأرصدة (متداولة / غير متداولة) والإفصاح عن المعاملات والأرصدة ومكافآت الإدارة', ['classification', 'presentation'], 'detail'],
         ]],
-        'inventory' => ['code' => '5500', 'title' => 'المخزون', 'lines' => ['sofp.inventory'], 'requirements' => ['المخزون'], 'papers' => ['inventory'],
+        'inventory' => ['code' => '5500', 'ref' => 'D', 'title' => 'المخزون', 'lines' => ['sofp.inventory'], 'requirements' => ['المخزون'], 'papers' => ['inventory'],
             'standards' => ['ISA 501', 'ISA 530', 'ISA 540'], 'framework' => ['القسم 13'],
             'procedures' => [
             '01' => ['الحصول على قوائم الجرد الفعلي في نهاية الفترة ومطابقة إجماليها مع الرصيد الدفتري', ['existence', 'completeness'], 'detail'],
@@ -116,7 +118,7 @@ return [
             '07' => ['تنفيذ إجراءات تحليلية (معدل دوران المخزون، هامش الربح) ومقارنتها بالسنة السابقة', ['valuation'], 'analytical'],
             '08' => ['التحقق من الإفصاح عن السياسة المحاسبية للمخزون ومكوناته ورهنه إن وجد', ['presentation'], 'detail'],
         ]],
-        'ppe' => ['code' => '5600', 'title' => 'الممتلكات والمعدات والأصول غير الملموسة', 'lines' => ['sofp.ppe', 'sofp.intangible_assets', 'sofp.investment_property'], 'requirements' => ['الموجودات الثابتة', 'الأصول غير الملموسة'], 'papers' => ['ppe-additions', 'ppe-movement', 'depreciation-analytics', 'investment-property', 'recalc-depreciation'],
+        'ppe' => ['code' => '5600', 'ref' => 'G', 'title' => 'الممتلكات والمعدات والأصول غير الملموسة', 'lines' => ['sofp.ppe', 'sofp.intangible_assets', 'sofp.investment_property'], 'requirements' => ['الموجودات الثابتة', 'الأصول غير الملموسة'], 'papers' => ['ppe-additions', 'ppe-movement', 'depreciation-analytics', 'investment-property', 'recalc-depreciation'],
             'standards' => ['ISA 500', 'ISA 530', 'ISA 540'], 'framework' => ['القسم 16', 'القسم 17', 'القسم 18', 'القسم 27'],
             'procedures' => [
             '01' => ['الحصول على جدول حركة الممتلكات والمعدات (التكلفة والاستهلاك) ومطابقته مع ميزان المراجعة والأرصدة الافتتاحية', ['completeness', 'accuracy'], 'detail'],
@@ -129,7 +131,7 @@ return [
             '08' => ['فحص حسابات الصيانة والإصلاح للتأكد من عدم وجود مصروفات رأسمالية محملة على المصروفات', ['completeness', 'classification'], 'detail'],
             '09' => ['التحقق من الأصول المرهونة والإفصاح عن جدول الحركة والسياسة المحاسبية', ['rights', 'presentation'], 'detail'],
         ]],
-        'investments' => ['code' => '5700', 'title' => 'الاستثمارات والودائع', 'lines' => ['sofp.associates', 'sofp.fvoci_investments', 'sofp.amortised_cost_current', 'sofp.amortised_cost_non_current', 'sofp.murabaha_deposits'], 'requirements' => ['الاستثمارات'], 'papers' => ['equity-method'],
+        'investments' => ['code' => '5700', 'ref' => 'F', 'title' => 'الاستثمارات والودائع', 'lines' => ['sofp.associates', 'sofp.fvoci_investments', 'sofp.amortised_cost_current', 'sofp.amortised_cost_non_current', 'sofp.murabaha_deposits'], 'requirements' => ['الاستثمارات'], 'papers' => ['equity-method'],
             'standards' => ['ISA 500', 'ISA 505', 'ISA 540'], 'framework' => ['القسم 11', 'القسم 12', 'القسم 14'],
             'procedures' => [
             '01' => ['الحصول على بيان بالاستثمارات وتكلفتها وقيمتها في نهاية الفترة ومطابقته مع ميزان المراجعة', ['completeness', 'accuracy'], 'detail'],
@@ -139,7 +141,7 @@ return [
             '05' => ['التحقق من إيرادات الاستثمارات وعوائد الودائع واكتمال تسجيلها', ['completeness', 'occurrence'], 'detail'],
             '06' => ['التحقق من الاستثمارات المرهونة والإفصاح الملائم', ['rights', 'presentation'], 'detail'],
         ]],
-        'payables' => ['code' => '6100', 'title' => 'الذمم الدائنة والمصروفات المستحقة والأرصدة الدائنة الأخرى', 'lines' => ['sofp.trade_payables', 'sofp.accruals_other_payables', 'sofp.contract_liabilities', 'sofp.dividends_payable', 'sofp.other_provisions'], 'requirements' => ['الذمم الدائنة (دائنون تجاريون)', 'مصاريف مستحقة وأرصدة دائنة أخرى', 'مخصصات'], 'papers' => ['supplier-confirmations', 'unrecorded-liabilities-a', 'unrecorded-liabilities-b'],
+        'payables' => ['code' => '6100', 'ref' => 'AA', 'title' => 'الذمم الدائنة والمصروفات المستحقة والأرصدة الدائنة الأخرى', 'lines' => ['sofp.trade_payables', 'sofp.accruals_other_payables', 'sofp.contract_liabilities', 'sofp.dividends_payable', 'sofp.other_provisions'], 'requirements' => ['الذمم الدائنة (دائنون تجاريون)', 'مصاريف مستحقة وأرصدة دائنة أخرى', 'مخصصات'], 'papers' => ['supplier-confirmations', 'unrecorded-liabilities-a', 'unrecorded-liabilities-b'],
             'standards' => ['ISA 505', 'ISA 530', 'ISA 540'], 'framework' => ['القسم 11', 'القسم 21'],
             'procedures' => [
             '01' => ['الحصول على كشف تحليلي بأرصدة الموردين ومطابقة إجماليه مع ميزان المراجعة', ['completeness', 'accuracy'], 'detail'],
@@ -151,7 +153,7 @@ return [
             '07' => ['التحقق من الأرصدة المدينة ضمن الموردين وإعادة تبويبها إن كانت جوهرية', ['classification'], 'detail'],
             '08' => ['التحقق من الإفصاح الملائم عن الذمم الدائنة والمستحقات', ['presentation'], 'detail'],
         ]],
-        'loans' => ['code' => '6200', 'title' => 'القروض والتمويل والتزامات الإيجار', 'lines' => ['sofp.murabaha_loans_current', 'sofp.murabaha_loans_non_current', 'sofp.lease_liabilities_current', 'sofp.lease_liabilities_non_current'], 'requirements' => ['القروض', 'عامة::عقود القروض'], 'papers' => ['loans'],
+        'loans' => ['code' => '6200', 'ref' => 'BB', 'title' => 'القروض والتمويل والتزامات الإيجار', 'lines' => ['sofp.murabaha_loans_current', 'sofp.murabaha_loans_non_current', 'sofp.lease_liabilities_current', 'sofp.lease_liabilities_non_current'], 'requirements' => ['القروض', 'عامة::عقود القروض'], 'papers' => ['loans'],
             'standards' => ['ISA 505'], 'framework' => ['القسم 11', 'القسم 20', 'القسم 25'],
             'procedures' => [
             '01' => ['الحصول على جدول بالقروض وعقود التمويل (الأصل، المسحوب، المسدد، الرصيد، الأقساط، الضمانات) ومطابقته مع ميزان المراجعة', ['completeness', 'accuracy'], 'detail'],
@@ -161,7 +163,7 @@ return [
             '05' => ['التحقق من تبويب الجزء المتداول وغير المتداول والالتزام بالتعهدات المالية (Covenants)', ['classification', 'presentation'], 'detail'],
             '06' => ['التحقق من التزامات عقود الإيجار وأصول حق الاستخدام وإعادة احتسابها', ['valuation', 'completeness'], 'detail'],
         ]],
-        'employee_benefits' => ['code' => '6300', 'title' => 'مخصص مكافأة نهاية الخدمة والرواتب', 'lines' => ['sofp.employee_benefits'], 'requirements' => ['عامة::التأمينات', 'مصاريف مستحقة وأرصدة دائنة أخرى::مزايا العاملين'], 'papers' => ['payroll-analytics', 'recalc-eosb', 'recalc-payroll'],
+        'employee_benefits' => ['code' => '6300', 'ref' => 'CC', 'title' => 'مخصص مكافأة نهاية الخدمة والرواتب', 'lines' => ['sofp.employee_benefits'], 'requirements' => ['عامة::التأمينات', 'مصاريف مستحقة وأرصدة دائنة أخرى::مزايا العاملين'], 'papers' => ['payroll-analytics', 'recalc-eosb', 'recalc-payroll'],
             'standards' => ['ISA 500', 'ISA 530', 'ISA 540'], 'framework' => ['القسم 28'],
             'procedures' => [
             '01' => ['الحصول على كشف الموظفين (تاريخ التعيين، الراتب الأساسي، البدلات) ومطابقته مع سجلات الموارد البشرية والتأمينات الاجتماعية', ['existence', 'completeness'], 'detail'],
@@ -171,7 +173,7 @@ return [
             '05' => ['فحص عينة من مسيرات الرواتب والتحقق من الاعتماد والسداد (نظام حماية الأجور)', ['occurrence', 'accuracy'], 'sample'],
             '06' => ['التحقق من الإفصاح عن المخصص وحركته والافتراضات المستخدمة', ['presentation'], 'detail'],
         ]],
-        'zakat' => ['code' => '6400', 'title' => 'الزكاة وضريبة الدخل', 'lines' => ['sofp.zakat_provision', 'sofp.income_tax_provision'], 'requirements' => ['عامة::الإقرارات الضريبية', 'عامة::شهادة زكاة'], 'papers' => [],
+        'zakat' => ['code' => '6400', 'ref' => 'DD', 'title' => 'الزكاة وضريبة الدخل', 'lines' => ['sofp.zakat_provision', 'sofp.income_tax_provision'], 'requirements' => ['عامة::الإقرارات الضريبية', 'عامة::شهادة زكاة'], 'papers' => [],
             'standards' => ['ISA 250', 'ISA 540'], 'framework' => ['القسم 29'],
             'procedures' => [
             '01' => ['إعادة احتساب الوعاء الزكوي ومخصص الزكاة للسنة (ورقة الزكاة) ومقارنته بالمسجل', ['valuation', 'accuracy'], 'detail'],
@@ -180,7 +182,7 @@ return [
             '04' => ['التحقق من ضريبة الدخل على حصة الشريك غير السعودي إن وجد وضريبة الاستقطاع', ['completeness', 'accuracy'], 'detail'],
             '05' => ['التحقق من قيد الزكاة في الدفاتر والإفصاح عنه في الإيضاحات', ['presentation', 'classification'], 'detail'],
         ]],
-        'equity' => ['code' => '6500', 'title' => 'حقوق الملكية', 'lines' => ['sofp.share_capital', 'sofp.statutory_reserve', 'sofp.other_reserves', 'sofp.retained_earnings', 'sofp.partners_current_equity'], 'requirements' => ['عامة::عقد تأسيس'], 'papers' => ['equity'],
+        'equity' => ['code' => '6500', 'ref' => 'EE', 'title' => 'حقوق الملكية', 'lines' => ['sofp.share_capital', 'sofp.statutory_reserve', 'sofp.other_reserves', 'sofp.retained_earnings', 'sofp.partners_current_equity'], 'requirements' => ['عامة::عقد تأسيس'], 'papers' => ['equity'],
             'standards' => ['ISA 500'], 'framework' => ['القسم 6', 'القسم 22'],
             'procedures' => [
             '01' => ['مطابقة رأس المال مع السجل التجاري وعقد التأسيس وأي تعديلات خلال السنة', ['existence', 'rights', 'presentation'], 'detail'],
@@ -190,7 +192,7 @@ return [
             '05' => ['التحقق من الخسائر المتراكمة ونسبتها إلى رأس المال ومتطلبات نظام الشركات عند تجاوزها النصف', ['presentation'], 'detail'],
             '06' => ['التحقق من الإفصاح عن رأس المال والحصص والشركاء', ['presentation'], 'detail'],
         ]],
-        'revenue' => ['code' => '7002', 'title' => 'المبيعات وإيرادات التشغيل', 'lines' => ['is.revenue', 'is.other_income'], 'requirements' => ['الإيرادات'], 'papers' => ['sales-cutoff'],
+        'revenue' => ['code' => '7002', 'ref' => 'R', 'title' => 'المبيعات وإيرادات التشغيل', 'lines' => ['is.revenue', 'is.other_income'], 'requirements' => ['الإيرادات'], 'papers' => ['sales-cutoff'],
             'standards' => ['ISA 240', 'ISA 520', 'ISA 530'], 'framework' => ['القسم 23'],
             'procedures' => [
             '01' => ['الحصول على تحليل للإيرادات حسب النوع والشهر ومطابقته مع ميزان المراجعة وإقرارات ضريبة القيمة المضافة', ['completeness', 'accuracy'], 'detail'],
@@ -202,7 +204,7 @@ return [
             '07' => ['التحقق من سياسة الاعتراف بالإيراد ومدى ملاءمتها للمعيار وللعقود (الإيراد عند نقطة زمنية أو على مدى زمني)', ['occurrence', 'presentation'], 'detail'],
             '08' => ['التحقق من الإيرادات الأخرى ومستنداتها وتبويبها', ['occurrence', 'classification'], 'detail'],
         ]],
-        'cost_of_revenue' => ['code' => '7100', 'title' => 'تكلفة الإيرادات والمشتريات', 'lines' => ['is.cost_of_revenue'], 'requirements' => ['تكلفة الإيرادات'], 'papers' => [],
+        'cost_of_revenue' => ['code' => '7100', 'ref' => 'S', 'title' => 'تكلفة الإيرادات والمشتريات', 'lines' => ['is.cost_of_revenue'], 'requirements' => ['تكلفة الإيرادات'], 'papers' => [],
             'standards' => ['ISA 520', 'ISA 530'], 'framework' => ['القسم 13'],
             'procedures' => [
             '01' => ['الحصول على تحليل لتكلفة الإيرادات ومطابقته مع ميزان المراجعة وحركة المخزون (أول المدة + المشتريات − آخر المدة)', ['completeness', 'accuracy'], 'detail'],
@@ -211,7 +213,7 @@ return [
             '04' => ['فحص قطع المشتريات قبل وبعد تاريخ القوائم المالية', ['cutoff', 'completeness'], 'detail'],
             '05' => ['التحقق من تحميل التكاليف المباشرة (أجور، شحن، رسوم جمركية) على التكلفة بشكل صحيح', ['classification', 'accuracy'], 'detail'],
         ]],
-        'expenses' => ['code' => '7200', 'title' => 'المصروفات العمومية والإدارية والبيعية والتمويلية', 'lines' => ['is.selling_marketing', 'is.general_admin', 'is.depreciation', 'is.amortisation', 'is.finance_cost', 'is.other_expenses', 'is.impairment_losses'], 'requirements' => ['المصاريف العمومية والإدارية والبيعية والتسويقية'], 'papers' => [],
+        'expenses' => ['code' => '7200', 'ref' => 'T', 'title' => 'المصروفات العمومية والإدارية والبيعية والتمويلية', 'lines' => ['is.selling_marketing', 'is.general_admin', 'is.depreciation', 'is.amortisation', 'is.finance_cost', 'is.other_expenses', 'is.impairment_losses'], 'requirements' => ['المصاريف العمومية والإدارية والبيعية والتسويقية'], 'papers' => [],
             'standards' => ['ISA 520', 'ISA 530'], 'framework' => ['القسم 5'],
             'procedures' => [
             '01' => ['الحصول على تحليل للمصروفات حسب البند ومطابقته مع ميزان المراجعة ومقارنته بالسنة السابقة وتفسير التغيرات الجوهرية', ['completeness', 'accuracy'], 'analytical'],
@@ -221,7 +223,7 @@ return [
             '05' => ['إعادة احتساب الاستهلاك وتكاليف التمويل ومطابقتها مع جداول الأصول والقروض', ['accuracy'], 'detail'],
             '06' => ['التحقق من تبويب المصروفات بين التكلفة والمصروفات البيعية والإدارية', ['classification', 'presentation'], 'detail'],
         ]],
-        'completion' => ['code' => '8000', 'title' => 'الإنهاء والتقرير', 'lines' => [], 'requirements' => ['الالتزامات العرضية'], 'papers' => [],
+        'completion' => ['code' => '8000', 'ref' => 'CO', 'title' => 'الإنهاء والتقرير', 'lines' => [], 'requirements' => ['الالتزامات العرضية'], 'papers' => [],
             'standards' => ['ISA 450', 'ISA 560', 'ISA 570', 'ISA 580', 'ISA 700', 'ISA 705', 'ISA 706'], 'framework' => ['القسم 21', 'القسم 32'],
             'procedures' => [
             '01' => ['فحص الأحداث اللاحقة لتاريخ القوائم المالية حتى تاريخ التقرير (القيود والمحاضر والمراسلات اللاحقة)', ['completeness', 'presentation'], 'general'],

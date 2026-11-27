@@ -52,6 +52,17 @@ class ApiContractTest extends TestCase
         'GET /api/v1/clients/{id}/findings' => ['200', '404', '422'], 'GET /api/v1/clients/{id}/engagement' => ['200', '404', '422'], 'GET /api/v1/engagements/{id}/status' => ['200', '404', '422'], 'PUT /api/v1/clients/{id}/findings/{key}' => ['200', '404', '422'], 'GET /api/v1/clients/{id}/findings/export' => ['200', '404', '422'], 'GET /api/v1/account/mail' => ['200'], 'PUT /api/v1/account/mail' => ['200', '422'],
         'DELETE /api/v1/account/mail' => ['204'], 'POST /api/v1/account/mail/test' => ['200', '404'], 'POST /api/v1/account/mail/check' => ['200', '404'],
         // The AI limit needs a saved user with a limit: kernel only (merged with the statuses above in KERNEL_ONLY's lookup).
+        // Who is signed in, the materiality, the risks and the audit program need a saved office: kernel only.
+        'GET /api/v1/me' => ['200'],
+        'GET /api/v1/clients/{id}/materiality' => ['200', '404', '423'], 'PUT /api/v1/clients/{id}/materiality' => ['200', '404', '422', '423'],
+        'POST /api/v1/clients/{id}/materiality/approve' => ['200', '404', '422', '423'],
+        'GET /api/v1/clients/{id}/risks' => ['200', '404', '423'], 'POST /api/v1/clients/{id}/risks' => ['201', '404', '422', '423'],
+        'POST /api/v1/clients/{id}/risks/suggest' => ['200', '404', '422', '423'], 'PUT /api/v1/clients/{id}/risks/{risk}' => ['200', '404', '422', '423'],
+        'DELETE /api/v1/clients/{id}/risks/{risk}' => ['200', '404', '423'], 'PATCH /api/v1/clients/{id}/risks/{risk}/status' => ['200', '404', '422', '423'],
+        'GET /api/v1/clients/{id}/program' => ['200', '404', '423'], 'PUT /api/v1/clients/{id}/program/{area}' => ['200', '404', '422', '423'],
+        'POST /api/v1/clients/{id}/program/{area}/procedures' => ['201', '404', '422', '423'],
+        'DELETE /api/v1/clients/{id}/program/{area}/procedures/{procedure}' => ['200', '404', '423'],
+        'POST /api/v1/clients/{id}/program/{area}/sign' => ['200', '404', '422', '423'],
     ];
 
     private ?Client $live = null;
@@ -927,6 +938,114 @@ class ApiContractTest extends TestCase
     /* ---------- coverage ---------- */
 
     /** Runs last (declaration order): every status the spec documents was sent and checked above. */
+    public function test_me_materiality_risks_and_program(): void
+    {
+        if ($this->live) {
+            $this->markTestSkipped('Needs a saved office: kernel only.');
+        }
+        [$user, $company] = $this->officeClient();
+        $this->assertSame('sara', $this->expect('GET /api/v1/me', 200, 'GET', '/api/v1/me')['username']);
+
+        // A year with its statements: revenue 1,000,000.
+        $run = ClassificationRun::forceCreate(['office_id' => $company->office_id, 'id' => (string) Str::uuid(), 'status' => 'done', 'original_name' => 'tb.xlsx', 'company_id' => $company->id,
+            'result' => $this->runResult([
+                $this->account(2, 'نقدية لدى البنوك', ['opening' => 100000, 'period' => [1000000, 400000]]),
+                $this->account(3, 'رأس المال', ['opening' => -100000]),
+                $this->account(5, 'إيرادات المبيعات', ['period' => [0, 1000000]]),
+                $this->account(6, 'تكلفة المشتريات', ['period' => [400000, 0]]),
+            ])]);
+        $this->postJson('/api/v1/financial-reports', ['classification_run_id' => $run->id, 'company_id' => $company->id, 'period_start' => '2025-01-01', 'period_end' => '2025-12-31'])
+            ->assertCreated();
+        $c = "/api/v1/clients/{$company->id}";
+        $nobody = '/api/v1/clients/'.Str::uuid();
+
+        // The materiality.
+        $op = 'GET /api/v1/clients/{id}/materiality';
+        $this->assertFalse($this->expect($op, 200, 'GET', "{$c}/materiality?year=2025")['saved']);
+        $this->expect($op, 404, 'GET', "{$nobody}/materiality?year=2025");
+        $op = 'POST /api/v1/clients/{id}/materiality/approve';
+        $this->expect($op, 422, 'POST', "{$c}/materiality/approve", ['year' => 2025, 'rationale' => 'قبل الحفظ']);
+        $op = 'PUT /api/v1/clients/{id}/materiality';
+        $save = ['year' => 2025, 'percents' => ['total_assets' => 1, 'profit_before_zakat' => 10, 'revenue' => 1], 'bases' => ['total_assets', 'revenue'], 'choice' => 'revenue',
+            'performance_percent' => 50, 'trivial_percent' => 5];
+        $this->assertEquals(10000, $this->expect($op, 200, 'PUT', "{$c}/materiality", $save)['overall']);
+        $this->expect($op, 404, 'PUT', "{$nobody}/materiality", $save);
+        $this->expect($op, 422, 'PUT', "{$c}/materiality", ['year' => 2025]);
+        $op = 'POST /api/v1/clients/{id}/materiality/approve';
+        $this->assertSame(1, $this->expect($op, 200, 'POST', "{$c}/materiality/approve", ['year' => 2025, 'rationale' => 'الإيرادات أنسب أساس'])['approved']['version']);
+        $this->expect($op, 404, 'POST', "{$nobody}/materiality/approve", ['year' => 2025]);
+
+        // The risks.
+        $op = 'POST /api/v1/clients/{id}/risks/suggest';
+        $this->assertGreaterThan(0, $this->expect($op, 200, 'POST', "{$c}/risks/suggest", ['year' => 2025])['added']);
+        $this->expect($op, 404, 'POST', "{$nobody}/risks/suggest", ['year' => 2025]);
+        $this->expect($op, 422, 'POST', "{$c}/risks/suggest", []);
+        $op = 'GET /api/v1/clients/{id}/risks';
+        $suggested = collect($this->expect($op, 200, 'GET', "{$c}/risks?year=2025")['risks'])->firstWhere('source', 'management_override');
+        $this->expect($op, 404, 'GET', "{$nobody}/risks?year=2025");
+        $op = 'PATCH /api/v1/clients/{id}/risks/{risk}/status';
+        $this->expect($op, 200, 'PATCH', "{$c}/risks/{$suggested['id']}/status", ['status' => 'accepted']);
+        $this->expect($op, 404, 'PATCH', "{$c}/risks/999999/status", ['status' => 'accepted']);
+        $this->expect($op, 422, 'PATCH', "{$c}/risks/{$suggested['id']}/status", ['status' => 'maybe']);
+        $op = 'POST /api/v1/clients/{id}/risks';
+        $risk = ['year' => 2025, 'area' => 'inventory', 'description' => 'مخزون بطيء الحركة', 'likelihood' => 1, 'magnitude' => 2];
+        $mine = $this->expect($op, 201, 'POST', "{$c}/risks", $risk)['id'];
+        $this->expect($op, 404, 'POST', "{$nobody}/risks", $risk);
+        $this->expect($op, 422, 'POST', "{$c}/risks", ['year' => 2025, 'area' => 'nowhere']);
+        $op = 'PUT /api/v1/clients/{id}/risks/{risk}';
+        $this->expect($op, 200, 'PUT', "{$c}/risks/{$mine}", ['magnitude' => 3] + $risk);
+        $this->expect($op, 404, 'PUT', "{$c}/risks/999999", $risk);
+        $this->expect($op, 422, 'PUT', "{$c}/risks/{$mine}", ['year' => 2025]);
+        $op = 'DELETE /api/v1/clients/{id}/risks/{risk}';
+        $this->expect($op, 200, 'DELETE', "{$c}/risks/{$mine}");
+        $this->expect($op, 404, 'DELETE', "{$c}/risks/999999");
+
+        // The audit program.
+        $op = 'GET /api/v1/clients/{id}/program';
+        $this->assertSame('A', collect($this->expect($op, 200, 'GET', "{$c}/program?year=2025")['areas'])->firstWhere('key', 'cash')['ref']);
+        $this->expect($op, 404, 'GET', "{$nobody}/program?year=2025");
+        $op = 'PUT /api/v1/clients/{id}/program/{area}';
+        $this->expect($op, 200, 'PUT', "{$c}/program/inventory", ['year' => 2025, 'na' => true, 'na_reason' => 'لا يوجد مخزون']);
+        $this->expect($op, 404, 'PUT', "{$c}/program/nowhere", ['year' => 2025]);
+        $this->expect($op, 422, 'PUT', "{$c}/program/cash", ['year' => 2025, 'status' => ['01' => 'maybe']]);
+        $op = 'POST /api/v1/clients/{id}/program/{area}/sign';
+        $this->expect($op, 200, 'POST', "{$c}/program/inventory/sign", ['year' => 2025, 'role' => 'prepared']);
+        $this->expect($op, 404, 'POST', "{$c}/program/nowhere/sign", ['year' => 2025, 'role' => 'prepared']);
+        $this->assertSame('pending_left', $this->expect($op, 422, 'POST', "{$c}/program/revenue/sign", ['year' => 2025, 'role' => 'prepared'])['code']);
+        $op = 'POST /api/v1/clients/{id}/program/{area}/procedures';
+        $this->assertSame('c1', $this->expect($op, 201, 'POST', "{$c}/program/revenue/procedures", ['year' => 2025, 'text' => 'مطابقة المبيعات مع منصة فاتورة', 'type' => 'detail'])['code']);
+        $this->expect($op, 404, 'POST', "{$c}/program/nowhere/procedures", ['year' => 2025, 'text' => 'x', 'type' => 'detail']);
+        $this->expect($op, 422, 'POST', "{$c}/program/revenue/procedures", ['year' => 2025, 'text' => '', 'type' => 'magic']);
+        $op = 'DELETE /api/v1/clients/{id}/program/{area}/procedures/{procedure}';
+        $this->expect($op, 200, 'DELETE', "{$c}/program/revenue/procedures/c1?year=2025");
+        $this->expect($op, 404, 'DELETE', "{$c}/program/revenue/procedures/c9?year=2025");
+
+        // A client with nothing classified yet: with the locks enforced, every step here waits (423) for what it rests on.
+        config(['engagement.enforce_locks' => true]);
+        $other = \App\Models\Company::forceCreate(['office_id' => $company->office_id, 'name_ar' => 'شركة الفجر', 'client_name' => 'منى', 'client_email' => 'mona@client.test',
+            'cr_number' => '1010202020', 'period_start' => '2025-01-01', 'period_end' => '2025-12-31']);
+        $risk2 = \App\Models\AuditRisk::create(['office_id' => $other->office_id, 'company_id' => $other->id, 'year' => 2025, 'area' => 'inventory', 'level' => 'assertion',
+            'description' => 'خطر', 'likelihood' => 1, 'magnitude' => 1, 'inherent_rating' => 'low', 'status' => 'accepted', 'created_by' => $user->id]);
+        $o = "/api/v1/clients/{$other->id}";
+        foreach ([['GET /api/v1/clients/{id}/materiality', 'GET', "{$o}/materiality?year=2025", null],
+            ['PUT /api/v1/clients/{id}/materiality', 'PUT', "{$o}/materiality", $save],
+            ['POST /api/v1/clients/{id}/materiality/approve', 'POST', "{$o}/materiality/approve", ['year' => 2025]],
+            ['GET /api/v1/clients/{id}/risks', 'GET', "{$o}/risks?year=2025", null],
+            ['POST /api/v1/clients/{id}/risks/suggest', 'POST', "{$o}/risks/suggest", ['year' => 2025]],
+            ['POST /api/v1/clients/{id}/risks', 'POST', "{$o}/risks", $risk],
+            ['PUT /api/v1/clients/{id}/risks/{risk}', 'PUT', "{$o}/risks/{$risk2->id}", $risk],
+            ['PATCH /api/v1/clients/{id}/risks/{risk}/status', 'PATCH', "{$o}/risks/{$risk2->id}/status", ['status' => 'dismissed']],
+            ['DELETE /api/v1/clients/{id}/risks/{risk}', 'DELETE', "{$o}/risks/{$risk2->id}", null],
+            ['GET /api/v1/clients/{id}/program', 'GET', "{$o}/program?year=2025", null],
+            ['PUT /api/v1/clients/{id}/program/{area}', 'PUT', "{$o}/program/cash", ['year' => 2025]],
+            ['POST /api/v1/clients/{id}/program/{area}/procedures', 'POST', "{$o}/program/revenue/procedures", ['year' => 2025, 'text' => 'x', 'type' => 'detail']],
+            ['DELETE /api/v1/clients/{id}/program/{area}/procedures/{procedure}', 'DELETE', "{$o}/program/revenue/procedures/c1?year=2025", null],
+            ['POST /api/v1/clients/{id}/program/{area}/sign', 'POST', "{$o}/program/cash/sign", ['year' => 2025, 'role' => 'prepared']],
+        ] as [$op, $method, $uri, $body]) {
+            $this->assertTrue($this->expect($op, 423, $method, $uri, $body)['locked'], $op);
+        }
+    }
+
     public function test_zz_every_documented_status_was_checked(): void
     {
         if (count(OpenApiContract::$checked) < 10) {

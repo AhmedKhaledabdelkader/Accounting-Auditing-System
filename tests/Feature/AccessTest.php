@@ -142,7 +142,9 @@ class AccessTest extends TestCase
     {
         $catalogue = Role::catalogue();
         $open = ['login', 'register', 'locale', 'logout', 'home', 'account', 'ai-limit', 'account.password', 'account.preferences', 'account.columns.reset', 'account.tokens.store', 'account.tokens.destroy',
-            'sanctum.csrf-cookie', 'storage.local', 'storage.local.upload'];
+            'sanctum.csrf-cookie', 'storage.local', 'storage.local.upload',
+            // Who is signed in (name, role, permissions): any active account, like its own account page.
+            'api.me'];
         foreach (Route::getRoutes() as $route) {
             $name = $route->getName();
             if ($name === null || in_array($name, $open, true) || str_starts_with($route->uri(), 'up') || str_starts_with($route->uri(), '_dusk')) {

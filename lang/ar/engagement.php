@@ -220,7 +220,7 @@ return [
     'misstatements' => [
         'title' => 'سجل التحريفات (ISA 450)',
         'overall' => 'الأهمية الكلية',
-        'trivial' => 'الحد التافه',
+        'trivial' => 'حد التحريفات الضئيلة',
         'uncorrected' => 'إجمالي غير المصحح',
         'pl_effect' => 'الأثر على الربح',
         'none' => 'لا توجد تحريفات.',
@@ -228,7 +228,7 @@ return [
         'kinds' => ['factual' => 'فعلي', 'judgmental' => 'تقديري', 'projected' => 'معمَّم'],
         'col' => ['kind' => 'النوع', 'description' => 'الوصف', 'amount' => 'المبلغ', 'assets' => 'الأصول', 'liabilities' => 'الالتزامات', 'equity' => 'حقوق الملكية', 'pl' => 'الربح', 'state' => 'الحالة'],
         'fields' => ['amount' => 'المبلغ', 'effect_assets' => 'أثر الأصول', 'effect_liabilities' => 'أثر الالتزامات', 'effect_equity' => 'أثر حقوق الملكية', 'effect_pl' => 'أثر الربح'],
-        'below_trivial' => 'دون الحد التافه',
+        'below_trivial' => 'دون حد التحريفات الضئيلة',
         'corrected' => 'مصحح',
         'not_corrected' => 'غير مصحح',
         'mark_corrected' => 'تعليم مصحح',
