@@ -2558,6 +2558,356 @@ paths:
         '422':
           description: An invalid year.
           content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+  /api/v1/me:
+    get:
+      tags: [Account]
+      operationId: me
+      summary: Who is signed in
+      description: |
+        The signed-in user: name, role (named in the request's language), whether an administrator, the permissions the user really
+        holds, the office, and whether the account is a client's. Any active account (like its own account page); the screens use it
+        to show the name and hide what the role may not do — the server still checks every permission itself.
+      responses:
+        '200':
+          description: The user.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Me' } } }
+  /api/v1/clients/{id}/materiality:
+    get:
+      tags: [Planning]
+      operationId: getMateriality
+      summary: The materiality working paper of a client's year (ISA 320)
+      description: |
+        The same working paper as the page: each basis (its figure this year and last, its percentage, the materiality it gives, whether
+        it is taken), the highest and the average of the bases taken, the basis proposed, the saved choice, the overall materiality
+        (rounded down when asked), the performance materiality and the clearly trivial threshold, the lines at or above the performance
+        materiality, and the approved versions. `source` reads the figures from the statements or the trial balance.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer }, description: 'Default: the year of the client''s period.' }
+        - { name: source, in: query, schema: { type: string, enum: [statements, trial_balance] }, description: 'Default: the saved source, else the statements.' }
+      responses:
+        '200':
+          description: The working paper.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Materiality' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '423': { $ref: '#/components/responses/StepLocked' }
+    put:
+      tags: [Planning]
+      operationId: saveMateriality
+      summary: Saves the materiality choice (as the page's form)
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year, percents, bases, choice, performance_percent, trivial_percent]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                source: { type: [string, 'null'], enum: [statements, trial_balance, null] }
+                percents: { type: object, description: 'Basis → percentage (above 0, at most 50).', additionalProperties: { type: number } }
+                bases: { type: array, minItems: 1, items: { type: string }, description: 'The bases taken (counted in the highest and the average).' }
+                choice: { type: string, description: 'A basis taken, or `highest` / `average`.' }
+                performance_percent: { type: number, minimum: 10, maximum: 100 }
+                trivial_percent: { type: number, minimum: 1, maximum: 20 }
+                round: { type: [boolean, 'null'] }
+                reason: { type: [string, 'null'], maxLength: 2000 }
+            example: { year: 2025, percents: { total_assets: 1, profit_before_zakat: 10, revenue: 1 }, bases: [total_assets, revenue], choice: revenue, performance_percent: 50, trivial_percent: 5 }
+      responses:
+        '200':
+          description: The working paper after the save.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Materiality' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: Invalid fields.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/materiality/approve:
+    post:
+      tags: [Planning]
+      operationId: approveMateriality
+      summary: Approves the saved materiality as a new version
+      description: The version holds the saved figures with their justification; a change after an approval says why (`change_reason`) and makes another version.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                rationale: { type: [string, 'null'], maxLength: 2000 }
+                change_reason: { type: [string, 'null'], maxLength: 2000 }
+                stage: { type: [string, 'null'], enum: [planning, final, null] }
+            example: { year: 2025, rationale: 'الإيرادات هي المؤشر الأكثر استقرارًا لنشاط الشركة.' }
+      responses:
+        '200':
+          description: The working paper with the new version, and a message.
+          content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/Materiality' }, { type: object, properties: { message: { type: string } } }] } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: Invalid fields, or refused (`code`, as the page) — not saved, an aggregate chosen, no amount, no justification, unchanged, no reason for the change.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Refused' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/risks:
+    get:
+      tags: [Planning]
+      operationId: listRisks
+      summary: The risk register of a client's year (ISA 315 / 330)
+      description: |
+        The same register as the page: each risk on an area of the audit program (or the statements as a whole), its assertions,
+        likelihood × magnitude (the inherent risk), whether significant or a fraud risk, its status (suggested, accepted, dismissed) and
+        the area's procedures that answer it; `unanswered` = a significant accepted risk with no test of details. With the areas, the
+        assertions, each area's procedures and the counts.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer }, description: 'Default: the year of the client''s period.' }
+      responses:
+        '200':
+          description: The register.
+          content: { application/json: { schema: { $ref: '#/components/schemas/RiskRegister' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '423': { $ref: '#/components/responses/StepLocked' }
+    post:
+      tags: [Planning]
+      operationId: addRisk
+      summary: A risk typed by hand (accepted)
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/RiskInput' }, example: { year: 2025, area: inventory, description: 'مخزون بطيء الحركة', likelihood: 1, magnitude: 2 } } }
+      responses:
+        '201':
+          description: The register, and the new risk's id.
+          content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/RiskRegister' }, { type: object, properties: { id: { type: integer } } }] } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: Invalid fields.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/risks/suggest:
+    post:
+      tags: [Planning]
+      operationId: suggestRisks
+      summary: Suggests the risks the year's figures call for (once each)
+      description: The presumed fraud risks (revenue recognition, management override), a loss or a negative equity, related parties, and the estimates at or above the performance materiality; left «suggested». A suggestion dismissed isn't made again.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [year], properties: { year: { type: integer, minimum: 2000, maximum: 2100 } } }, example: { year: 2025 } } }
+      responses:
+        '200':
+          description: The register, how many were added and a message.
+          content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/RiskRegister' }, { type: object, properties: { added: { type: integer }, message: { type: string } } }] } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '422':
+          description: An invalid year.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/risks/{risk}:
+    put:
+      tags: [Planning]
+      operationId: updateRisk
+      summary: Changes a risk (as the page's form)
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: risk, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/RiskInput' } } }
+      responses:
+        '200':
+          description: The register.
+          content: { application/json: { schema: { $ref: '#/components/schemas/RiskRegister' } } }
+        '404':
+          description: Unknown company, or no such risk of the client.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        '422':
+          description: Invalid fields.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+    delete:
+      tags: [Planning]
+      operationId: deleteRisk
+      summary: Deletes a risk typed by hand; a suggestion is dismissed instead
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: risk, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: The register.
+          content: { application/json: { schema: { $ref: '#/components/schemas/RiskRegister' } } }
+        '404':
+          description: Unknown company, or no such risk of the client.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/risks/{risk}/status:
+    patch:
+      tags: [Planning]
+      operationId: setRiskStatus
+      summary: Accepts or dismisses a suggestion as it is
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: risk, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [status], properties: { status: { type: string, enum: [suggested, accepted, dismissed] } } }, example: { status: accepted } } }
+      responses:
+        '200':
+          description: The register.
+          content: { application/json: { schema: { $ref: '#/components/schemas/RiskRegister' } } }
+        '404':
+          description: Unknown company, or no such risk of the client.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        '422':
+          description: An invalid status.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/program:
+    get:
+      tags: [Planning]
+      operationId: getAuditProgram
+      summary: The audit program of a client's year (ISA 330)
+      description: |
+        The same program as the page: each area by its letter code (`ref`: EA, PL, RA, A, B… CO; `code` = the old number) with its
+        procedures (`display`: A1, A2; the accountant's own follow the program's numbers) and their answers (status, reference, note,
+        evidence among the area's requirements), its balance from the statements and whether significant (at or above the performance
+        materiality), its requirements, conclusion, sign-offs and status; the totals; the statuses', types' and assertions' names.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: year, in: query, schema: { type: integer }, description: 'Default: the year of the client''s period.' }
+      responses:
+        '200':
+          description: The program.
+          content: { application/json: { schema: { $ref: '#/components/schemas/AuditProgram' } } }
+        '404': { $ref: '#/components/responses/CompanyNotFound' }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/program/{area}:
+    put:
+      tags: [Planning]
+      operationId: saveAuditProgramArea
+      summary: The area's answers (as the page's form)
+      description: Status, reference, note and evidence by procedure code; the conclusion; not applicable with its reason. A change drops the area's sign-offs; `changed` says whether anything changed.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: area, in: path, required: true, schema: { type: string }, description: 'The area''s key (cash, revenue…).' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                status: { type: [object, 'null'], additionalProperties: { type: [string, 'null'], enum: [pending, done, exception, na, null] } }
+                ref: { type: [object, 'null'], additionalProperties: { type: [string, 'null'], maxLength: 80 } }
+                note: { type: [object, 'null'], additionalProperties: { type: [string, 'null'], maxLength: 1000 } }
+                request: { type: [object, 'null'], additionalProperties: { type: [integer, 'null'] }, description: 'The evidence: one of the area''s requirements (any other is dropped).' }
+                conclusion: { type: [string, 'null'], maxLength: 3000 }
+                na: { type: [boolean, 'null'] }
+                na_reason: { type: [string, 'null'], maxLength: 500 }
+            example: { year: 2025, status: { '01': done, '03': exception }, ref: { '03': A-3 }, note: { '03': 'بنك الراجحي لم يرد' }, conclusion: 'الرصيد معروض بعدالة' }
+      responses:
+        '200':
+          description: The program, whether the area changed, and a message.
+          content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/AuditProgram' }, { type: object, properties: { changed: { type: boolean }, message: { type: string } } }] } } }
+        '404':
+          description: Unknown company or area.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        '422':
+          description: Invalid fields.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/program/{area}/procedures:
+    post:
+      tags: [Planning]
+      operationId: addAuditProgramProcedure
+      summary: A procedure of the accountant's own, at the end of the area
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: area, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year, text, type]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                text: { type: string, maxLength: 1000 }
+                type: { type: string, enum: [general, analytical, control, detail, sample] }
+                assertions: { type: [array, 'null'], items: { type: string } }
+            example: { year: 2025, text: 'مطابقة المبيعات مع منصة فاتورة', type: detail, assertions: [completeness] }
+      responses:
+        '201':
+          description: The program, the new procedure's code (c1, c2…) and a message.
+          content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/AuditProgram' }, { type: object, properties: { code: { type: string }, message: { type: string } } }] } } }
+        '404':
+          description: Unknown company or area.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        '422':
+          description: Invalid fields.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/program/{area}/procedures/{procedure}:
+    delete:
+      tags: [Planning]
+      operationId: deleteAuditProgramProcedure
+      summary: Removes one of the accountant's own procedures (the program's are marked not applicable instead)
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: area, in: path, required: true, schema: { type: string } }
+        - { name: procedure, in: path, required: true, schema: { type: string, pattern: '^c[0-9]+$' } }
+        - { name: year, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: The program and a message.
+          content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/AuditProgram' }, { type: object, properties: { message: { type: string } } }] } } }
+        '404':
+          description: Unknown company, area or procedure.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
+  /api/v1/clients/{id}/program/{area}/sign:
+    post:
+      tags: [Planning]
+      operationId: signAuditProgramArea
+      summary: The preparer's or the reviewer's sign-off of an area (off takes it back)
+      description: The preparer signs once nothing is pending and no required document is awaited (or the area is not applicable); the reviewer after the preparer, and someone else. Taking the preparer's back takes the reviewer's too.
+      parameters:
+        - $ref: '#/components/parameters/CompanyId'
+        - { name: area, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year, role]
+              properties:
+                year: { type: integer, minimum: 2000, maximum: 2100 }
+                role: { type: string, enum: [prepared, reviewed] }
+                off: { type: [boolean, 'null'] }
+            example: { year: 2025, role: prepared }
+      responses:
+        '200':
+          description: The program and a message.
+          content: { application/json: { schema: { allOf: [{ $ref: '#/components/schemas/AuditProgram' }, { type: object, properties: { message: { type: string } } }] } } }
+        '404':
+          description: Unknown company or area.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        '422':
+          description: Invalid fields, or refused (`code`, as the page) — pending_left, requirements_awaited, same_person, not_prepared.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Refused' } } }
+        '423': { $ref: '#/components/responses/StepLocked' }
 
 components:
   securitySchemes:
@@ -2646,6 +2996,9 @@ components:
               contentType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv
 
   responses:
+    StepLocked:
+      description: The engagement step is locked (a step it rests on isn't done); the blockers say what it waits for.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Locked' } } }
     FileValidationError:
       description: File missing, not a file, wrong type, or larger than 10 MB.
       content:
@@ -2736,6 +3089,178 @@ components:
           example: { status: error, message: 'SQLSTATE[HY000] ...' }
 
   schemas:
+    Me:
+      type: object
+      required: [id, username, is_admin, permissions, is_client]
+      properties:
+        id: { type: integer }
+        name: { type: [string, 'null'] }
+        username: { type: string }
+        role:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string, description: 'In the request''s language.' }
+            is_admin: { type: boolean }
+        is_admin: { type: boolean }
+        permissions: { type: array, items: { type: string }, description: 'The permissions this user really holds.' }
+        office:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: [string, 'null'] }
+        is_client: { type: boolean, description: 'A client''s account (the client portal).' }
+    Locked:
+      type: object
+      required: [message, locked, blockers]
+      properties:
+        message: { type: string }
+        locked: { type: boolean }
+        blockers:
+          type: array
+          description: What the step waits for (the hard blockers, as the engagement file says them).
+          items:
+            type: object
+            properties:
+              code: { type: string }
+              step_key: { type: string }
+              soft: { type: boolean }
+              message_ar: { type: string }
+              message_en: { type: string }
+              link: { type: [string, 'null'] }
+    Refused:
+      description: A validation error, or a refusal with the page's reason (`code`).
+      allOf:
+        - $ref: '#/components/schemas/ValidationError'
+        - type: object
+          properties:
+            code: { type: string }
+    Materiality:
+      type: object
+      properties:
+        year: { type: integer }
+        has_report: { type: boolean, description: 'The year has financial statements.' }
+        source: { type: string, enum: [statements, trial_balance] }
+        benchmarks:
+          type: array
+          items:
+            type: object
+            properties:
+              key: { type: string }
+              label: { type: string }
+              amount: { type: [number, 'null'] }
+              prior: { type: [number, 'null'] }
+              percent: { type: number }
+              taken: { type: boolean, description: 'Counted in the highest and the average.' }
+              usable: { type: boolean }
+              materiality: { type: [number, 'null'] }
+              prior_materiality: { type: [number, 'null'] }
+              range: { type: array, items: { type: [number, 'null'] }, description: '[low, high] usual percentage.' }
+        aggregates: { type: object, description: 'highest and average of the bases taken: {materiality, prior_materiality}.', additionalProperties: true }
+        proposed: { type: [string, 'null'] }
+        saved: { type: boolean }
+        chosen: { type: object, additionalProperties: true, description: 'choice, percent, performance_percent, trivial_percent, round, reason.' }
+        overall: { type: [number, 'null'] }
+        overall_rounded: { type: [number, 'null'] }
+        performance: { type: [number, 'null'] }
+        trivial: { type: [number, 'null'] }
+        prior_overall: { type: [number, 'null'] }
+        significant:
+          type: array
+          items:
+            type: object
+            properties:
+              key: { type: string }
+              label: { type: string }
+              amount: { type: number }
+              times: { type: number }
+        approved: { type: [object, 'null'], additionalProperties: true, description: 'The version in force: version, overall, performance, trivial, rationale, approved_name, approved_at…' }
+        versions: { type: array, items: { type: object, additionalProperties: true } }
+        defaults: { type: object, additionalProperties: true }
+        can_manage: { type: boolean }
+    RiskInput:
+      type: object
+      required: [year, area, description, likelihood, magnitude]
+      properties:
+        year: { type: integer, minimum: 2000, maximum: 2100 }
+        area: { type: string, description: '`fs` (the statements as a whole) or an area of the audit program.' }
+        description: { type: string, maxLength: 2000 }
+        assertions: { type: [array, 'null'], items: { type: string } }
+        likelihood: { type: integer, minimum: 1, maximum: 3 }
+        magnitude: { type: integer, minimum: 1, maximum: 3 }
+        is_significant: { type: [boolean, 'null'], description: 'A fraud or high risk is significant whatever this says.' }
+        is_fraud: { type: [boolean, 'null'] }
+        control_reliance: { type: [boolean, 'null'] }
+        procedures: { type: [array, 'null'], items: { type: string }, description: 'The area''s procedure codes (others are dropped).' }
+        response: { type: [string, 'null'], maxLength: 2000 }
+        status: { type: [string, 'null'], enum: [suggested, accepted, dismissed, null] }
+    RiskRegister:
+      type: object
+      properties:
+        year: { type: integer }
+        risks:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              area: { type: string }
+              area_label: { type: string }
+              level: { type: [string, 'null'] }
+              description: { type: string }
+              assertions: { type: array, items: { type: string } }
+              likelihood: { type: [integer, 'null'] }
+              magnitude: { type: [integer, 'null'] }
+              inherent_rating: { type: [string, 'null'], enum: [low, medium, high, null] }
+              is_significant: { type: [boolean, 'null'] }
+              is_fraud: { type: [boolean, 'null'] }
+              control_reliance: { type: [boolean, 'null'] }
+              status: { type: string, enum: [suggested, accepted, dismissed] }
+              source: { type: [string, 'null'], description: 'The suggestion it came from; null when typed by hand.' }
+              procedures: { type: array, items: { type: string } }
+              response: { type: [string, 'null'] }
+              unanswered: { type: boolean, description: 'Significant and accepted with no test of details linked.' }
+              updated_at: { type: [string, 'null'] }
+        counts: { type: object, additionalProperties: { type: integer }, description: 'total, suggested, accepted, significant, unanswered.' }
+        areas: { type: object, additionalProperties: { type: string } }
+        assertions: { type: object, additionalProperties: { type: string } }
+        procedures: { type: object, description: 'Area → code → {text, type}.', additionalProperties: true }
+        can_manage: { type: boolean }
+    AuditProgram:
+      type: object
+      properties:
+        year: { type: integer }
+        areas:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            description: 'Also its lines, balance, prior, count, answered, progress, na, na_reason, conclusion, prepared, reviewed, standards, requirements, awaited, received…'
+            properties:
+              key: { type: string }
+              ref: { type: string, description: 'The letter code (EA, A, AA, R…).' }
+              code: { type: string, description: 'The old number (5100…).' }
+              title: { type: string }
+              status: { type: string, enum: [not_started, in_progress, completed, prepared, reviewed, na] }
+              significant: { type: boolean }
+              items:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+                  properties:
+                    code: { type: string, description: '01, 02… or the accountant''s own c1, c2…' }
+                    display: { type: string, description: 'A1, A2…' }
+                    text: { type: string }
+                    type: { type: string }
+                    custom: { type: boolean }
+                    status: { type: string, enum: [pending, done, exception, na] }
+        totals: { type: object, additionalProperties: true }
+        performance: { type: [number, 'null'] }
+        statuses: { type: object, additionalProperties: { type: string } }
+        types: { type: object, additionalProperties: { type: string } }
+        assertions: { type: object, additionalProperties: { type: string } }
+        can_manage: { type: boolean }
     EngagementStatus:
       type: object
       properties:
